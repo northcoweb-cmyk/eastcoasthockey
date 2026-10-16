@@ -290,7 +290,16 @@ section{scroll-margin-top:calc(var(--header-h) + 12px)}
 .cart-tot strong{font-size:23px;font-weight:800;letter-spacing:-.03em}
 .cart-foot .btn{width:100%}
 .cart-secure{display:flex;align-items:center;justify-content:center;gap:7px;font-size:12px;color:var(--slate);margin-top:12px}
-.cart-secure i{font-size:15px;color:#2EB67D}
+.cart-secure i{font-size:15px;color:#2C6FC4}
+.cart-foot{max-height:68vh;overflow-y:auto}
+.order-form{display:grid;gap:10px;margin-top:12px}
+.order-form label{display:grid;gap:4px;font-size:12.5px;font-weight:600}
+.order-form input,.order-form select,.order-form textarea{width:100%;min-height:42px;padding:9px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;font:inherit;font-weight:400;font-size:14px;outline:none}
+.order-form textarea{min-height:60px;resize:vertical}
+.order-form input:focus,.order-form select:focus,.order-form textarea:focus{border-color:var(--steel)}
+.order-form .hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+.order-done{text-align:center;padding:50px 22px}.order-done i{font-size:48px;color:#2EB67D;display:block;margin-bottom:12px}
+.order-done h4{font-size:1.2rem;margin-bottom:8px}.order-done p{color:var(--slate);font-size:14.5px}
 
 .reels{display:flex;gap:16px;max-width:1200px;margin:0 auto;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:4px 2px 18px;scrollbar-width:thin}
 .reels .reel{flex:0 0 min(62vw,240px);scroll-snap-align:start}
@@ -387,14 +396,6 @@ section{scroll-margin-top:calc(var(--header-h) + 12px)}
 .band p{color:rgba(255,255,255,.72);max-width:56ch;margin:0 auto 30px;font-size:clamp(1rem,1.3vw,1.12rem)}
 .band-actions{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
 
-.news{background:var(--ice);border-radius:var(--radius);padding:clamp(28px,4vw,48px);display:grid;grid-template-columns:1fr;gap:26px;align-items:center}
-@media(min-width:900px){.news{grid-template-columns:1.1fr .9fr;gap:48px}}
-.news h3{font-size:clamp(1.4rem,2.6vw,2rem);margin-bottom:10px}
-.news p{color:var(--slate);font-size:15.5px}
-.news-form{display:flex;flex-direction:column;gap:10px}
-@media(min-width:520px){.news-form{flex-direction:row}}
-.news-form input{flex:1;min-height:52px;padding:0 18px;border-radius:999px;border:1px solid #CFDDE9;font-size:15px;background:#fff;outline:none;width:100%;transition:border-color .18s,box-shadow .18s}
-.news-form input:focus{border-color:var(--steel);box-shadow:0 0 0 3px rgba(44,111,196,.18)}
 .msg{font-size:13.5px;margin-top:10px;min-height:20px}
 .msg.err{color:var(--red)}
 .msg.ok{color:#1D7A4C}
@@ -513,7 +514,7 @@ footer{background:var(--ink);color:rgba(255,255,255,.72);padding:clamp(48px,6vw,
         <img src="assets/logo.webp" alt="East Coast Hockey &amp; Skating Supply">
       </a>
       <nav class="nav-links" aria-label="Primary">
-        <a href="#shop">Shop</a>
+        <a href="#shop">In store</a>
         <a href="#teams">Team stores</a>
         <a href="#services">Services</a>
         <a href="#reels">Inside the shop</a>
@@ -523,7 +524,7 @@ footer{background:var(--ink);color:rgba(255,255,255,.72);padding:clamp(48px,6vw,
       </nav>
       <div class="nav-cta">
         <a href="tel:+13016048200" class="btn btn-ghost btn-sm"><i class="ti ti-phone"></i> Call</a>
-        <a href="https://forsportsmaryland.3dcartstores.com/" target="_blank" rel="noopener" class="btn btn-primary btn-sm"><i class="ti ti-shopping-bag"></i> Shop gear</a>
+        <a href="#locations" class="btn btn-primary btn-sm"><i class="ti ti-map-pin"></i> Find a shop</a>
         <button class="cart-btn" id="cartBtn" aria-label="Open cart"><i class="ti ti-shopping-cart"></i><span class="cart-count" id="cartCount">0</span></button>
         <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false"><i class="ti ti-menu-2"></i></button>
       </div>
@@ -537,7 +538,7 @@ footer{background:var(--ink);color:rgba(255,255,255,.72);padding:clamp(48px,6vw,
     <button class="burger" id="drawerClose" aria-label="Close menu"><i class="ti ti-x"></i></button>
   </div>
   <nav>
-    <a href="#shop">Shop gear <i class="ti ti-arrow-right"></i></a>
+    <a href="#locations">Find a shop <i class="ti ti-arrow-right"></i></a>
     <a href="#teams">Team stores <i class="ti ti-arrow-right"></i></a>
     <a href="#services">Skate services <i class="ti ti-arrow-right"></i></a>
     <a href="#reels">Inside the shop <i class="ti ti-arrow-right"></i></a>
@@ -549,7 +550,7 @@ footer{background:var(--ink);color:rgba(255,255,255,.72);padding:clamp(48px,6vw,
     <a href="#contact">Contact <i class="ti ti-arrow-right"></i></a>
   </nav>
   <div class="drawer-actions">
-    <a href="https://forsportsmaryland.3dcartstores.com/" target="_blank" rel="noopener" class="btn btn-primary"><i class="ti ti-shopping-bag"></i> Shop gear online</a>
+    <a href="#locations" class="btn btn-primary"><i class="ti ti-map-pin"></i> Find a shop</a>
     <a href="tel:+13016048200" class="btn btn-ghost"><i class="ti ti-phone"></i> (301) 604-8200</a>
   </div>
   <div class="drawer-contact">
@@ -628,10 +629,10 @@ footer{background:var(--ink);color:rgba(255,255,255,.72);padding:clamp(48px,6vw,
   </svg>
   <div class="wrap hero-inner">
     <div class="hero-pill rv"><span class="dot"></span> Source for Sports affiliate retailer · Three locations across Maryland</div>
-    <h1 class="h-display rv">Your Go-To Online Shop for <span class="accent">Hockey &amp; Skating Gear</span></h1>
-    <p class="sub rv">We combine our genuine love for the sport with extensive industry experience to ensure you feel confident and satisfied with every purchase.</p>
+    <h1 class="h-display rv">Your Local Pro Shop for <span class="accent">Hockey &amp; Skating Gear</span></h1>
+    <p class="sub rv">Skates, sticks and gear are sold in our three Maryland shops, where we fit, bake and sharpen them for you. Team jerseys and apparel are ordered right here on the site.</p>
     <div class="hero-actions rv">
-      <a href="https://forsportsmaryland.3dcartstores.com/" target="_blank" rel="noopener" class="btn btn-primary"><i class="ti ti-shopping-bag"></i> Shop gear online</a>
+      <a href="#locations" class="btn btn-primary"><i class="ti ti-map-pin"></i> Find a shop</a>
       <a href="#teams" class="btn btn-ghost"><i class="ti ti-shirt-sport"></i> Team stores</a>
     </div>
     <div class="hero-trust rv">
@@ -661,9 +662,9 @@ footer{background:var(--ink);color:rgba(255,255,255,.72);padding:clamp(48px,6vw,
       <div class="sec-head rv">
         <span class="eyebrow"><i class="ti ti-shopping-bag"></i> Shop</span>
         <h2 class="h-section">Everything you need on the ice</h2>
-        <p class="lede">Skates, steel, sticks, protective and figure gear. Every category runs through the store you already use, so your cart and checkout stay exactly where they are.</p>
+        <p class="lede">Skates, steel, sticks, protective and figure gear. Everything here is sold in our three shops, where we fit it to you.</p>
       </div>
-      <a href="https://forsportsmaryland.3dcartstores.com/" target="_blank" rel="noopener" class="btn btn-dark rv"><i class="ti ti-arrow-right"></i> Browse the full store</a>
+      <a href="#locations" class="btn btn-dark rv"><i class="ti ti-map-pin"></i> Find your nearest shop</a>
     </div>
     <div class="shop-grid" id="shopGrid"></div>
   </div>
@@ -731,8 +732,7 @@ footer{background:var(--ink);color:rgba(255,255,255,.72);padding:clamp(48px,6vw,
       <div class="ts-note" id="tsNote"><i class="ti ti-info-circle"></i><span></span></div>
       <div class="ts-note">
         <i class="ti ti-truck-delivery"></i>
-        <span>Decoration is done in house. Ship to your home or pick up at the shop — choose at checkout.
-        <a id="tsCatalog" href="https://forsportsmaryland.3dcartstores.com/" target="_blank" rel="noopener" class="ts-cat-link">See this team's full catalogue <i class="ti ti-external-link"></i></a></span>
+        <span>Decoration is done in house. Choose a pickup shop (or shipping) when you send your order request, and we'll confirm everything with you.</span>
       </div>
     </div>
   </div>
@@ -771,7 +771,7 @@ footer{background:var(--ink);color:rgba(255,255,255,.72);padding:clamp(48px,6vw,
 <section class="sec" style="padding-top:0">
   <div class="wrap">
     <div class="stats rv">
-      <div class="stat"><strong>4</strong><span>Locations open</span></div>
+      <div class="stat"><strong>3</strong><span>Maryland shops</span></div>
       <div class="stat"><strong>5</strong><span>Brands stocked and fit</span></div>
       <div class="stat"><strong>15 min</strong><span>Typical blade turnaround</span></div>
       <div class="stat"><strong>100%</strong><span>Sharpened by hand</span></div>
@@ -828,12 +828,11 @@ footer{background:var(--ink);color:rgba(255,255,255,.72);padding:clamp(48px,6vw,
     <div class="band rv">
       <div class="band-glow"></div>
       <span class="eyebrow" style="color:#fff;opacity:.8">Ready when you are</span>
-      <h2 class="h-section">Stop guessing your skate size online</h2>
-      <p>Bring your feet in and we'll fit you properly, or order from the store and we'll help you get it right over the phone.</p>
+      <h2 class="h-section">Stop guessing your skate size</h2>
+      <p>Bring your feet in and we'll fit you properly. Not sure which model or size? Call any shop and we'll walk you through it.</p>
       <div class="band-actions">
-        <a href="https://forsportsmaryland.3dcartstores.com/" target="_blank" rel="noopener" class="btn btn-primary"><i class="ti ti-shopping-bag"></i> Shop online</a>
+        <a href="#locations" class="btn btn-primary"><i class="ti ti-map-pin"></i> Find a shop</a>
         <a href="tel:+13016048200" class="btn btn-ondark"><i class="ti ti-phone"></i> (301) 604-8200</a>
-        <a href="#locations" class="btn btn-ondark"><i class="ti ti-map-pin"></i> Get directions</a>
       </div>
     </div>
   </div>
@@ -856,7 +855,7 @@ footer{background:var(--ink);color:rgba(255,255,255,.72);padding:clamp(48px,6vw,
               <select id="tp">
                 <option>Skate fitting or sizing</option>
                 <option>Sharpening, molding or repair</option>
-                <option>Gear question or online order</option>
+                <option>Gear or fitting question</option>
                 <option>Set up a team store</option>
                 <option>Something else</option>
               </select>
@@ -876,8 +875,7 @@ footer{background:var(--ink);color:rgba(255,255,255,.72);padding:clamp(48px,6vw,
           <a href="tel:+14106950000">Piney Orchard — (410) 695-0000</a>
         </div>
         <div class="contact-card"><h4><i class="ti ti-mail"></i> Email</h4><a href="mailto:hendrix1122@hotmail.com">hendrix1122@hotmail.com</a></div>
-        <div class="contact-card"><h4><i class="ti ti-shopping-cart"></i> Orders</h4>
-          <a href="https://forsportsmaryland.3dcartstores.com/" target="_blank" rel="noopener">Shop gear online</a>
+        <div class="contact-card"><h4><i class="ti ti-shirt-sport"></i> Team orders</h4>
           <a href="#teams">Team apparel stores</a>
         </div>
         <div class="contact-card"><h4><i class="ti ti-brand-instagram"></i> Follow</h4>
@@ -889,23 +887,6 @@ footer{background:var(--ink);color:rgba(255,255,255,.72);padding:clamp(48px,6vw,
   </div>
 </section>
 
-<section class="sec" style="padding-top:0">
-  <div class="wrap">
-    <div class="news rv">
-      <div>
-        <h3>New arrivals and deals, first</h3>
-        <p>Fresh Bauer, CCM and True drops, figure skate restocks and shop specials. No spam — just gear news.</p>
-      </div>
-      <div>
-        <form class="news-form" id="newsForm" novalidate>
-          <input type="email" id="newsEmail" placeholder="name@example.com" aria-label="Email address">
-          <button type="submit" class="btn btn-primary"><i class="ti ti-bell"></i> Subscribe</button>
-        </form>
-        <p class="msg" id="newsMsg" role="status"></p>
-      </div>
-    </div>
-  </div>
-</section>
 
 </main>
 
@@ -920,11 +901,10 @@ footer{background:var(--ink);color:rgba(255,255,255,.72);padding:clamp(48px,6vw,
           <a href="https://www.instagram.com/east.coast.hockey.and.skating/" target="_blank" rel="noopener" aria-label="Instagram"><i class="ti ti-brand-instagram"></i></a>
         </div>
       </div>
-      <div class="f-col"><h4>Shop</h4><ul>
-        <li><a href="https://forsportsmaryland.3dcartstores.com/" target="_blank" rel="noopener">All gear</a></li>
-        <li><a href="https://forsportsmaryland.3dcartstores.com/" target="_blank" rel="noopener">Hockey skates</a></li>
-        <li><a href="https://forsportsmaryland.3dcartstores.com/" target="_blank" rel="noopener">Steel and blades</a></li>
-        <li><a href="https://forsportsmaryland.3dcartstores.com/" target="_blank" rel="noopener">Figure skates</a></li>
+      <div class="f-col"><h4>In store</h4><ul>
+        <li><a href="#shop">What we carry</a></li>
+        <li><a href="#services">Skate services</a></li>
+        <li><a href="#locations">Find a shop</a></li>
         <li><a href="#teams">Team apparel</a></li>
       </ul></div>
       <div class="f-col"><h4>Explore</h4><ul>
@@ -952,7 +932,7 @@ footer{background:var(--ink);color:rgba(255,255,255,.72);padding:clamp(48px,6vw,
 <div class="mobile-bar" id="mobileBar">
   <a href="tel:+13016048200" class="btn btn-ghost"><i class="ti ti-phone"></i> Call</a>
   <a href="#teams" class="btn btn-dark"><i class="ti ti-shirt-sport"></i> Teams</a>
-  <a href="https://forsportsmaryland.3dcartstores.com/" target="_blank" rel="noopener" class="btn btn-primary"><i class="ti ti-shopping-bag"></i> Shop</a>
+  <a href="#locations" class="btn btn-primary"><i class="ti ti-map-pin"></i> Visit</a>
 </div>
 
 <div class="cart-scrim" id="cartScrim"></div>
@@ -964,15 +944,24 @@ footer{background:var(--ink);color:rgba(255,255,255,.72);padding:clamp(48px,6vw,
   <div class="cart-body" id="cartBody"></div>
   <div class="cart-foot">
     <div class="cart-tot"><span>Subtotal</span><strong id="cartTotal">$0.00</strong></div>
-    <button class="btn btn-primary" id="checkoutBtn" disabled><i class="ti ti-lock"></i> Secure checkout</button>
-    <p class="cart-secure"><i class="ti ti-shield-check"></i> Processed by your existing secure checkout</p>
+    <button class="btn btn-primary" id="checkoutBtn" disabled><i class="ti ti-send"></i> Request this order</button>
+    <form id="orderForm" class="order-form" hidden novalidate>
+      <label>Your name<input name="name" autocomplete="name" maxlength="80"></label>
+      <label>Email<input name="email" type="email" autocomplete="email" maxlength="120"></label>
+      <label>Phone (optional)<input name="phone" type="tel" autocomplete="tel" maxlength="30"></label>
+      <label>Pickup<select name="pickup" id="orderPickup"></select></label>
+      <label>Notes (optional)<textarea name="notes" maxlength="500" rows="2"></textarea></label>
+      <input name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <button type="submit" class="btn btn-dark" id="orderSend"><i class="ti ti-check"></i> Send order request</button>
+      <p class="msg" id="orderMsg" role="status"></p>
+    </form>
+    <p class="cart-secure"><i class="ti ti-info-circle"></i> No payment is taken online. We confirm your order and payment with you directly.</p>
   </div>
 </aside>
 
 <script>
 (function(){
 'use strict';
-var STORE='https://forsportsmaryland.3dcartstores.com/', CHECKOUT='https://forsportsmaryland.3dcartstores.com/checkout';
 
 var A={ccm:'assets/ccm.webp',bauer:'assets/bauer.webp',sharp:'assets/sharp.webp',mold:'assets/mold.webp',laurel:'assets/laurel.webp',rockville:'assets/rockville.webp',piney:'assets/piney.webp',sticks:'assets/sticks.webp',figure:'assets/figure.webp',logo:'assets/logo.webp'};
 
@@ -1038,10 +1027,10 @@ var LOCS=[
 var FAQ=[
   {t:'Do I need an appointment for a fitting or sharpening?',p:'No. Walk in during shop hours and we will take care of you. For a full fitting on a busy weekend, calling ahead means less waiting.',l:[]},
   {t:'How long does a sharpening take?',p:'Usually a few minutes. During a game rush it can be longer, but we regularly turn blade swaps and sharpenings around in about 15 minutes.',l:[]},
-  {t:'Should I just order skates online?',p:'Skate sizing does not match shoe sizing, and it varies between Bauer, CCM, True, Jackson and Edea. That mismatch is the single most common problem we fix. Order online if you already know your exact model and size — otherwise come in, or call and we will walk you through it.',l:[]},
+  {t:'Do you sell skates and gear online?',p:'No. Skates, sticks and gear are sold in our three shops, because skate sizing does not match shoe sizing and it varies between Bauer, CCM, True, Jackson and Edea. Come in and we will fit you properly, or call and we will walk you through it. Team jerseys and apparel are the one thing you can order here on the site.',l:[]},
   {t:'Do you work on figure skates too?',p:'Yes. Boot work, blade mounting, sharpening and fitting for figure skaters at every level, with Jackson and Edea in stock.',l:[]},
-  {t:'How do team stores work?',p:'Find your program in the team store section above, pick your gear and check out. Families order and pay individually, and we handle decoration and fulfillment. If your program is not listed, message us and we will build it.',l:[]},
-  {t:'Is checkout secure?',p:'Yes. Gear and team apparel orders both run through the same secure checkout the shop already uses. Nothing about payment changes.',l:[]}
+  {t:'How do team stores work?',p:'Find your program in the team store section above, pick your gear, name and number, and send your order request. Families order individually, and we handle decoration and fulfillment. If your program is not listed, message us and we will build it.',l:[]},
+  {t:'How do I pay for a team order?',p:'Nothing is charged on the website. After you send your order request, we contact you to confirm the details and arrange payment.',l:[]}
 ];
 
 /* ===== REAL TEAM STORES — live categories on the For Sports store =====
@@ -1058,11 +1047,9 @@ var DEFAULT_ITEMS=[
   {k:'bag',n:'Equipment Bag',ic:'ti-briefcase',price:79,tag:'',pers:true}
 ];
 var SIZES=['YS','YM','YL','S','M','L','XL','2XL'];
-var STORE_BASE='https://forsportsmaryland.3dcartstores.com';
 var TEAMS=[
   {id:'navy-youth',n:'Navy Youth Hockey',cat:'Youth hockey',c1:'#041E42',c2:'#C8A951',status:'open',
    logo:'assets/teams/navy-youth-hockey.jpg',
-   url:STORE_BASE+'/Navy-Youth-Hockey_c_47.html',
    note:'All Navy Youth Hockey apparel includes the Navy Youth Hockey logo. Check each item for player name and number options.',
    items:[
      {k:'mite-jersey',n:'MITE Jersey (Blue)',ic:'ti-shirt-sport',price:75,tag:'Game wear',pers:true},
@@ -1070,25 +1057,19 @@ var TEAMS=[
      {k:'academy-jersey',n:'ACADEMY Jersey',ic:'ti-shirt-sport',price:75,tag:'Game wear',pers:true}
    ]},
   {id:'richmond-hc',n:'Richmond Hockey Club',cat:'Youth hockey',c1:'#05080f',c2:'#0B2545',status:'open',
-   logo:'assets/teams/richmond-hockey-club.webp',dark:true,
-   url:STORE_BASE+'/Richmond-Hockey-Club_c_63.html'},
+   logo:'assets/teams/richmond-hockey-club.webp',dark:true},
   {id:'tri-city',n:'Tri-City Eagles',cat:'Youth hockey',c1:'#046A38',c2:'#FFC72C',status:'open',
-   logo:'assets/teams/tri-city-eagles.png',
-   url:STORE_BASE+'/Tri-City-Eagles_c_69.html'},
+   logo:'assets/teams/tri-city-eagles.png'},
   {id:'howard-huskies',n:'Howard Huskies',cat:'Youth hockey',c1:'#0033A0',c2:'#101820',status:'open',
    logo:'assets/teams/howard-huskies.png',
-   url:STORE_BASE+'/Howard-Huskies_c_75.html',
    note:'All items have the Howard Huskies logo embroidered, screen printed or heat pressed on — included in the price. Sizing information is on each product page.'},
   {id:'baltimore-stars',n:'Baltimore Stars Hockey',cat:'Youth hockey',c1:'#101820',c2:'#FDB927',status:'open',
-   logo:'assets/teams/baltimore-stars.webp',
-   url:STORE_BASE+'/Baltimore-Stars-Hockey_c_87.html'},
+   logo:'assets/teams/baltimore-stars.webp'},
   {id:'so-md-sabres',n:'Southern Maryland Sabres',cat:'Youth hockey',c1:'#002654',c2:'#FCB514',status:'open',
    logo:'assets/teams/southern-maryland-sabres.webp',
-   url:STORE_BASE+'/Southern-Maryland-Sabres_c_90.html',
    note:'For Sports is proud to be the official team supplier of the Southern Maryland Sabres.'},
   {id:'easton-ice-hawks',n:'Easton Ice Hawks',cat:'Youth hockey',c1:'#C8102E',c2:'#041E42',status:'open',
-   logo:'assets/teams/easton-ice-hawks.png',
-   url:STORE_BASE+'/Easton-Ice-Hawks_c_91.html'}
+   logo:'assets/teams/easton-ice-hawks.png'}
 ];
 
 function $(s,r){return (r||document).querySelector(s);}
@@ -1119,10 +1100,10 @@ drawer.querySelectorAll('a').forEach(function(a){a.addEventListener('click',func
 
 function renderShop(){
   $('#shopGrid').innerHTML=SHOP.map(function(s){
-    return '<a class="shop-card rv" href="'+STORE+'" target="_blank" rel="noopener">'+
+    return '<a class="shop-card rv" href="#locations">'+
       '<img src="'+s.img+'" alt="'+s.t.replace(/&amp;/g,'and')+'" loading="lazy">'+
       '<div class="shop-body"><h3>'+s.t+'</h3><p>'+s.d+'</p>'+
-      '<span class="shop-link">Shop now <i class="ti ti-arrow-right"></i></span></div></a>';
+      '<span class="shop-link">Find it in store <i class="ti ti-arrow-right"></i></span></div></a>';
   }).join('');
 }
 renderShop();window.__ecShop=function(){renderShop();document.querySelectorAll('#shopGrid .rv').forEach(function(n){n.classList.add('in');});};
@@ -1211,7 +1192,6 @@ var cart=[];
     }).join('');
     var nb=$('#tsNote');
     nb.innerHTML='<i class="ti ti-info-circle"></i><span>'+esc(t.note||'All items carry the '+t.n+' logo, decorated in house and included in the price.')+'</span>';
-    $('#tsCatalog').href=t.url;
     $('#prodGrid').querySelectorAll('.prod').forEach(function(card){
       card.querySelectorAll('.size-btn').forEach(function(sb){
         sb.addEventListener('click',function(){
@@ -1263,7 +1243,7 @@ function addToCart(team,g,size,first,last,num){
   var key=[team.id,g.k,size,first,last,num].join('|');
   var f=cart.filter(function(c){return c.key===key;})[0];
   if(f)f.qty++;
-  else cart.push({key:key,team:team.n,teamId:team.id,c1:team.c1,c2:team.c2,name:g.n,ic:g.ic,
+  else cart.push({key:key,team:team.n,teamId:team.id,k:g.k,c1:team.c1,c2:team.c2,name:g.n,ic:g.ic,
     size:size,price:g.price,qty:1,first:first||'',last:last||'',num:num||''});
   renderCart();openCart(true);
 }
@@ -1311,14 +1291,28 @@ function renderCart(){
 }
 renderCart();
 
+/* team order request: saved on the site for the shop to follow up; no payment is taken online */
+var orderForm=$('#orderForm');
+$('#orderPickup').innerHTML=LOCS.map(function(l){return '<option>'+esc(l.n)+'</option>';}).join('')+'<option>Ship to me</option>';
 $('#checkoutBtn').addEventListener('click',function(){
-  /* Hands off to the shop's EXISTING checkout. No new processor.
-     Swap this query string for the store's real add-to-cart params
-     once product IDs are wired into GARMENTS/TEAMS. */
-  var payload=cart.map(function(c){
-    return [c.teamId,c.name,c.size,c.first,c.last,c.num,c.qty].join(':');
-  }).join(',');
-  window.open(CHECKOUT+'?order='+encodeURIComponent(payload),'_blank','noopener');
+  orderForm.hidden=!orderForm.hidden;
+  if(!orderForm.hidden){orderForm.querySelector('input[name=name]').focus();orderForm.scrollIntoView({block:'nearest',behavior:'smooth'});}
+});
+orderForm.addEventListener('submit',function(e){
+  e.preventDefault();
+  var f=orderForm.elements,msg=$('#orderMsg'),btn=$('#orderSend');
+  if(!cart.length){msg.className='msg err';msg.textContent='Your order is empty.';return;}
+  msg.className='msg';msg.textContent='';btn.disabled=true;
+  fetch('/api/order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    website:f.website.value,
+    contact:{name:f.name.value,email:f.email.value,phone:f.phone.value,pickup:f.pickup.value,notes:f.notes.value},
+    items:cart.map(function(c){return {teamId:c.teamId,k:c.k,size:c.size,qty:c.qty,first:c.first,last:c.last,num:c.num};})
+  })}).then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error(j.error||'Could not send your order.');return j;});})
+  .then(function(j){
+    var email=f.email.value;cart.length=0;renderCart();orderForm.reset();orderForm.hidden=true;
+    $('#cartBody').innerHTML='<div class="order-done"><i class="ti ti-circle-check"></i><h4>Order request received</h4><p>Reference <strong>#'+esc(j.id)+'</strong>. We will contact you at '+esc(email)+' to confirm the details and arrange payment.</p></div>';
+  }).catch(function(err){msg.className='msg err';msg.textContent=err.message||'Could not send your order. Please call the shop.';})
+  .then(function(){btn.disabled=false;});
 });
 
 /* reels */
@@ -1471,13 +1465,6 @@ $('#checkoutBtn').addEventListener('click',function(){
     msg.className='msg ok';msg.textContent='Thanks — your message is ready to send. Connect this form to the shop inbox to go live.';
     f.reset();
   });
-  var nf=$('#newsForm'),nm=$('#newsMsg');
-  nf.addEventListener('submit',function(e){
-    e.preventDefault();
-    if(!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test($('#newsEmail').value.trim())){nm.className='msg err';nm.textContent='Enter a valid email address.';return;}
-    nm.className='msg ok';nm.textContent="You're on the list. Watch for new arrivals.";
-    nf.reset();
-  });
 })();
 
 (function(){
@@ -1609,7 +1596,7 @@ document.addEventListener('pointerdown',function(e){
     if(window.__ecShop)window.__ecShop();
     /* team stores */
     var teams=(c.teams||[]).filter(function(t){return !t.hidden;}).map(function(t){
-      return {id:t.id,n:t.n,cat:t.cat,status:t.status,logo:t.logo||'',dark:!!t.dark,c1:t.c1,c2:t.c2,url:t.url,note:t.note||'',
+      return {id:t.id,n:t.n,cat:t.cat,status:t.status,logo:t.logo||'',dark:!!t.dark,c1:t.c1,c2:t.c2,note:t.note||'',
         items:t.items.filter(function(i){return !i.hidden;}).map(function(i){return {k:i.k,n:i.n,ic:i.ic,price:i.price,tag:i.tag,pers:i.pers,img:i.img||''};})};
     });
     TEAMS.length=0;teams.forEach(function(t){TEAMS.push(t);});

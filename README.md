@@ -11,7 +11,7 @@ Static site (`index.html`, no build step) on Vercel, plus a small admin portal.
 
 ## Admin portal
 
-Sign in at `/admin`. Easy edits only: announcement bar, homepage headline, contact email, location
+Sign in at `/admin`. Easy edits only (plus a list of team order requests under the Orders tab): announcement bar, homepage headline, contact email, location
 addresses and phones, shop category cards, and team stores (logo, details, products, show/hide).
 
 **Test login:** `Mike` / `1234`. This is only for testing. Before real use, set these in
@@ -27,3 +27,9 @@ Vercel → Project → Settings → Environment Variables and redeploy:
 `BLOB_READ_WRITE_TOKEN` automatically. Private stores are supported (the default). If your store is public, also set
 `BLOB_ACCESS=public`. Uploaded images are served through `/api/img` either way. Without it the portal still runs but edits do not persist, and the
 portal shows a warning.
+
+## Team orders
+
+The site does not sell gear online. Families send **team-store order requests** from the cart; these are saved in the
+Blob store (`orders/`) and shown under **Orders** in the admin. No payment is processed on the site; the shop contacts
+the family to confirm and take payment.

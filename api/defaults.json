@@ -6,9 +6,9 @@
   "link": ""
  },
  "hero": {
-  "lead": "Your Go-To Online Shop for",
+  "lead": "Your Local Pro Shop for",
   "accent": "Hockey & Skating Gear",
-  "sub": "We combine our genuine love for the sport with extensive industry experience to ensure you feel confident and satisfied with every purchase."
+  "sub": "Skates, sticks and gear are sold in our three Maryland shops, where we fit, bake and sharpen them for you. Team jerseys and apparel are ordered right here on the site."
  },
  "contact": {
   "email": "hendrix1122@hotmail.com"
@@ -70,7 +70,7 @@
    "dark": false,
    "c1": "#041E42",
    "c2": "#C8A951",
-   "url": "https://forsportsmaryland.3dcartstores.com/Navy-Youth-Hockey_c_47.html",
+   "url": "",
    "note": "All Navy Youth Hockey apparel includes the Navy Youth Hockey logo. Check each item for player name and number options.",
    "hidden": false,
    "items": [
@@ -112,7 +112,7 @@
    "dark": true,
    "c1": "#05080f",
    "c2": "#0B2545",
-   "url": "https://forsportsmaryland.3dcartstores.com/Richmond-Hockey-Club_c_63.html",
+   "url": "",
    "note": "",
    "hidden": false,
    "items": [
@@ -199,7 +199,7 @@
    "dark": false,
    "c1": "#046A38",
    "c2": "#FFC72C",
-   "url": "https://forsportsmaryland.3dcartstores.com/Tri-City-Eagles_c_69.html",
+   "url": "",
    "note": "",
    "hidden": false,
    "items": [
@@ -286,7 +286,7 @@
    "dark": false,
    "c1": "#0033A0",
    "c2": "#101820",
-   "url": "https://forsportsmaryland.3dcartstores.com/Howard-Huskies_c_75.html",
+   "url": "",
    "note": "All items have the Howard Huskies logo embroidered, screen printed or heat pressed on \u2014 included in the price. Sizing information is on each product page.",
    "hidden": false,
    "items": [
@@ -373,7 +373,7 @@
    "dark": false,
    "c1": "#101820",
    "c2": "#FDB927",
-   "url": "https://forsportsmaryland.3dcartstores.com/Baltimore-Stars-Hockey_c_87.html",
+   "url": "",
    "note": "",
    "hidden": false,
    "items": [
@@ -460,7 +460,7 @@
    "dark": false,
    "c1": "#002654",
    "c2": "#FCB514",
-   "url": "https://forsportsmaryland.3dcartstores.com/Southern-Maryland-Sabres_c_90.html",
+   "url": "",
    "note": "For Sports is proud to be the official team supplier of the Southern Maryland Sabres.",
    "hidden": false,
    "items": [
@@ -547,7 +547,7 @@
    "dark": false,
    "c1": "#C8102E",
    "c2": "#041E42",
-   "url": "https://forsportsmaryland.3dcartstores.com/Easton-Ice-Hawks_c_91.html",
+   "url": "",
    "note": "",
    "hidden": false,
    "items": [

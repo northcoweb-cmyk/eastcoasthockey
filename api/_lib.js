@@ -199,6 +199,51 @@ async function getImage(pathname) {
   const { get } = require('@vercel/blob');
   return get(pathname, Object.assign({ access: ACCESS }, T));
 }
+/* ---- small private JSON store for orders (Blob in production, temp files locally) ---- */
+const ORDERS_DIR = path.join(os.tmpdir(), 'ec-orders');
+const store = {
+  async put(pathname, obj) {
+    if (hasBlob) {
+      const { put } = require('@vercel/blob');
+      await put(pathname, JSON.stringify(obj), Object.assign({ access: ACCESS, contentType: 'application/json', addRandomSuffix: false, allowOverwrite: true }, T));
+    } else {
+      fs.mkdirSync(ORDERS_DIR, { recursive: true });
+      fs.writeFileSync(path.join(ORDERS_DIR, pathname.replace(/\//g, '__')), JSON.stringify(obj));
+    }
+  },
+  async get(pathname) {
+    try {
+      if (hasBlob) {
+        const { get } = require('@vercel/blob');
+        const r = await get(pathname, Object.assign({ access: ACCESS, useCache: false }, T));
+        return r && r.stream ? JSON.parse(await streamText(r.stream)) : null;
+      }
+      return JSON.parse(fs.readFileSync(path.join(ORDERS_DIR, pathname.replace(/\//g, '__')), 'utf8'));
+    } catch (e) { return null; }
+  },
+  async list(prefix) {
+    if (hasBlob) {
+      const { list } = require('@vercel/blob');
+      const out = []; let cursor;
+      do {
+        const r = await list(Object.assign({ prefix: prefix, limit: 200, cursor: cursor }, T));
+        r.blobs.forEach(function (b) { out.push(b.pathname); });
+        cursor = r.hasMore ? r.cursor : null;
+      } while (cursor && out.length < 1000);
+      return out;
+    }
+    try { return fs.readdirSync(ORDERS_DIR).map(function (f) { return f.replace(/__/g, '/'); }).filter(function (p) { return p.indexOf(prefix) === 0; }); } catch (e) { return []; }
+  },
+  async del(pathname) {
+    if (hasBlob) {
+      const { list, del } = require('@vercel/blob');
+      const r = await list(Object.assign({ prefix: pathname, limit: 2 }, T));
+      const b = r.blobs.filter(function (x) { return x.pathname === pathname; });
+      if (b.length) await del(b.map(function (x) { return x.url; }), T);
+    } else { try { fs.unlinkSync(path.join(ORDERS_DIR, pathname.replace(/\//g, '__'))); } catch (e) { /* none */ } }
+  }
+};
+
 async function getContent() {
   const saved = await loadSaved();
   return saved ? clean(saved) : JSON.parse(JSON.stringify(DEFAULTS));
@@ -251,7 +296,7 @@ function clean(c) {
     return {
       id: id, n: str(t.n, 60) || 'New team', cat: str(t.cat, 30) || 'Youth hockey',
       status: t.status === 'soon' ? 'soon' : 'open', logo: url(t.logo), dark: !!t.dark,
-      c1: color(t.c1, '#12305C'), c2: color(t.c2, '#2C6FC4'), url: link(t.url) || D.teams[0].url.replace(/\/[^/]*$/, '/'),
+      c1: color(t.c1, '#12305C'), c2: color(t.c2, '#2C6FC4'), url: '',
       note: str(t.note, 240), hidden: !!t.hidden,
       items: (Array.isArray(t.items) ? t.items : []).slice(0, 40).map(function (it, ii) {
         it = it || {};
@@ -266,4 +311,4 @@ function clean(c) {
 }
 
 module.exports = { sign, verify, json, readBody, checkLogin, setSession, clearSession, session, requireAdmin, lockedMinutes, noteFail, clearFails, clientIp,
-  getContent, saveContent, resetContent, putImage, getImage, clean, hasBlob, TOKEN_KEY, USING_TEST_LOGIN, DEFAULTS };
+  store, getContent, saveContent, resetContent, putImage, getImage, clean, hasBlob, TOKEN_KEY, USING_TEST_LOGIN, DEFAULTS };

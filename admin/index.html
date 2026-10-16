@@ -132,8 +132,9 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px 90px}
     <div class="tabs" role="tablist" id="tabs">
       <button class="tab on" data-tab="home">Home &amp; banner</button>
       <button class="tab" data-tab="locs">Locations &amp; contact</button>
-      <button class="tab" data-tab="shop">Shop categories</button>
+      <button class="tab" data-tab="shop">In-store categories</button>
       <button class="tab" data-tab="teams">Team stores</button>
+      <button class="tab" data-tab="orders">Orders <span class="pill" id="orderBadge" style="display:none;background:#E00A1E;color:#fff;margin-left:4px">0</span></button>
     </div>
   </div>
 
@@ -175,8 +176,8 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px 90px}
 
     <section id="p-shop" class="hide">
       <div class="card">
-        <h2>Shop categories</h2>
-        <p class="d">The category cards in the homepage Shop section. You can change the name, description and photo.</p>
+        <h2>In-store categories</h2>
+        <p class="d">The category cards in the homepage “In store” section (what you carry in your shops). You can change the name, description and photo.</p>
         <div id="shopList"></div>
       </div>
     </section>
@@ -191,7 +192,17 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px 90px}
       <div id="teamList"></div>
     </section>
 
-    <div class="card" style="margin-top:26px">
+    <section id="p-orders" class="hide">
+      <div class="card">
+        <div class="row" style="justify-content:space-between">
+          <div><h2>Team order requests</h2><p class="d" style="margin:0">Orders families send from the team stores. No payment is taken on the site: contact each family to confirm and arrange payment, then mark it done.</p></div>
+          <button class="btn btn-g btn-s" id="refreshOrders"><i class="ti ti-refresh"></i> Refresh</button>
+        </div>
+      </div>
+      <div id="orderList"></div>
+    </section>
+
+    <div class="card" style="margin-top:26px" id="resetCard">
       <h2>Start over</h2>
       <p class="d">Put everything back to how the site was originally built. This replaces all your saved edits.</p>
       <button class="btn btn-g btn-s danger" id="resetAll"><i class="ti ti-restore"></i> Reset all content</button>
@@ -244,7 +255,7 @@ function showApp(me){
   persistent=me.persistent;
   $('#warnStore').classList.toggle('hide',persistent);
   $('#warnTest').classList.toggle('hide',!me.testLogin);
-  return fetch('/api/content',{cache:'no-store'}).then(function(r){return r.json();}).then(function(c){C=c;saved=JSON.stringify(C);renderAll();markDirty();});
+  return fetch('/api/content',{cache:'no-store'}).then(function(r){return r.json();}).then(function(c){C=c;saved=JSON.stringify(C);renderAll();markDirty();}).then(function(){api('/api/orders').then(function(r){var n=r.orders.filter(function(o){return o.status!=='done';}).length,bd=$('#orderBadge');bd.textContent=n;bd.style.display=n?'inline-block':'none';}).catch(function(){});});
 }
 $('#loginForm').addEventListener('submit',function(e){
   e.preventDefault();var f=e.target,b=$('#loginBtn');b.disabled=true;$('#loginErr').textContent='';
@@ -263,7 +274,9 @@ api('/api/me').then(showApp).catch(function(){});
 $('#tabs').addEventListener('click',function(e){
   var t=e.target.closest('.tab');if(!t)return;
   document.querySelectorAll('.tab').forEach(function(x){x.classList.toggle('on',x===t);});
-  ['home','locs','shop','teams'].forEach(function(k){$('#p-'+k).classList.toggle('hide',k!==t.dataset.tab);});
+  ['home','locs','shop','teams','orders'].forEach(function(k){$('#p-'+k).classList.toggle('hide',k!==t.dataset.tab);});
+  $('#resetCard').classList.toggle('hide',t.dataset.tab==='orders');
+  if(t.dataset.tab==='orders')loadOrders();
 });
 
 /* ---------- save / discard / reset ---------- */
@@ -375,10 +388,9 @@ function teamCard(t,ti){
   var card=h('div',{class:'team'+(open?' open':'')+(t.hidden?' is-hidden':'')},[head,body]);
 
   /* basics */
-  var n=h('input',{class:'in',maxlength:'60'}),cat=h('input',{class:'in',maxlength:'30',list:'cats'}),url=h('input',{class:'in',inputmode:'url',placeholder:'https://…'}),note=h('textarea',{class:'in',maxlength:'240',style:'min-height:70px',placeholder:'Optional message shown under the products'});
+  var n=h('input',{class:'in',maxlength:'60'}),cat=h('input',{class:'in',maxlength:'30',list:'cats'}),note=h('textarea',{class:'in',maxlength:'240',style:'min-height:70px',placeholder:'Optional message shown under the products'});
   bind(n,function(){return t.n;},function(v){t.n=v;head.querySelector('.n').textContent=v||'Team';});
   bind(cat,function(){return t.cat;},function(v){t.cat=v;});
-  bind(url,function(){return t.url;},function(v){t.url=v;});
   bind(note,function(){return t.note;},function(v){t.note=v;});
   var show=h('input',{type:'checkbox'}),soon=h('input',{type:'checkbox'});
   bindChk(show,function(){return !t.hidden;},function(v){t.hidden=!v;card.classList.toggle('is-hidden',!v);});
@@ -395,7 +407,6 @@ function teamCard(t,ti){
   body.appendChild(h('div',{class:'row',style:'margin:18px 0 6px;gap:26px'},[
     h('label',{class:'sw'},[show,h('span',{class:'tr'}),' Show on the website']),
     h('label',{class:'sw'},[soon,h('span',{class:'tr'}),' Mark as “coming soon”'])]));
-  body.appendChild(h('label',{class:'f',style:'margin-top:14px'},[h('span',{text:'Full catalogue link'}),url]));
   body.appendChild(h('label',{class:'f'},[h('span',{text:'Message to families'}),note]));
 
   /* products */
@@ -442,11 +453,45 @@ function teamCard(t,ti){
 $('#addTeam').addEventListener('click',function(){
   var base=slug('new-team'),id=base,i=1;while(C.teams.some(function(t){return t.id===id;}))id=base+'-'+(++i);
   var tpl=C.teams.length?C.teams[C.teams.length-1].items:[];
-  C.teams.push({id:id,n:'New team',cat:'Youth hockey',status:'open',logo:'',dark:false,c1:'#12305C',c2:'#2C6FC4',url:C.teams.length?C.teams[0].url.replace(/\/[^/]*$/,'/'):'https://forsportsmaryland.3dcartstores.com/',note:'',hidden:true,
+  C.teams.push({id:id,n:'New team',cat:'Youth hockey',status:'open',logo:'',dark:false,c1:'#12305C',c2:'#2C6FC4',url:'',note:'',hidden:true,
     items:tpl.map(function(it,k){return {k:'item-'+k+'-'+Date.now().toString(36),n:it.n,ic:it.ic,price:it.price,tag:it.tag,pers:it.pers,hidden:false};})});
   openTeams[id]=true;renderTeams();markDirty();toast('Team added (hidden). Add a logo, then switch it on.');
   var last=$('#teamList').lastElementChild;if(last)last.scrollIntoView({behavior:'smooth',block:'center'});
 });
+/* ---------- orders ---------- */
+function money(n){return '$'+Number(n).toFixed(2);}
+function loadOrders(){
+  var box=$('#orderList');
+  api('/api/orders').then(function(r){
+    box.innerHTML='';
+    var open=r.orders.filter(function(o){return o.status!=='done';}).length;
+    var bd=$('#orderBadge');bd.textContent=open;bd.style.display=open?'inline-block':'none';
+    if(!r.orders.length){box.appendChild(h('div',{class:'card',text:'No order requests yet.'}));return;}
+    r.orders.forEach(function(o){box.appendChild(orderCard(o));});
+  }).catch(function(e){box.innerHTML='';box.appendChild(h('div',{class:'card',text:e.message}));});
+}
+function orderCard(o){
+  var c=o.contact,done=o.status==='done';
+  var when=new Date(o.createdAt).toLocaleString([], {dateStyle:'medium',timeStyle:'short'});
+  var lines=o.items.map(function(i){
+    var who=(i.first||i.last||i.num)?' — '+[i.first,i.last].filter(Boolean).join(' ')+(i.num?' #'+i.num:''):'';
+    return h('li',{text:i.qty+' × '+i.team+' · '+i.name+' ('+i.size+')'+who+' — '+money(i.price*i.qty)});
+  });
+  var card=h('div',{class:'card'+(done?' is-hidden':''),style:done?'opacity:.6':''},[
+    h('div',{class:'row',style:'justify-content:space-between;align-items:flex-start'},[
+      h('div',{},[h('h2',{text:c.name+' · #'+o.id.slice(-6).toUpperCase()}),h('p',{class:'d',style:'margin:0',text:when+' · Pickup: '+c.pickup})]),
+      h('span',{class:'pill'+(done?' off':' soon'),text:done?'Done':'New'})]),
+    h('p',{style:'margin:12px 0 6px;font-size:14px'},[h('a',{href:'mailto:'+c.email,text:c.email}),c.phone?' · ':'',c.phone?h('a',{href:'tel:'+c.phone.replace(/[^\d+]/g,''),text:c.phone}):null]),
+    h('ul',{style:'margin:8px 0 8px 18px;font-size:14px;line-height:1.7'},lines),
+    c.notes?h('p',{style:'font-size:14px;color:#5A6B7C;margin-bottom:8px',text:'Notes: '+c.notes}):null,
+    h('div',{class:'row',style:'justify-content:space-between;margin-top:10px'},[
+      h('strong',{text:'Total '+money(o.total)}),
+      h('div',{class:'row',style:'gap:8px'},[
+        h('button',{class:'btn btn-g btn-s',type:'button',onclick:function(){api('/api/orders?id='+o.id,{method:'PUT',body:JSON.stringify({status:done?'new':'done'})}).then(loadOrders).catch(function(e){toast(e.message,true);});}},done?'Reopen':'Mark done'),
+        h('button',{class:'btn btn-g btn-s danger',type:'button',onclick:function(){if(confirm('Delete this order request?'))api('/api/orders?id='+o.id,{method:'DELETE'}).then(loadOrders).catch(function(e){toast(e.message,true);});}},'Delete')])])]);
+  return card;
+}
+$('#refreshOrders').addEventListener('click',loadOrders);
 document.body.appendChild(h('datalist',{id:'cats'},['Youth hockey','College','High school','Adult league','Figure skating'].map(function(c){return h('option',{value:c});})));
 })();
 </script>
