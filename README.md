@@ -24,5 +24,6 @@ Vercel → Project → Settings → Environment Variables and redeploy:
 | `ADMIN_SECRET` | random string used to sign sessions |
 
 **Saving edits permanently:** connect a Vercel Blob store (Project → Storage → Blob → Connect). This adds
-`BLOB_READ_WRITE_TOKEN` automatically. Without it the portal still runs but edits do not persist, and the
+`BLOB_READ_WRITE_TOKEN` automatically. Private stores are supported (the default). If your store is public, also set
+`BLOB_ACCESS=public`. Uploaded images are served through `/api/img` either way. Without it the portal still runs but edits do not persist, and the
 portal shows a warning.

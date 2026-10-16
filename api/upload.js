@@ -13,9 +13,8 @@ module.exports = async function (req, res) {
     const buf = Buffer.from(m[3], 'base64');
     if (buf.length > 1.5 * 1024 * 1024) return L.json(res, 400, { error: 'That image is too large.' });
     if (!L.hasBlob) return L.json(res, 501, { error: 'Image storage is not connected yet. Ask your developer to add a Vercel Blob store.' });
-    const { put } = require('@vercel/blob');
     const ext = m[2] === 'jpeg' ? 'jpg' : m[2];
-    const r = await put('uploads/' + crypto.randomBytes(8).toString('hex') + '.' + ext, buf, { access: 'public', contentType: m[1], addRandomSuffix: false });
-    return L.json(res, 200, { url: r.url });
-  } catch (e) { return L.json(res, 500, { error: 'Upload failed. Try again.' }); }
+    const url = await L.putImage(crypto.randomBytes(8).toString('hex') + '.' + ext, buf, m[1]);
+    return L.json(res, 200, { url: url });
+  } catch (e) { console.error('upload failed', e); return L.json(res, 500, { error: 'Upload failed. Try again.' }); }
 };

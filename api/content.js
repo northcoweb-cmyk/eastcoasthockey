@@ -24,6 +24,7 @@ module.exports = async function (req, res) {
     res.setHeader('Allow', 'GET, PUT, DELETE');
     return L.json(res, 405, { error: 'Method not allowed' });
   } catch (e) {
+    console.error('content api failed', e);
     return L.json(res, 500, { error: 'Something went wrong saving. Try again.' });
   }
 };

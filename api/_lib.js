@@ -106,19 +106,22 @@ function readBody(req, limit) {
   });
 }
 
-/* ---- storage: Vercel Blob when connected, local temp file otherwise ---- */
+/* ---- storage: Vercel Blob when connected, local temp file otherwise ----
+   Works with both private and public Blob stores. Set BLOB_ACCESS=public if your store is public;
+   the default is private. Uploaded images are always served through /api/img so they work either way. */
 const BLOB_PATH = 'site/content.json';
 const hasBlob = !!process.env.BLOB_READ_WRITE_TOKEN;
 const TMP_FILE = path.join(os.tmpdir(), 'ec-content.json');
+const ACCESS = process.env.BLOB_ACCESS === 'public' ? 'public' : 'private';
+
+async function streamText(stream) { return new Response(stream).text(); }
 
 async function loadSaved() {
   if (hasBlob) {
-    const { list } = require('@vercel/blob');
-    const r = await list({ prefix: BLOB_PATH, limit: 1 });
-    const b = r.blobs.find(function (x) { return x.pathname === BLOB_PATH; });
-    if (!b) return null;
-    const res = await fetch(b.url + '?t=' + Date.now(), { cache: 'no-store' });
-    return res.ok ? res.json() : null;
+    const { get } = require('@vercel/blob');
+    const r = await get(BLOB_PATH, { access: ACCESS, useCache: false });
+    if (!r || !r.stream) return null;
+    try { return JSON.parse(await streamText(r.stream)); } catch (e) { return null; }
   }
   try { return JSON.parse(fs.readFileSync(TMP_FILE, 'utf8')); } catch (e) { return null; }
 }
@@ -126,7 +129,7 @@ async function saveContent(obj) {
   const text = JSON.stringify(obj);
   if (hasBlob) {
     const { put } = require('@vercel/blob');
-    await put(BLOB_PATH, text, { access: 'public', contentType: 'application/json', addRandomSuffix: false, allowOverwrite: true, cacheControlMaxAge: 30 });
+    await put(BLOB_PATH, text, { access: ACCESS, contentType: 'application/json', addRandomSuffix: false, allowOverwrite: true });
   } else {
     fs.writeFileSync(TMP_FILE, text);
   }
@@ -137,6 +140,15 @@ async function resetContent() {
     const r = await list({ prefix: BLOB_PATH, limit: 5 });
     if (r.blobs.length) await del(r.blobs.map(function (b) { return b.url; }));
   } else { try { fs.unlinkSync(TMP_FILE); } catch (e) { /* none */ } }
+}
+async function putImage(name, buf, type) {
+  const { put } = require('@vercel/blob');
+  await put('uploads/' + name, buf, { access: ACCESS, contentType: type, addRandomSuffix: false });
+  return '/api/img?p=uploads/' + name;
+}
+async function getImage(pathname) {
+  const { get } = require('@vercel/blob');
+  return get(pathname, { access: ACCESS });
 }
 async function getContent() {
   const saved = await loadSaved();
@@ -151,7 +163,7 @@ function str(v, max, fallback) {
 function url(v) {
   v = str(v, 500);
   if (!v) return '';
-  if (/^https:\/\//i.test(v) || /^assets\/[\w\-./]+$/.test(v) || /^\/assets\/[\w\-./]+$/.test(v)) return v;
+  if (/^https:\/\//i.test(v) || /^assets\/[\w\-./]+$/.test(v) || /^\/assets\/[\w\-./]+$/.test(v) || /^\/api\/img\?p=uploads\/[a-f0-9]{16}\.(webp|png|jpg)$/.test(v)) return v;
   if (/^http:\/\//i.test(v)) return 'https://' + v.slice(7);
   return '';
 }
@@ -205,4 +217,4 @@ function clean(c) {
 }
 
 module.exports = { json, readBody, checkLogin, setSession, clearSession, session, requireAdmin, throttled, noteFail, clearFails, clientIp,
-  getContent, saveContent, resetContent, clean, hasBlob, USING_TEST_LOGIN, DEFAULTS };
+  getContent, saveContent, resetContent, putImage, getImage, clean, hasBlob, USING_TEST_LOGIN, DEFAULTS };
