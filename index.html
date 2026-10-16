@@ -1590,7 +1590,16 @@ document.addEventListener('pointerdown',function(e){
     if(window.__ecTeams)window.__ecTeams();
     document.querySelectorAll('#tsGrid .rv').forEach(function(n){n.classList.add('in');});
   }
-  fetch(API,{credentials:'same-origin'}).then(function(r){return r.ok?r.json():null;}).then(apply).catch(function(){/* keep built-in content */});
+  var KEY='ec_content_v1';
+  try{var cached=JSON.parse(localStorage.getItem(KEY)||'null');if(cached)apply(cached);}catch(e){}
+  function refresh(){
+    fetch(API,{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(c){
+      if(!c)return;
+      try{var prev=localStorage.getItem(KEY),next=JSON.stringify(c);if(prev!==next){localStorage.setItem(KEY,next);apply(c);}}catch(e){apply(c);}
+    }).catch(function(){/* keep built-in content */});
+  }
+  refresh();
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)refresh();});
 })();
 
 $('#yr').textContent=new Date().getFullYear();

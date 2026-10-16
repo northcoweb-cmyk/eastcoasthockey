@@ -145,7 +145,8 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px 90px}
       <div class="card">
         <h2>Announcement bar</h2>
         <p class="d">A thin bar at the very top of the site. Good for hours, sales or closures.</p>
-        <label class="sw" style="margin-bottom:16px"><input type="checkbox" id="annOn"><span class="tr"></span> Show the announcement bar</label>
+        <label class="sw"><input type="checkbox" id="annOn"><span class="tr"></span> Show the announcement bar</label>
+        <p class="d" id="annState" style="margin:8px 0 16px"></p>
         <div class="grid2">
           <label class="f"><span>Message</span><input class="in" id="annText" maxlength="160" placeholder="Open until 9pm this Friday for fall tryouts gear"></label>
           <label class="f"><span>Link (optional)</span><input class="in" id="annLink" placeholder="https://…" inputmode="url"><small>Leave empty for a plain message.</small></label>
@@ -270,7 +271,12 @@ $('#save').addEventListener('click',function(){
   var b=$('#save');b.disabled=true;
   api('/api/content',{method:'PUT',body:JSON.stringify(C)}).then(function(r){
     C=r.content;saved=JSON.stringify(C);renderAll();markDirty();
-    toast(r.persistent?'Saved. Your site is updated.':'Saved for this test only. Connect storage to make it permanent.');
+    if(!r.persistent){toast('Saved here only. NOT live: storage is not connected.',true);return;}
+    /* confirm the public site really serves the new content */
+    return fetch('/api/content?v='+Date.now(),{cache:'no-store'}).then(function(x){return x.json();}).then(function(live){
+      if(JSON.stringify(live)===saved)toast('Saved. Your live site now shows these changes.');
+      else toast('Saved, but the live copy has not caught up yet. Refresh your site in a few seconds.',true);
+    });
   }).catch(function(err){if(err.status===401){toast('Your session ended. Please sign in again.',true);setTimeout(function(){location.reload();},1500);}else toast(err.message,true);}).then(function(){b.disabled=false;});
 });
 $('#discard').addEventListener('click',function(){if(!confirm('Throw away your unsaved changes?'))return;C=JSON.parse(saved);renderAll();markDirty();});
@@ -286,8 +292,12 @@ function bindChk(el,get,set){el.checked=!!get();el.addEventListener('change',fun
 function renderAll(){renderHome();renderLocs();renderShop();renderTeams();}
 
 function renderHome(){
-  bindChk($('#annOn'),function(){return C.announce.on;},function(v){C.announce.on=v;});
-  bind($('#annText'),function(){return C.announce.text;},function(v){C.announce.text=v;});
+  function annState(){var a=C.announce,el=$('#annState');
+    el.textContent=a.on?(a.text?'On: visitors will see this bar at the top of every page.':'The bar is on but has no message yet. Type one below.'):(a.text?'Off: your message is saved but hidden. Switch the bar on to show it.':'Off: nothing is shown at the top of the site.');
+    el.style.color=a.on&&a.text?'#0c7a50':'#5A6B7C';}
+  bindChk($('#annOn'),function(){return C.announce.on;},function(v){C.announce.on=v;annState();});
+  bind($('#annText'),function(){return C.announce.text;},function(v){C.announce.text=v;annState();});
+  annState();
   bind($('#annLink'),function(){return C.announce.link;},function(v){C.announce.link=v;});
   function prev(){$('#heroPrev').innerHTML='';$('#heroPrev').appendChild(h('span',{text:'Preview: '}));$('#heroPrev').appendChild(h('b',{text:C.hero.lead+' '}));$('#heroPrev').appendChild(h('b',{text:C.hero.accent,style:'color:#E00A1E'}));}
   bind($('#heroLead'),function(){return C.hero.lead;},function(v){C.hero.lead=v;prev();});
