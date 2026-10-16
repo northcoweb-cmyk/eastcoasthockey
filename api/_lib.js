@@ -18,6 +18,12 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '1234';
 const SECRET = process.env.ADMIN_SECRET || crypto.createHash('sha256').update('ec-admin::' + ADMIN_USER + '::' + ADMIN_PASSWORD).digest('hex');
 const USING_TEST_LOGIN = !process.env.ADMIN_PASSWORD;
 
+/* ---- Blob token: Vercel names it BLOB_READ_WRITE_TOKEN, but a custom prefix (e.g. STORAGE_READ_WRITE_TOKEN) is possible ---- */
+const TOKEN_KEY = process.env.BLOB_READ_WRITE_TOKEN ? 'BLOB_READ_WRITE_TOKEN' : Object.keys(process.env).find(function (k) { return /_READ_WRITE_TOKEN$/.test(k) && process.env[k]; });
+const BLOB_TOKEN = TOKEN_KEY ? process.env[TOKEN_KEY] : '';
+const hasBlob = !!BLOB_TOKEN || !!process.env.BLOB_STORE_ID;
+const T = BLOB_TOKEN ? { token: BLOB_TOKEN } : {};
+
 function sha(s) { return crypto.createHash('sha256').update(String(s)).digest(); }
 function safeEqual(a, b) { return crypto.timingSafeEqual(sha(a), sha(b)); }
 function checkLogin(user, pass) {
@@ -90,7 +96,7 @@ async function readLock(key) {
   try {
     if (hasBlob) {
       const { get } = require('@vercel/blob');
-      const r = await get('security/' + key + '.json', { access: ACCESS, useCache: false });
+      const r = await get('security/' + key + '.json', Object.assign({ access: ACCESS, useCache: false }, T));
       if (r && r.stream) disk = JSON.parse(await streamText(r.stream));
     } else {
       disk = JSON.parse(fs.readFileSync(path.join(os.tmpdir(), 'ec-lock-' + key + '.json'), 'utf8'));
@@ -105,7 +111,7 @@ async function writeLock(key, rec) {
   try {
     if (hasBlob) {
       const { put } = require('@vercel/blob');
-      await put('security/' + key + '.json', JSON.stringify(rec), { access: ACCESS, contentType: 'application/json', addRandomSuffix: false, allowOverwrite: true });
+      await put('security/' + key + '.json', JSON.stringify(rec), Object.assign({ access: ACCESS, contentType: 'application/json', addRandomSuffix: false, allowOverwrite: true }, T));
     } else {
       fs.writeFileSync(path.join(os.tmpdir(), 'ec-lock-' + key + '.json'), JSON.stringify(rec));
     }
@@ -154,7 +160,6 @@ function readBody(req, limit) {
    Works with both private and public Blob stores. Set BLOB_ACCESS=public if your store is public;
    the default is private. Uploaded images are always served through /api/img so they work either way. */
 const BLOB_PATH = 'site/content.json';
-const hasBlob = !!process.env.BLOB_READ_WRITE_TOKEN;
 const TMP_FILE = path.join(os.tmpdir(), 'ec-content.json');
 const ACCESS = process.env.BLOB_ACCESS === 'public' ? 'public' : 'private';
 
@@ -163,7 +168,7 @@ async function streamText(stream) { return new Response(stream).text(); }
 async function loadSaved() {
   if (hasBlob) {
     const { get } = require('@vercel/blob');
-    const r = await get(BLOB_PATH, { access: ACCESS, useCache: false });
+    const r = await get(BLOB_PATH, Object.assign({ access: ACCESS, useCache: false }, T));
     if (!r || !r.stream) return null;
     try { return JSON.parse(await streamText(r.stream)); } catch (e) { return null; }
   }
@@ -173,7 +178,7 @@ async function saveContent(obj) {
   const text = JSON.stringify(obj);
   if (hasBlob) {
     const { put } = require('@vercel/blob');
-    await put(BLOB_PATH, text, { access: ACCESS, contentType: 'application/json', addRandomSuffix: false, allowOverwrite: true });
+    await put(BLOB_PATH, text, Object.assign({ access: ACCESS, contentType: 'application/json', addRandomSuffix: false, allowOverwrite: true }, T));
   } else {
     fs.writeFileSync(TMP_FILE, text);
   }
@@ -181,18 +186,18 @@ async function saveContent(obj) {
 async function resetContent() {
   if (hasBlob) {
     const { list, del } = require('@vercel/blob');
-    const r = await list({ prefix: BLOB_PATH, limit: 5 });
-    if (r.blobs.length) await del(r.blobs.map(function (b) { return b.url; }));
+    const r = await list(Object.assign({ prefix: BLOB_PATH, limit: 5 }, T));
+    if (r.blobs.length) await del(r.blobs.map(function (b) { return b.url; }), T);
   } else { try { fs.unlinkSync(TMP_FILE); } catch (e) { /* none */ } }
 }
 async function putImage(name, buf, type) {
   const { put } = require('@vercel/blob');
-  await put('uploads/' + name, buf, { access: ACCESS, contentType: type, addRandomSuffix: false });
+  await put('uploads/' + name, buf, Object.assign({ access: ACCESS, contentType: type, addRandomSuffix: false }, T));
   return '/api/img?p=uploads/' + name;
 }
 async function getImage(pathname) {
   const { get } = require('@vercel/blob');
-  return get(pathname, { access: ACCESS });
+  return get(pathname, Object.assign({ access: ACCESS }, T));
 }
 async function getContent() {
   const saved = await loadSaved();
@@ -261,4 +266,4 @@ function clean(c) {
 }
 
 module.exports = { json, readBody, checkLogin, setSession, clearSession, session, requireAdmin, lockedMinutes, noteFail, clearFails, clientIp,
-  getContent, saveContent, resetContent, putImage, getImage, clean, hasBlob, USING_TEST_LOGIN, DEFAULTS };
+  getContent, saveContent, resetContent, putImage, getImage, clean, hasBlob, TOKEN_KEY, USING_TEST_LOGIN, DEFAULTS };

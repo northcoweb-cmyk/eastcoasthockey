@@ -138,7 +138,7 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px 90px}
   </div>
 
   <main>
-    <div class="banner warn hide" id="warnStore"><i class="ti ti-alert-triangle"></i><div><b>Saving is not connected yet.</b> Changes you make here will not stay on the live site until a Vercel Blob store is connected to this project (Vercel dashboard → Storage → Blob → Connect). Ask your developer to do this once.</div></div>
+    <div class="banner warn hide" id="warnStore"><i class="ti ti-alert-triangle"></i><div><b>Saving is not connected yet.</b> The site cannot see your Vercel Blob token, so edits will not stay. In Vercel, open Settings → Environment Variables and check that a variable ending in <code>READ_WRITE_TOKEN</code> (usually <code>BLOB_READ_WRITE_TOKEN</code>) exists for Production, then redeploy. A new variable only reaches deployments made after it was added.</div></div>
     <div class="banner warn hide" id="warnTest"><i class="ti ti-key"></i><div><b>Test login in use.</b> This account (Mike / 1234) is for testing. Set a real username and password in Vercel (ADMIN_USER, ADMIN_PASSWORD, ADMIN_SECRET) before sharing the admin with anyone.</div></div>
 
     <section id="p-home">
