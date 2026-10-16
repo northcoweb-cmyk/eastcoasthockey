@@ -195,6 +195,12 @@ section{scroll-margin-top:calc(var(--header-h) + 12px)}
 .ts-card{display:flex;align-items:center;gap:15px;text-align:left;width:100%;padding:17px;border-radius:15px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);transition:background .2s,border-color .2s,transform .2s}
 .ts-card:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.3);transform:translateY(-3px)}
 .ts-crest{width:50px;height:50px;border-radius:13px;display:grid;place-items:center;font-size:15px;font-weight:800;letter-spacing:-.03em;color:#fff;flex-shrink:0;border:1px solid rgba(255,255,255,.18)}
+.ts-card .ts-crest{width:68px;height:68px}
+.ts-crest.logo{background:#fff !important;border:0;padding:2px;box-shadow:0 2px 10px -4px rgba(0,0,0,.5)}
+.ts-crest.logo img{width:100%;height:100%;object-fit:contain;display:block}
+.ts-hero .ts-crest.logo,.ts-hero .ts-crest{width:92px;height:92px}
+.prod-logo{position:absolute;right:12px;bottom:12px;width:84px;height:84px;padding:3px;border-radius:14px;background:#fff;box-shadow:0 8px 20px -8px rgba(0,0,0,.55)}
+.prod-logo img{width:100%;height:100%;object-fit:contain;display:block}
 .ts-card .info{flex:1;min-width:0}
 .ts-card .info strong{display:block;color:#fff;font-size:15px;font-weight:600;letter-spacing:-.015em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ts-card .info span{font-size:12.5px;color:rgba(255,255,255,.55)}
@@ -966,6 +972,7 @@ var SIZES=['YS','YM','YL','S','M','L','XL','2XL'];
 var STORE_BASE='https://forsportsmaryland.3dcartstores.com';
 var TEAMS=[
   {id:'navy-youth',n:'Navy Youth Hockey',cat:'Youth hockey',c1:'#041E42',c2:'#C8A951',status:'open',
+   logo:'assets/teams/navy-youth-hockey.jpg',
    url:STORE_BASE+'/Navy-Youth-Hockey_c_47.html',
    note:'All Navy Youth Hockey apparel includes the Navy Youth Hockey logo. Check each item for player name and number options.',
    items:[
@@ -974,8 +981,10 @@ var TEAMS=[
      {k:'academy-jersey',n:'ACADEMY Jersey',ic:'ti-shirt-sport',price:75,tag:'Game wear',pers:true}
    ]},
   {id:'tri-city',n:'Tri-City Eagles',cat:'Youth hockey',c1:'#046A38',c2:'#FFC72C',status:'open',
+   logo:'assets/teams/tri-city-eagles.png',
    url:STORE_BASE+'/Tri-City-Eagles_c_69.html'},
   {id:'howard-huskies',n:'Howard Huskies',cat:'Youth hockey',c1:'#0033A0',c2:'#101820',status:'open',
+   logo:'assets/teams/howard-huskies.png',
    url:STORE_BASE+'/Howard-Huskies_c_75.html',
    note:'All items have the Howard Huskies logo embroidered, screen printed or heat pressed on — included in the price. Sizing information is on each product page.'},
   {id:'baltimore-stars',n:'Baltimore Stars Hockey',cat:'Youth hockey',c1:'#101820',c2:'#FDB927',status:'open',
@@ -984,12 +993,14 @@ var TEAMS=[
    url:STORE_BASE+'/Southern-Maryland-Sabres_c_90.html',
    note:'For Sports is proud to be the official team supplier of the Southern Maryland Sabres.'},
   {id:'easton-ice-hawks',n:'Easton Ice Hawks',cat:'Youth hockey',c1:'#C8102E',c2:'#041E42',status:'open',
+   logo:'assets/teams/easton-ice-hawks.png',
    url:STORE_BASE+'/Easton-Ice-Hawks_c_91.html'}
 ];
 
 function $(s,r){return (r||document).querySelector(s);}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 function initials(s){return s.split(/\s+/).map(function(w){return w[0];}).join('').slice(0,3).toUpperCase();}
+window.__crest=crest;function crest(t){return t.logo?'<img src="'+t.logo+'" alt="'+esc(t.n)+' logo" loading="lazy">':initials(t.n);}
 function money(n){return '$'+n.toFixed(2);}
 
 var header=$('#header'),mbar=$('#mobileBar');
@@ -1059,7 +1070,7 @@ var cart=[];
     empty.style.display=list.length?'none':'block';
     grid.innerHTML=list.map(function(t){
       return '<button class="ts-card" data-id="'+t.id+'">'+
-        '<span class="ts-crest" style="background:linear-gradient(140deg,'+t.c1+','+t.c2+')">'+initials(t.n)+'</span>'+
+        '<span class="ts-crest'+(t.logo?' logo':'')+'" style="background:linear-gradient(140deg,'+t.c1+','+t.c2+')">'+crest(t)+'</span>'+
         '<span class="info"><strong>'+esc(t.n)+'</strong><span>'+esc(t.cat)+'</span></span>'+
         '<span class="ts-status '+t.status+'">'+(t.status==='open'?'Open':'Soon')+'</span>'+
         '<span class="ts-shine"></span></button>';
@@ -1074,8 +1085,8 @@ var cart=[];
   search.addEventListener('input',function(){q=search.value.trim().toLowerCase();render();});
   function openTeam(id){
     var t=TEAMS.filter(function(x){return x.id===id;})[0]; if(!t)return;
-    var crest=$('#tsCrest');
-    crest.textContent=initials(t.n);
+    var crest=$('#tsCrest'),crest_=window.__crest;
+    crest.innerHTML=crest_(t);crest.classList.toggle('logo',!!t.logo);
     crest.style.background='linear-gradient(140deg,'+t.c1+','+t.c2+')';
     $('#tsName').textContent=t.n;
     $('#tsMeta').textContent=t.cat+' · decorated and fulfilled by East Coast';
@@ -1085,7 +1096,7 @@ var cart=[];
       return '<div class="prod" data-k="'+g.k+'">'+
         '<div class="prod-vis" style="background:linear-gradient(150deg,'+t.c1+','+t.c2+')">'+
         (g.tag?'<span class="tag">'+g.tag+'</span>':'')+'<i class="ti '+g.ic+'"></i>'+
-        '<span class="prod-crest">'+initials(t.n)+'</span></div>'+
+        (t.logo?'<span class="prod-logo"><img src="'+t.logo+'" alt="" loading="lazy"></span>':'<span class="prod-crest">'+initials(t.n)+'</span>')+'</div>'+
         '<div class="prod-body"><h4>'+esc(g.n)+'</h4><div class="prod-price">'+money(g.price)+'</div>'+
         '<div class="prod-size">'+SIZES.map(function(s,j){return '<button class="size-btn'+(j===4?' on':'')+'" data-s="'+s+'">'+s+'</button>';}).join('')+'</div>'+
         (g.pers?'<div class="pers"><div class="pers-row">'+
