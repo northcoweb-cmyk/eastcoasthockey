@@ -412,7 +412,11 @@ function teamCard(t,ti){
       bind(tag,function(){return it.tag;},function(v){it.tag=v;});
       ty.value=it.ic;ty.addEventListener('change',function(){it.ic=ty.value;markDirty();});
       bindChk(pers,function(){return it.pers;},function(v){it.pers=v;});
+      var thumb=h('div',{class:'logo-t',style:'width:56px;height:56px;padding:0;flex-shrink:0'},[it.img?h('img',{src:it.img,alt:'',style:'object-fit:cover'}):h('i',{class:'ti '+it.ic,style:'font-size:22px;color:#5A6B7C'})]);
+      var photoBtn=h('button',{class:'btn btn-g btn-s',type:'button',onclick:function(){pickImage(function(u){it.img=u;drawItems();markDirty();});}},[h('i',{class:'ti ti-photo-up'}),it.img?'Change photo':'Add photo']);
+      var photoRm=it.img?h('button',{class:'btn btn-g btn-s',type:'button',onclick:function(){it.img='';drawItems();markDirty();}},'Remove photo'):null;
       var row=h('div',{class:'item'+(it.hidden?' is-hidden':'')},[
+        h('div',{class:'full row',style:'gap:12px;flex-wrap:nowrap'},[thumb,h('div',{class:'row',style:'gap:8px'},[photoBtn,photoRm])]),
         nm,h('div',{style:'position:relative'},[h('span',{text:'$',style:'position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#5A6B7C'}),pr]),
         h('div',{class:'item-opts'},[ty,tag,
           h('label',{class:'mini'},[pers,'Name & number']),
@@ -431,7 +435,7 @@ function teamCard(t,ti){
   body.appendChild(h('div',{class:'row',style:'margin-top:12px'},[
     h('button',{class:'btn btn-g btn-s',type:'button',onclick:function(){t.items.push({k:'item-'+Date.now().toString(36),n:'New product',ic:'ti-shirt-sport',price:0,tag:'',pers:false,hidden:false});drawItems();markDirty();}},[h('i',{class:'ti ti-plus'}),'Add product'])]));
   body.appendChild(h('div',{class:'row',style:'margin-top:22px;padding-top:16px;border-top:1px solid #E1E7EF;justify-content:space-between'},[
-    h('span',{class:'limit',style:'text-align:left',text:'Each product tile shows the team logo.'}),
+    h('span',{class:'limit',style:'text-align:left',text:'Products without a photo show the team logo.'}),
     h('button',{class:'btn btn-g btn-s danger',type:'button',onclick:function(){if(confirm('Delete the whole “'+t.n+'” team store? You can also just hide it.')){C.teams.splice(ti,1);renderTeams();markDirty();}}},[h('i',{class:'ti ti-trash'}),'Delete team'])]));
   return card;
 }

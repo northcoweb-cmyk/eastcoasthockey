@@ -258,7 +258,7 @@ function clean(c) {
         let k = str(it.k, 40).toLowerCase().replace(/[^a-z0-9-]/g, '-') || 'item-' + (ii + 1);
         while (ks[k]) k += '-x';
         ks[k] = 1;
-        return { k: k, n: str(it.n, 60) || 'New item', ic: ICONS.indexOf(it.ic) >= 0 ? it.ic : 'ti-shirt-sport', price: money(it.price), tag: str(it.tag, 20), pers: !!it.pers, hidden: !!it.hidden };
+        return { k: k, n: str(it.n, 60) || 'New item', ic: ICONS.indexOf(it.ic) >= 0 ? it.ic : 'ti-shirt-sport', img: url(it.img), price: money(it.price), tag: str(it.tag, 20), pers: !!it.pers, hidden: !!it.hidden };
       })
     };
   });
