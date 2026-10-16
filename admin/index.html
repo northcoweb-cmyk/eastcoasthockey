@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Admin | East Coast Hockey</title>
+<link rel="icon" href="/assets/logo.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.11.0/tabler-icons.min.css">
+<style>
+:root{--ink:#041634;--ink2:#12305C;--slate:#5A6B7C;--line:#E1E7EF;--mist:#F4F7FB;--red:#E00A1E;--steel:#2C6FC4;--ok:#16a06a;--r:14px}
+*{box-sizing:border-box;margin:0}
+body{font-family:'Outfit',system-ui,sans-serif;background:var(--mist);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+input,select,textarea{font:inherit;color:inherit}
+.hide{display:none!important}
+/* login */
+.login{min-height:100vh;display:grid;place-items:center;padding:20px;background:radial-gradient(900px 500px at 50% -10%,#dbe8f8,transparent),var(--mist)}
+.login-card{width:100%;max-width:400px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:34px 30px;box-shadow:0 30px 60px -36px rgba(4,22,52,.45)}
+.login-card img{height:64px;display:block;margin:0 auto 18px}
+.login-card h1{font-size:1.4rem;text-align:center;letter-spacing:-.02em}
+.login-card p.s{text-align:center;color:var(--slate);font-size:14px;margin:4px 0 22px}
+.f{display:block;margin-bottom:14px}
+.f>span{display:block;font-size:13px;font-weight:600;margin-bottom:6px}
+.f small{display:block;color:var(--slate);font-size:12.5px;margin-top:5px}
+.in{width:100%;min-height:46px;padding:10px 14px;border:1.5px solid var(--line);border-radius:12px;background:#fff;outline:none;transition:border-color .15s,box-shadow .15s}
+.in:focus{border-color:var(--steel);box-shadow:0 0 0 4px rgba(44,111,196,.14)}
+textarea.in{min-height:84px;resize:vertical}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 20px;border-radius:999px;font-weight:600;font-size:15px;transition:transform .15s,background .15s}
+.btn:active{transform:scale(.98)}
+.btn-p{background:var(--red);color:#fff}.btn-p:hover{background:#b00816}
+.btn-d{background:var(--ink);color:#fff}.btn-d:hover{background:var(--ink2)}
+.btn-g{background:#fff;border:1.5px solid var(--line)}.btn-g:hover{border-color:var(--ink)}
+.btn-s{min-height:36px;padding:0 14px;font-size:13.5px}
+.btn[disabled]{opacity:.55;cursor:default}
+.err{color:#b00816;font-size:14px;min-height:20px;margin-top:10px;text-align:center}
+.hint-login{margin-top:18px;padding:12px 14px;border-radius:12px;background:#fff7e0;border:1px solid #f0dca0;font-size:13px;color:#6b5200}
+/* app shell */
+.top{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top-in{max-width:1100px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:14px}
+.top img{height:42px}
+.top .t{font-weight:700;letter-spacing:-.02em;line-height:1.1}.top .t small{display:block;font-weight:500;color:var(--slate);font-size:12px}
+.sp{flex:1}
+.status{font-size:13px;color:var(--slate);display:flex;align-items:center;gap:7px}
+.status i{font-size:17px}.status.dirty{color:#a16207}.status.ok{color:var(--ok)}
+.tabs{max-width:1100px;margin:0 auto;padding:0 20px;display:flex;gap:6px;overflow-x:auto}
+.tab{padding:12px 14px;font-weight:600;font-size:14.5px;color:var(--slate);border-bottom:3px solid transparent;white-space:nowrap}
+.tab:hover{color:var(--ink)}.tab.on{color:var(--ink);border-color:var(--red)}
+main{max-width:1100px;margin:0 auto;padding:24px 20px 90px}
+.banner{margin-bottom:18px;padding:12px 16px;border-radius:12px;font-size:14px;display:flex;gap:10px;align-items:flex-start}
+.banner.warn{background:#fff7e0;border:1px solid #f0dca0;color:#6b5200}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:22px;margin-bottom:18px}
+.card h2{font-size:1.1rem;letter-spacing:-.02em;margin-bottom:4px}
+.card>p.d{color:var(--slate);font-size:14px;margin-bottom:18px}
+.grid2{display:grid;gap:14px;grid-template-columns:1fr}
+@media(min-width:760px){.grid2{grid-template-columns:1fr 1fr}}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.sw{display:inline-flex;align-items:center;gap:10px;cursor:pointer;font-weight:600;font-size:14.5px;user-select:none}
+.sw input{position:absolute;opacity:0;pointer-events:none}
+.sw .tr{width:42px;height:24px;border-radius:999px;background:#c9d3e0;position:relative;transition:background .15s;flex-shrink:0}
+.sw .tr::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .15s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.sw input:checked+.tr{background:var(--ok)}.sw input:checked+.tr::after{transform:translateX(18px)}
+.sw input:focus-visible+.tr{box-shadow:0 0 0 4px rgba(44,111,196,.25)}
+/* teams */
+.team{border:1px solid var(--line);border-radius:var(--r);background:#fff;margin-bottom:12px;overflow:hidden}
+.team.is-hidden{opacity:.65}
+.team-h{display:flex;align-items:center;gap:14px;padding:14px 16px;cursor:pointer;width:100%;text-align:left}
+.team-h:hover{background:#fafcff}
+.logo-t{width:54px;height:54px;border-radius:12px;background:#fff;border:1px solid var(--line);display:grid;place-items:center;flex-shrink:0;overflow:hidden;padding:4px}
+.logo-t.dark{background:#05080f}
+.logo-t img{width:100%;height:100%;object-fit:contain}
+.logo-t b{font-size:14px;color:var(--slate)}
+.team-h .n{font-weight:700;letter-spacing:-.01em}
+.team-h .m{font-size:13px;color:var(--slate)}
+.pill{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:999px;background:#e6f7ef;color:#0c7a50}
+.pill.soon{background:#fff3d6;color:#8a6100}.pill.off{background:#eceff4;color:#5a6b7c}
+.chev{transition:transform .2s;color:var(--slate)}.team.open .chev{transform:rotate(180deg)}
+.team-b{display:none;padding:4px 18px 20px;border-top:1px solid var(--line)}
+.team.open .team-b{display:block}
+.sub{font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--slate);margin:20px 0 10px}
+.logo-edit{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.logo-edit .logo-t{width:84px;height:84px}
+.items{display:grid;gap:8px}
+.item{display:grid;gap:8px;grid-template-columns:1fr 92px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:12px;background:#fbfcfe}
+.item.is-hidden{opacity:.55}
+.item .full{grid-column:1/-1}
+.item-opts{display:flex;gap:10px;align-items:center;flex-wrap:wrap;grid-column:1/-1}
+.item-opts select.in{min-height:38px;width:auto;padding:6px 10px}
+.item-opts .in.tag{width:120px;min-height:38px}
+.mini{font-size:13px;display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+.ic-btn{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;color:var(--slate);border:1px solid var(--line);background:#fff}
+.ic-btn:hover{color:var(--red);border-color:var(--red)}
+.danger{color:#b00816}
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);background:var(--ink);color:#fff;padding:12px 20px;border-radius:999px;font-size:14.5px;opacity:0;pointer-events:none;transition:.25s;z-index:50;max-width:92vw}
+.toast.on{opacity:1;transform:translate(-50%,0)}.toast.bad{background:#b00816}
+.savebar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);padding:12px 20px;z-index:30;transform:translateY(110%);transition:transform .25s}
+.savebar.on{transform:none}
+.savebar-in{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:12px}
+.preview{margin-top:10px;padding:14px 16px;border-radius:12px;background:var(--mist);font-size:14px;color:var(--slate)}
+.preview b{color:var(--ink)}
+.limit{font-size:12px;color:var(--slate);text-align:right}
+</style>
+</head>
+<body>
+
+<!-- sign in -->
+<div class="login" id="loginView">
+  <form class="login-card" id="loginForm" autocomplete="on">
+    <img src="/assets/logo.webp" alt="East Coast Hockey &amp; Skating Supply">
+    <h1>Site admin</h1>
+    <p class="s">Sign in to update your site.</p>
+    <label class="f"><span>Username</span><input class="in" name="username" autocomplete="username" required autofocus></label>
+    <label class="f"><span>Password</span><input class="in" type="password" name="password" autocomplete="current-password" required></label>
+    <button class="btn btn-p" style="width:100%" id="loginBtn">Sign in</button>
+    <p class="err" id="loginErr" role="alert"></p>
+  </form>
+</div>
+
+<!-- app -->
+<div id="appView" class="hide">
+  <div class="top">
+    <div class="top-in">
+      <img src="/assets/logo.webp" alt="">
+      <div class="t">Site admin<small id="who"></small></div>
+      <div class="sp"></div>
+      <span class="status" id="status"><i class="ti ti-circle-check"></i> All changes saved</span>
+      <a class="btn btn-g btn-s" href="/" target="_blank" rel="noopener"><i class="ti ti-external-link"></i> View site</a>
+      <button class="btn btn-g btn-s" id="logoutBtn">Sign out</button>
+    </div>
+    <div class="tabs" role="tablist" id="tabs">
+      <button class="tab on" data-tab="home">Home &amp; banner</button>
+      <button class="tab" data-tab="locs">Locations &amp; contact</button>
+      <button class="tab" data-tab="shop">Shop categories</button>
+      <button class="tab" data-tab="teams">Team stores</button>
+    </div>
+  </div>
+
+  <main>
+    <div class="banner warn hide" id="warnStore"><i class="ti ti-alert-triangle"></i><div><b>Saving is not connected yet.</b> Changes you make here will not stay on the live site until a Vercel Blob store is connected to this project (Vercel dashboard → Storage → Blob → Connect). Ask your developer to do this once.</div></div>
+    <div class="banner warn hide" id="warnTest"><i class="ti ti-key"></i><div><b>Test login in use.</b> This account (Mike / 1234) is for testing. Set a real username and password in Vercel (ADMIN_USER, ADMIN_PASSWORD, ADMIN_SECRET) before sharing the admin with anyone.</div></div>
+
+    <section id="p-home">
+      <div class="card">
+        <h2>Announcement bar</h2>
+        <p class="d">A thin bar at the very top of the site. Good for hours, sales or closures.</p>
+        <label class="sw" style="margin-bottom:16px"><input type="checkbox" id="annOn"><span class="tr"></span> Show the announcement bar</label>
+        <div class="grid2">
+          <label class="f"><span>Message</span><input class="in" id="annText" maxlength="160" placeholder="Open until 9pm this Friday for fall tryouts gear"></label>
+          <label class="f"><span>Link (optional)</span><input class="in" id="annLink" placeholder="https://…" inputmode="url"><small>Leave empty for a plain message.</small></label>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Homepage headline</h2>
+        <p class="d">The big text at the top of the homepage.</p>
+        <div class="grid2">
+          <label class="f"><span>First line</span><input class="in" id="heroLead" maxlength="80"></label>
+          <label class="f"><span>Red highlighted words</span><input class="in" id="heroAccent" maxlength="60"></label>
+        </div>
+        <label class="f"><span>Short description</span><textarea class="in" id="heroSub" maxlength="320"></textarea></label>
+        <div class="preview" id="heroPrev"></div>
+      </div>
+    </section>
+
+    <section id="p-locs" class="hide">
+      <div class="card">
+        <h2>Contact email</h2>
+        <p class="d">Shown in the top bar, contact section and footer.</p>
+        <label class="f" style="max-width:420px"><span>Email address</span><input class="in" id="email" type="email" maxlength="120"></label>
+      </div>
+      <div id="locList"></div>
+    </section>
+
+    <section id="p-shop" class="hide">
+      <div class="card">
+        <h2>Shop categories</h2>
+        <p class="d">The category cards in the homepage Shop section. You can change the name, description and photo.</p>
+        <div id="shopList"></div>
+      </div>
+    </section>
+
+    <section id="p-teams" class="hide">
+      <div class="card">
+        <div class="row" style="justify-content:space-between">
+          <div><h2>Team stores</h2><p class="d" style="margin:0">Open a team to change its logo, details and products. Use the switch to hide a team without deleting it.</p></div>
+          <button class="btn btn-d btn-s" id="addTeam"><i class="ti ti-plus"></i> Add team</button>
+        </div>
+      </div>
+      <div id="teamList"></div>
+    </section>
+
+    <div class="card" style="margin-top:26px">
+      <h2>Start over</h2>
+      <p class="d">Put everything back to how the site was originally built. This replaces all your saved edits.</p>
+      <button class="btn btn-g btn-s danger" id="resetAll"><i class="ti ti-restore"></i> Reset all content</button>
+    </div>
+  </main>
+
+  <div class="savebar" id="savebar"><div class="savebar-in">
+    <span class="status dirty"><i class="ti ti-pencil"></i> You have unsaved changes</span><div class="sp"></div>
+    <button class="btn btn-g btn-s" id="discard">Discard</button>
+    <button class="btn btn-p" id="save"><i class="ti ti-device-floppy"></i> Save changes</button>
+  </div></div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+'use strict';
+var $=function(s,r){return (r||document).querySelector(s);};
+var ICONS=[['ti-shirt-sport','Jersey'],['ti-shoe','Pants / shell'],['ti-jacket','Jacket'],['ti-hanger','Hoodie / hanger'],['ti-shirt','T-shirt'],['ti-star','Hat / other'],['ti-briefcase','Bag']];
+var C=null,saved='',persistent=true,dirty=false,openTeams={};
+
+function h(tag,attrs,kids){
+  var e=document.createElement(tag);
+  Object.keys(attrs||{}).forEach(function(k){
+    var v=attrs[k];
+    if(k==='class')e.className=v; else if(k==='text')e.textContent=v;
+    else if(k.slice(0,2)==='on')e.addEventListener(k.slice(2),v);
+    else if(v===true)e.setAttribute(k,''); else if(v!==false&&v!=null)e.setAttribute(k,v);
+  });
+  [].concat(kids||[]).forEach(function(c){if(c==null)return;e.appendChild(typeof c==='string'?document.createTextNode(c):c);});
+  return e;
+}
+function toast(msg,bad){var t=$('#toast');t.textContent=msg;t.className='toast on'+(bad?' bad':'');clearTimeout(toast.t);toast.t=setTimeout(function(){t.className='toast';},3200);}
+function api(path,opt){
+  opt=opt||{};opt.headers=Object.assign({'Content-Type':'application/json','X-Admin-Request':'1'},opt.headers||{});opt.credentials='same-origin';
+  return fetch(path,opt).then(function(r){return r.json().catch(function(){return {};}).then(function(j){if(!r.ok){var e=new Error(j.error||'Request failed');e.status=r.status;throw e;}return j;});});
+}
+function markDirty(){
+  dirty=JSON.stringify(C)!==saved;
+  $('#savebar').classList.toggle('on',dirty);
+  var s=$('#status');s.className='status'+(dirty?' dirty':' ok');
+  s.innerHTML=dirty?'<i class="ti ti-pencil"></i> Unsaved changes':'<i class="ti ti-circle-check"></i> All changes saved';
+}
+window.addEventListener('beforeunload',function(e){if(dirty){e.preventDefault();e.returnValue='';}});
+
+/* ---------- sign in / out ---------- */
+function showApp(me){
+  $('#loginView').classList.add('hide');$('#appView').classList.remove('hide');
+  $('#who').textContent='Signed in as '+me.user;
+  persistent=me.persistent;
+  $('#warnStore').classList.toggle('hide',persistent);
+  $('#warnTest').classList.toggle('hide',!me.testLogin);
+  return fetch('/api/content',{cache:'no-store'}).then(function(r){return r.json();}).then(function(c){C=c;saved=JSON.stringify(C);renderAll();markDirty();});
+}
+$('#loginForm').addEventListener('submit',function(e){
+  e.preventDefault();var f=e.target,b=$('#loginBtn');b.disabled=true;$('#loginErr').textContent='';
+  api('/api/login',{method:'POST',body:JSON.stringify({username:f.username.value,password:f.password.value})})
+    .then(function(){return api('/api/me');}).then(showApp)
+    .catch(function(err){$('#loginErr').textContent=err.message;}).then(function(){b.disabled=false;});
+});
+$('#logoutBtn').addEventListener('click',function(){
+  if(dirty&&!confirm('You have unsaved changes. Sign out anyway?'))return;
+  dirty=false;api('/api/logout',{method:'POST'}).then(function(){location.reload();});
+});
+api('/api/me').then(showApp).catch(function(){});
+
+/* ---------- tabs ---------- */
+$('#tabs').addEventListener('click',function(e){
+  var t=e.target.closest('.tab');if(!t)return;
+  document.querySelectorAll('.tab').forEach(function(x){x.classList.toggle('on',x===t);});
+  ['home','locs','shop','teams'].forEach(function(k){$('#p-'+k).classList.toggle('hide',k!==t.dataset.tab);});
+});
+
+/* ---------- save / discard / reset ---------- */
+$('#save').addEventListener('click',function(){
+  var b=$('#save');b.disabled=true;
+  api('/api/content',{method:'PUT',body:JSON.stringify(C)}).then(function(r){
+    C=r.content;saved=JSON.stringify(C);renderAll();markDirty();
+    toast(r.persistent?'Saved. Your site is updated.':'Saved for this test only. Connect storage to make it permanent.');
+  }).catch(function(err){if(err.status===401){toast('Your session ended. Please sign in again.',true);setTimeout(function(){location.reload();},1500);}else toast(err.message,true);}).then(function(){b.disabled=false;});
+});
+$('#discard').addEventListener('click',function(){if(!confirm('Throw away your unsaved changes?'))return;C=JSON.parse(saved);renderAll();markDirty();});
+$('#resetAll').addEventListener('click',function(){
+  if(!confirm('Reset ALL content to the original site? This cannot be undone.'))return;
+  api('/api/content',{method:'DELETE'}).then(function(r){C=r.content;saved=JSON.stringify(C);renderAll();markDirty();toast('Everything is back to the original.');}).catch(function(e){toast(e.message,true);});
+});
+
+/* ---------- field binding ---------- */
+function bind(el,get,set){el.value=get();el.addEventListener('input',function(){set(el.value);markDirty();});}
+function bindChk(el,get,set){el.checked=!!get();el.addEventListener('change',function(){set(el.checked);markDirty();});}
+
+function renderAll(){renderHome();renderLocs();renderShop();renderTeams();}
+
+function renderHome(){
+  bindChk($('#annOn'),function(){return C.announce.on;},function(v){C.announce.on=v;});
+  bind($('#annText'),function(){return C.announce.text;},function(v){C.announce.text=v;});
+  bind($('#annLink'),function(){return C.announce.link;},function(v){C.announce.link=v;});
+  function prev(){$('#heroPrev').innerHTML='';$('#heroPrev').appendChild(h('span',{text:'Preview: '}));$('#heroPrev').appendChild(h('b',{text:C.hero.lead+' '}));$('#heroPrev').appendChild(h('b',{text:C.hero.accent,style:'color:#E00A1E'}));}
+  bind($('#heroLead'),function(){return C.hero.lead;},function(v){C.hero.lead=v;prev();});
+  bind($('#heroAccent'),function(){return C.hero.accent;},function(v){C.hero.accent=v;prev();});
+  bind($('#heroSub'),function(){return C.hero.sub;},function(v){C.hero.sub=v;});
+  prev();
+}
+
+function renderLocs(){
+  bind($('#email'),function(){return C.contact.email;},function(v){C.contact.email=v;});
+  var box=$('#locList');box.innerHTML='';
+  C.locations.forEach(function(l){
+    var a=h('input',{class:'in',maxlength:'140'}),p=h('input',{class:'in',inputmode:'tel',maxlength:'24'});
+    bind(a,function(){return l.a;},function(v){l.a=v;});bind(p,function(){return l.p;},function(v){l.p=v;});
+    box.appendChild(h('div',{class:'card'},[h('h2',{text:l.n+' shop'}),h('p',{class:'d',text:'Address and phone number shown on the site.'}),
+      h('div',{class:'grid2'},[h('label',{class:'f'},[h('span',{text:'Address'}),a]),h('label',{class:'f'},[h('span',{text:'Phone'}),p])])]));
+  });
+}
+
+/* ---------- image helper: resize in the browser, upload ---------- */
+function pickImage(done){
+  var inp=h('input',{type:'file',accept:'image/png,image/jpeg,image/webp'});
+  inp.addEventListener('change',function(){
+    var f=inp.files[0];if(!f)return;
+    var img=new Image(),u=URL.createObjectURL(f);
+    img.onload=function(){
+      var max=700,s=Math.min(1,max/Math.max(img.width,img.height)),c=document.createElement('canvas');
+      c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(u);
+      var data=c.toDataURL('image/webp',.9);if(data.indexOf('image/webp')<0)data=c.toDataURL('image/png');
+      toast('Uploading…');
+      api('/api/upload',{method:'POST',body:JSON.stringify({dataUrl:data})}).then(function(r){toast('Photo added. Remember to save.');done(r.url);}).catch(function(e){toast(e.message,true);});
+    };
+    img.onerror=function(){toast('That file could not be read as an image.',true);};
+    img.src=u;
+  });
+  inp.click();
+}
+
+/* ---------- shop categories ---------- */
+function renderShop(){
+  var box=$('#shopList');box.innerHTML='';
+  C.shop.forEach(function(s){
+    var t=h('input',{class:'in',maxlength:'40'}),d=h('textarea',{class:'in',maxlength:'140',style:'min-height:70px'}),pic=h('img',{alt:'',src:'/'+s.img.replace(/^\//,'')});
+    bind(t,function(){return s.t;},function(v){s.t=v;});bind(d,function(){return s.d;},function(v){s.d=v;});
+    pic.src=/^https?:/.test(s.img)?s.img:'/'+s.img.replace(/^\//,'');
+    var tile=h('div',{class:'logo-t',style:'width:96px;height:96px;padding:0'},[pic]);pic.style.objectFit='cover';
+    box.appendChild(h('div',{class:'item',style:'grid-template-columns:96px 1fr;gap:14px;align-items:start;margin-bottom:10px;padding:14px'},[
+      h('div',{},[tile,h('button',{class:'btn btn-g btn-s',style:'margin-top:8px;width:96px;padding:0',onclick:function(){pickImage(function(u){s.img=u;pic.src=u;markDirty();});}},[h('i',{class:'ti ti-photo-up'}),'Photo'])]),
+      h('div',{},[h('label',{class:'f'},[h('span',{text:'Name'}),t]),h('label',{class:'f',style:'margin:0'},[h('span',{text:'Description'}),d])])]));
+  });
+}
+
+/* ---------- team stores ---------- */
+function slug(s){return String(s).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'team';}
+function initials(n){return n.split(/\s+/).map(function(w){return w[0]||'';}).join('').slice(0,3).toUpperCase();}
+function logoTile(t){
+  var d=h('div',{class:'logo-t'+(t.dark?' dark':'')});
+  if(t.logo)d.appendChild(h('img',{src:t.logo,alt:''}));else d.appendChild(h('b',{text:initials(t.n)}));
+  return d;
+}
+function renderTeams(){
+  var box=$('#teamList');box.innerHTML='';
+  C.teams.forEach(function(t,ti){box.appendChild(teamCard(t,ti));});
+  if(!C.teams.length)box.appendChild(h('div',{class:'card',text:'No teams yet. Use “Add team” to create one.'}));
+}
+function teamCard(t,ti){
+  var open=!!openTeams[t.id];
+  var head=h('button',{class:'team-h',type:'button',onclick:function(){openTeams[t.id]=!openTeams[t.id];card.classList.toggle('open',openTeams[t.id]);}},[
+    logoTile(t),
+    h('div',{style:'flex:1;min-width:0'},[h('div',{class:'n',text:t.n}),h('div',{class:'m',text:t.cat+' · '+t.items.filter(function(i){return !i.hidden;}).length+' products'})]),
+    h('span',{class:'pill'+(t.hidden?' off':t.status==='soon'?' soon':''),text:t.hidden?'Hidden':t.status==='soon'?'Coming soon':'Open'}),
+    h('i',{class:'ti ti-chevron-down chev'})]);
+  var body=h('div',{class:'team-b'});
+  var card=h('div',{class:'team'+(open?' open':'')+(t.hidden?' is-hidden':'')},[head,body]);
+
+  /* basics */
+  var n=h('input',{class:'in',maxlength:'60'}),cat=h('input',{class:'in',maxlength:'30',list:'cats'}),url=h('input',{class:'in',inputmode:'url',placeholder:'https://…'}),note=h('textarea',{class:'in',maxlength:'240',style:'min-height:70px',placeholder:'Optional message shown under the products'});
+  bind(n,function(){return t.n;},function(v){t.n=v;head.querySelector('.n').textContent=v||'Team';});
+  bind(cat,function(){return t.cat;},function(v){t.cat=v;});
+  bind(url,function(){return t.url;},function(v){t.url=v;});
+  bind(note,function(){return t.note;},function(v){t.note=v;});
+  var show=h('input',{type:'checkbox'}),soon=h('input',{type:'checkbox'});
+  bindChk(show,function(){return !t.hidden;},function(v){t.hidden=!v;card.classList.toggle('is-hidden',!v);});
+  bindChk(soon,function(){return t.status==='soon';},function(v){t.status=v?'soon':'open';});
+  var dark=h('input',{type:'checkbox'});
+  var lt=logoTile(t),le=h('div',{class:'logo-edit'},[lt,h('div',{},[
+    h('div',{class:'row'},[h('button',{class:'btn btn-g btn-s',type:'button',onclick:function(){pickImage(function(u){t.logo=u;renderTeams();markDirty();});}},[h('i',{class:'ti ti-photo-up'}),t.logo?'Change logo':'Upload logo']),
+      t.logo?h('button',{class:'btn btn-g btn-s',type:'button',onclick:function(){t.logo='';renderTeams();markDirty();}},'Remove'):null]),
+    h('label',{class:'mini',style:'margin-top:10px'},[dark,h('span',{text:'Use a black background behind this logo (for logos with white outlines)'})])])]);
+  bindChk(dark,function(){return t.dark;},function(v){t.dark=v;lt.classList.toggle('dark',v);head.querySelector('.logo-t').classList.toggle('dark',v);});
+  body.appendChild(h('div',{class:'sub',text:'Team details'}));
+  body.appendChild(h('div',{class:'grid2'},[h('label',{class:'f'},[h('span',{text:'Team name'}),n]),h('label',{class:'f'},[h('span',{text:'Group'}),cat])]));
+  body.appendChild(le);
+  body.appendChild(h('div',{class:'row',style:'margin:18px 0 6px;gap:26px'},[
+    h('label',{class:'sw'},[show,h('span',{class:'tr'}),' Show on the website']),
+    h('label',{class:'sw'},[soon,h('span',{class:'tr'}),' Mark as “coming soon”'])]));
+  body.appendChild(h('label',{class:'f',style:'margin-top:14px'},[h('span',{text:'Full catalogue link'}),url]));
+  body.appendChild(h('label',{class:'f'},[h('span',{text:'Message to families'}),note]));
+
+  /* products */
+  body.appendChild(h('div',{class:'sub',text:'Products'}));
+  var list=h('div',{class:'items'});body.appendChild(list);
+  function drawItems(){
+    list.innerHTML='';
+    t.items.forEach(function(it,ii){
+      var nm=h('input',{class:'in',maxlength:'60',placeholder:'Product name'}),pr=h('input',{class:'in',type:'number',min:'0',step:'0.01',inputmode:'decimal','aria-label':'Price'}),
+          tag=h('input',{class:'in tag',maxlength:'20',placeholder:'Label (optional)','aria-label':'Label'}),ty=h('select',{class:'in','aria-label':'Type'},ICONS.map(function(i){return h('option',{value:i[0],text:i[1]});})),
+          pers=h('input',{type:'checkbox'}),vis=h('input',{type:'checkbox'});
+      bind(nm,function(){return it.n;},function(v){it.n=v;});
+      bind(pr,function(){return it.price;},function(v){it.price=parseFloat(v)||0;});
+      bind(tag,function(){return it.tag;},function(v){it.tag=v;});
+      ty.value=it.ic;ty.addEventListener('change',function(){it.ic=ty.value;markDirty();});
+      bindChk(pers,function(){return it.pers;},function(v){it.pers=v;});
+      var row=h('div',{class:'item'+(it.hidden?' is-hidden':'')},[
+        nm,h('div',{style:'position:relative'},[h('span',{text:'$',style:'position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#5A6B7C'}),pr]),
+        h('div',{class:'item-opts'},[ty,tag,
+          h('label',{class:'mini'},[pers,'Name & number']),
+          h('label',{class:'mini'},[vis,'Visible']),
+          h('span',{class:'sp'}),
+          h('button',{class:'ic-btn',type:'button','aria-label':'Move up',onclick:function(){if(ii>0){t.items.splice(ii-1,0,t.items.splice(ii,1)[0]);drawItems();markDirty();}}},[h('i',{class:'ti ti-arrow-up'})]),
+          h('button',{class:'ic-btn',type:'button','aria-label':'Move down',onclick:function(){if(ii<t.items.length-1){t.items.splice(ii+1,0,t.items.splice(ii,1)[0]);drawItems();markDirty();}}},[h('i',{class:'ti ti-arrow-down'})]),
+          h('button',{class:'ic-btn',type:'button','aria-label':'Delete product',onclick:function(){if(confirm('Delete “'+(it.n||'this product')+'”?')){t.items.splice(ii,1);drawItems();markDirty();}}},[h('i',{class:'ti ti-trash'})])])]);
+      pr.style.paddingLeft='26px';
+      bindChk(vis,function(){return !it.hidden;},function(v){it.hidden=!v;row.classList.toggle('is-hidden',!v);});
+      list.appendChild(row);
+    });
+    if(!t.items.length)list.appendChild(h('p',{class:'d',style:'color:#5A6B7C',text:'No products yet.'}));
+  }
+  drawItems();
+  body.appendChild(h('div',{class:'row',style:'margin-top:12px'},[
+    h('button',{class:'btn btn-g btn-s',type:'button',onclick:function(){t.items.push({k:'item-'+Date.now().toString(36),n:'New product',ic:'ti-shirt-sport',price:0,tag:'',pers:false,hidden:false});drawItems();markDirty();}},[h('i',{class:'ti ti-plus'}),'Add product'])]));
+  body.appendChild(h('div',{class:'row',style:'margin-top:22px;padding-top:16px;border-top:1px solid #E1E7EF;justify-content:space-between'},[
+    h('span',{class:'limit',style:'text-align:left',text:'Each product tile shows the team logo.'}),
+    h('button',{class:'btn btn-g btn-s danger',type:'button',onclick:function(){if(confirm('Delete the whole “'+t.n+'” team store? You can also just hide it.')){C.teams.splice(ti,1);renderTeams();markDirty();}}},[h('i',{class:'ti ti-trash'}),'Delete team'])]));
+  return card;
+}
+$('#addTeam').addEventListener('click',function(){
+  var base=slug('new-team'),id=base,i=1;while(C.teams.some(function(t){return t.id===id;}))id=base+'-'+(++i);
+  var tpl=C.teams.length?C.teams[C.teams.length-1].items:[];
+  C.teams.push({id:id,n:'New team',cat:'Youth hockey',status:'open',logo:'',dark:false,c1:'#12305C',c2:'#2C6FC4',url:C.teams.length?C.teams[0].url.replace(/\/[^/]*$/,'/'):'https://forsportsmaryland.3dcartstores.com/',note:'',hidden:true,
+    items:tpl.map(function(it,k){return {k:'item-'+k+'-'+Date.now().toString(36),n:it.n,ic:it.ic,price:it.price,tag:it.tag,pers:it.pers,hidden:false};})});
+  openTeams[id]=true;renderTeams();markDirty();toast('Team added (hidden). Add a logo, then switch it on.');
+  var last=$('#teamList').lastElementChild;if(last)last.scrollIntoView({behavior:'smooth',block:'center'});
+});
+document.body.appendChild(h('datalist',{id:'cats'},['Youth hockey','College','High school','Adult league','Figure skating'].map(function(c){return h('option',{value:c});})));
+})();
+</script>
+</body>
+</html>

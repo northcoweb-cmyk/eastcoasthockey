@@ -1,0 +1,629 @@
+{
+ "version": 1,
+ "announce": {
+  "on": false,
+  "text": "",
+  "link": ""
+ },
+ "hero": {
+  "lead": "Your Go-To Online Shop for",
+  "accent": "Hockey & Skating Gear",
+  "sub": "We combine our genuine love for the sport with extensive industry experience to ensure you feel confident and satisfied with every purchase."
+ },
+ "contact": {
+  "email": "hendrix1122@hotmail.com"
+ },
+ "locations": [
+  {
+   "n": "Laurel",
+   "a": "13800 Old Gunpowder Rd, Laurel, MD 20707",
+   "p": "(301) 604-8200",
+   "tel": "+13016048200"
+  },
+  {
+   "n": "Rockville",
+   "a": "50 Southlawn Ct, Rockville, MD 20850",
+   "p": "(301) 610-7500",
+   "tel": "+13016107500"
+  },
+  {
+   "n": "Piney Orchard",
+   "a": "8781 Piney Orchard Pky, Odenton, MD 21113",
+   "p": "(410) 695-0000",
+   "tel": "+14106950000"
+  }
+ ],
+ "shop": [
+  {
+   "t": "Hockey skates",
+   "d": "Bauer, CCM and True \u2014 fit, baked and sharpened before you leave",
+   "img": "assets/bauer.webp"
+  },
+  {
+   "t": "Sticks",
+   "d": "Bauer Vapor and Hyperlite, CCM JetSpeed and Tacks \u2014 every flex and curve",
+   "img": "assets/sticks.webp"
+  },
+  {
+   "t": "Figure skates",
+   "d": "Jackson and Edea boots with precision blade mounting",
+   "img": "assets/figure.webp"
+  },
+  {
+   "t": "Goalie gear",
+   "d": "Pads, blockers, catchers, masks and goalie sticks",
+   "img": "assets/mold.webp"
+  },
+  {
+   "t": "Steel & blades",
+   "d": "Step Steel, runners and holders, swapped at the bench",
+   "img": "assets/ccm.webp"
+  }
+ ],
+ "teams": [
+  {
+   "id": "navy-youth",
+   "n": "Navy Youth Hockey",
+   "cat": "Youth hockey",
+   "status": "open",
+   "logo": "assets/teams/navy-youth-hockey.jpg",
+   "dark": false,
+   "c1": "#041E42",
+   "c2": "#C8A951",
+   "url": "https://forsportsmaryland.3dcartstores.com/Navy-Youth-Hockey_c_47.html",
+   "note": "All Navy Youth Hockey apparel includes the Navy Youth Hockey logo. Check each item for player name and number options.",
+   "hidden": false,
+   "items": [
+    {
+     "k": "mite-jersey",
+     "n": "MITE Jersey (Blue)",
+     "ic": "ti-shirt-sport",
+     "price": 75,
+     "tag": "Game wear",
+     "pers": true,
+     "hidden": false
+    },
+    {
+     "k": "pantshell",
+     "n": "Pant Shell",
+     "ic": "ti-shoe",
+     "price": 55,
+     "tag": "Game wear",
+     "pers": true,
+     "hidden": false
+    },
+    {
+     "k": "academy-jersey",
+     "n": "ACADEMY Jersey",
+     "ic": "ti-shirt-sport",
+     "price": 75,
+     "tag": "Game wear",
+     "pers": true,
+     "hidden": false
+    }
+   ]
+  },
+  {
+   "id": "richmond-hc",
+   "n": "Richmond Hockey Club",
+   "cat": "Youth hockey",
+   "status": "open",
+   "logo": "assets/teams/richmond-hockey-club.webp",
+   "dark": true,
+   "c1": "#05080f",
+   "c2": "#0B2545",
+   "url": "https://forsportsmaryland.3dcartstores.com/Richmond-Hockey-Club_c_63.html",
+   "note": "",
+   "hidden": false,
+   "items": [
+    {
+     "k": "jersey",
+     "n": "Game Jersey",
+     "ic": "ti-shirt-sport",
+     "price": 75,
+     "tag": "On ice",
+     "pers": true,
+     "hidden": false
+    },
+    {
+     "k": "pantshell",
+     "n": "Pant Shell",
+     "ic": "ti-shoe",
+     "price": 55,
+     "tag": "",
+     "pers": true,
+     "hidden": false
+    },
+    {
+     "k": "warmup-jacket",
+     "n": "Warm-Up Jacket",
+     "ic": "ti-jacket",
+     "price": 85,
+     "tag": "Team set",
+     "pers": true,
+     "hidden": false
+    },
+    {
+     "k": "warmup-pant",
+     "n": "Warm-Up Pant",
+     "ic": "ti-shoe",
+     "price": 65,
+     "tag": "",
+     "pers": true,
+     "hidden": false
+    },
+    {
+     "k": "hoodie",
+     "n": "Team Hoodie",
+     "ic": "ti-hanger",
+     "price": 54,
+     "tag": "Best seller",
+     "pers": true,
+     "hidden": false
+    },
+    {
+     "k": "tee",
+     "n": "Practice Tee",
+     "ic": "ti-shirt",
+     "price": 24,
+     "tag": "",
+     "pers": true,
+     "hidden": false
+    },
+    {
+     "k": "hat",
+     "n": "Team Hat",
+     "ic": "ti-star",
+     "price": 28,
+     "tag": "",
+     "pers": false,
+     "hidden": false
+    },
+    {
+     "k": "bag",
+     "n": "Equipment Bag",
+     "ic": "ti-briefcase",
+     "price": 79,
+     "tag": "",
+     "pers": true,
+     "hidden": false
+    }
+   ]
+  },
+  {
+   "id": "tri-city",
+   "n": "Tri-City Eagles",
+   "cat": "Youth hockey",
+   "status": "open",
+   "logo": "assets/teams/tri-city-eagles.png",
+   "dark": false,
+   "c1": "#046A38",
+   "c2": "#FFC72C",
+   "url": "https://forsportsmaryland.3dcartstores.com/Tri-City-Eagles_c_69.html",
+   "note": "",
+   "hidden": false,
+   "items": [
+    {
+     "k": "jersey",
+     "n": "Game Jersey",
+     "ic": "ti-shirt-sport",
+     "price": 75,
+     "tag": "On ice",
+     "pers": true,
+     "hidden": false
+    },
+    {
+     "k": "pantshell",
+     "n": "Pant Shell",
+     "ic": "ti-shoe",
+     "price": 55,
+     "tag": "",
+     "pers": true,
+     "hidden": false
+    },
+    {
+     "k": "warmup-jacket",
+     "n": "Warm-Up Jacket",
+     "ic": "ti-jacket",
+     "price": 85,
+     "tag": "Team set",
+     "pers": true,
+     "hidden": false
+    },
+    {
+     "k": "warmup-pant",
+     "n": "Warm-Up Pant",
+     "ic": "ti-shoe",
+     "price": 65,
+     "tag": "",
+     "pers": true,
+     "hidden": false
+    },
+    {
+     "k": "hoodie",
+     "n": "Team Hoodie",
+     "ic": "ti-hanger",
+     "price": 54,
+     "tag": "Best seller",
+     "pers": true,
+     "hidden": false
+    },
+    {
+     "k": "tee",
+     "n": "Practice Tee",
+     "ic": "ti-shirt",
+     "price": 24,
+     "tag": "",
+     "pers": true,
+     "hidden": false
+    },
+    {
+     "k": "hat",
+     "n": "Team Hat",
+     "ic": "ti-star",
+     "price": 28,
+     "tag": "",
+     "pers": false,
+     "hidden": false
+    },
+    {
+     "k": "bag",
+     "n": "Equipment Bag",
+     "ic": "ti-briefcase",
+     "price": 79,
+     "tag": "",
+     "pers": true,
+     "hidden": false
+    }
+   ]
+  },
+  {
+   "id": "howard-huskies",
+   "n": "Howard Huskies",
+   "cat": "Youth hockey",
+   "status": "open",
+   "logo": "assets/teams/howard-huskies.png",
+   "dark": false,
+   "c1": "#0033A0",
+   "c2": "#101820",
+   "url": "https://forsportsmaryland.3dcartstores.com/Howard-Huskies_c_75.html",
+   "note": "All items have the Howard Huskies logo embroidered, screen printed or heat pressed on \u2014 included in the price. Sizing information is on each product page.",
+   "hidden": false,
+   "items": [
+    {
+     "k": "jersey",
+     "n": "Game Jersey",
+     "ic": "ti-shirt-sport",
+     "price": 75,
+     "tag": "On ice",
+     "pers": true,
+     "hidden": false
+    },
+    {
+     "k": "pantshell",
+     "n": "Pant Shell",
+     "ic": "ti-shoe",
+     "price": 55,
+     "tag": "",
+     "pers": true,
+     "hidden": false
+    },
+    {
+     "k": "warmup-jacket",
+     "n": "Warm-Up Jacket",
+     "ic": "ti-jacket",
+     "price": 85,
+     "tag": "Team set",
+     "pers": true,
+     "hidden": false
+    },
+    {
+     "k": "warmup-pant",
+     "n": "Warm-Up Pant",
+     "ic": "ti-shoe",
+     "price": 65,
+     "tag": "",
+     "pers": true,
+     "hidden": false
+    },
+    {
+     "k": "hoodie",
+     "n": "Team Hoodie",
+     "ic": "ti-hanger",
+     "price": 54,
+     "tag": "Best seller",
+     "pers": true,
+     "hidden": false
+    },
+    {
+     "k": "tee",
+     "n": "Practice Tee",
+     "ic": "ti-shirt",
+     "price": 24,
+     "tag": "",
+     "pers": true,
+     "hidden": false
+    },
+    {
+     "k": "hat",
+     "n": "Team Hat",
+     "ic": "ti-star",
+     "price": 28,
+     "tag": "",
+     "pers": false,
+     "hidden": false
+    },
+    {
+     "k": "bag",
+     "n": "Equipment Bag",
+     "ic": "ti-briefcase",
+     "price": 79,
+     "tag": "",
+     "pers": true,
+     "hidden": false
+    }
+   ]
+  },
+  {
+   "id": "baltimore-stars",
+   "n": "Baltimore Stars Hockey",
+   "cat": "Youth hockey",
+   "status": "open",
+   "logo": "assets/teams/baltimore-stars.webp",
+   "dark": false,
+   "c1": "#101820",
+   "c2": "#FDB927",
+   "url": "https://forsportsmaryland.3dcartstores.com/Baltimore-Stars-Hockey_c_87.html",
+   "note": "",
+   "hidden": false,
+   "items": [
+    {
+     "k": "jersey",
+     "n": "Game Jersey",
+     "ic": "ti-shirt-sport",
+     "price": 75,
+     "tag": "On ice",
+     "pers": true,
+     "hidden": false
+    },
+    {
+     "k": "pantshell",
+     "n": "Pant Shell",
+     "ic": "ti-shoe",
+     "price": 55,
+     "tag": "",
+     "pers": true,
+     "hidden": false
+    },
+    {
+     "k": "warmup-jacket",
+     "n": "Warm-Up Jacket",
+     "ic": "ti-jacket",
+     "price": 85,
+     "tag": "Team set",
+     "pers": true,
+     "hidden": false
+    },
+    {
+     "k": "warmup-pant",
+     "n": "Warm-Up Pant",
+     "ic": "ti-shoe",
+     "price": 65,
+     "tag": "",
+     "pers": true,
+     "hidden": false
+    },
+    {
+     "k": "hoodie",
+     "n": "Team Hoodie",
+     "ic": "ti-hanger",
+     "price": 54,
+     "tag": "Best seller",
+     "pers": true,
+     "hidden": false
+    },
+    {
+     "k": "tee",
+     "n": "Practice Tee",
+     "ic": "ti-shirt",
+     "price": 24,
+     "tag": "",
+     "pers": true,
+     "hidden": false
+    },
+    {
+     "k": "hat",
+     "n": "Team Hat",
+     "ic": "ti-star",
+     "price": 28,
+     "tag": "",
+     "pers": false,
+     "hidden": false
+    },
+    {
+     "k": "bag",
+     "n": "Equipment Bag",
+     "ic": "ti-briefcase",
+     "price": 79,
+     "tag": "",
+     "pers": true,
+     "hidden": false
+    }
+   ]
+  },
+  {
+   "id": "so-md-sabres",
+   "n": "Southern Maryland Sabres",
+   "cat": "Youth hockey",
+   "status": "open",
+   "logo": "assets/teams/southern-maryland-sabres.webp",
+   "dark": false,
+   "c1": "#002654",
+   "c2": "#FCB514",
+   "url": "https://forsportsmaryland.3dcartstores.com/Southern-Maryland-Sabres_c_90.html",
+   "note": "For Sports is proud to be the official team supplier of the Southern Maryland Sabres.",
+   "hidden": false,
+   "items": [
+    {
+     "k": "jersey",
+     "n": "Game Jersey",
+     "ic": "ti-shirt-sport",
+     "price": 75,
+     "tag": "On ice",
+     "pers": true,
+     "hidden": false
+    },
+    {
+     "k": "pantshell",
+     "n": "Pant Shell",
+     "ic": "ti-shoe",
+     "price": 55,
+     "tag": "",
+     "pers": true,
+     "hidden": false
+    },
+    {
+     "k": "warmup-jacket",
+     "n": "Warm-Up Jacket",
+     "ic": "ti-jacket",
+     "price": 85,
+     "tag": "Team set",
+     "pers": true,
+     "hidden": false
+    },
+    {
+     "k": "warmup-pant",
+     "n": "Warm-Up Pant",
+     "ic": "ti-shoe",
+     "price": 65,
+     "tag": "",
+     "pers": true,
+     "hidden": false
+    },
+    {
+     "k": "hoodie",
+     "n": "Team Hoodie",
+     "ic": "ti-hanger",
+     "price": 54,
+     "tag": "Best seller",
+     "pers": true,
+     "hidden": false
+    },
+    {
+     "k": "tee",
+     "n": "Practice Tee",
+     "ic": "ti-shirt",
+     "price": 24,
+     "tag": "",
+     "pers": true,
+     "hidden": false
+    },
+    {
+     "k": "hat",
+     "n": "Team Hat",
+     "ic": "ti-star",
+     "price": 28,
+     "tag": "",
+     "pers": false,
+     "hidden": false
+    },
+    {
+     "k": "bag",
+     "n": "Equipment Bag",
+     "ic": "ti-briefcase",
+     "price": 79,
+     "tag": "",
+     "pers": true,
+     "hidden": false
+    }
+   ]
+  },
+  {
+   "id": "easton-ice-hawks",
+   "n": "Easton Ice Hawks",
+   "cat": "Youth hockey",
+   "status": "open",
+   "logo": "assets/teams/easton-ice-hawks.png",
+   "dark": false,
+   "c1": "#C8102E",
+   "c2": "#041E42",
+   "url": "https://forsportsmaryland.3dcartstores.com/Easton-Ice-Hawks_c_91.html",
+   "note": "",
+   "hidden": false,
+   "items": [
+    {
+     "k": "jersey",
+     "n": "Game Jersey",
+     "ic": "ti-shirt-sport",
+     "price": 75,
+     "tag": "On ice",
+     "pers": true,
+     "hidden": false
+    },
+    {
+     "k": "pantshell",
+     "n": "Pant Shell",
+     "ic": "ti-shoe",
+     "price": 55,
+     "tag": "",
+     "pers": true,
+     "hidden": false
+    },
+    {
+     "k": "warmup-jacket",
+     "n": "Warm-Up Jacket",
+     "ic": "ti-jacket",
+     "price": 85,
+     "tag": "Team set",
+     "pers": true,
+     "hidden": false
+    },
+    {
+     "k": "warmup-pant",
+     "n": "Warm-Up Pant",
+     "ic": "ti-shoe",
+     "price": 65,
+     "tag": "",
+     "pers": true,
+     "hidden": false
+    },
+    {
+     "k": "hoodie",
+     "n": "Team Hoodie",
+     "ic": "ti-hanger",
+     "price": 54,
+     "tag": "Best seller",
+     "pers": true,
+     "hidden": false
+    },
+    {
+     "k": "tee",
+     "n": "Practice Tee",
+     "ic": "ti-shirt",
+     "price": 24,
+     "tag": "",
+     "pers": true,
+     "hidden": false
+    },
+    {
+     "k": "hat",
+     "n": "Team Hat",
+     "ic": "ti-star",
+     "price": 28,
+     "tag": "",
+     "pers": false,
+     "hidden": false
+    },
+    {
+     "k": "bag",
+     "n": "Equipment Bag",
+     "ic": "ti-briefcase",
+     "price": 79,
+     "tag": "",
+     "pers": true,
+     "hidden": false
+    }
+   ]
+  }
+ ]
+}

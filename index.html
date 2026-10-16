@@ -92,6 +92,8 @@ header.scrolled .brand img{height:44px}
 .drawer-contact i{color:var(--red);font-size:18px}
 
 .hero{position:relative;overflow:hidden;padding:clamp(52px,7.5vw,92px) 0 0;min-height:min(94vh,880px);display:flex;flex-direction:column}
+.announce{background:var(--red);color:#fff;text-align:center;font-size:14px;font-weight:500;padding:9px 16px;line-height:1.4}
+.announce a{color:#fff;text-decoration:underline;text-underline-offset:3px;font-weight:600}
 .hero-track{position:relative}
 .hero-scene{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none;overflow:hidden}
 @media(prefers-reduced-motion:reduce){.hero-scene{display:none}}
@@ -1104,14 +1106,15 @@ drawer.querySelectorAll('a').forEach(function(a){a.addEventListener('click',func
   $('#marqueeTrack').innerHTML=h;
 })();
 
-(function(){
+function renderShop(){
   $('#shopGrid').innerHTML=SHOP.map(function(s){
     return '<a class="shop-card rv" href="'+STORE+'" target="_blank" rel="noopener">'+
       '<img src="'+s.img+'" alt="'+s.t.replace(/&amp;/g,'and')+'" loading="lazy">'+
       '<div class="shop-body"><h3>'+s.t+'</h3><p>'+s.d+'</p>'+
       '<span class="shop-link">Shop now <i class="ti ti-arrow-right"></i></span></div></a>';
   }).join('');
-})();
+}
+renderShop();window.__ecShop=function(){renderShop();document.querySelectorAll('#shopGrid .rv').forEach(function(n){n.classList.add('in');});};
 
 function buildAcc(root,items){
   root.innerHTML=items.map(function(it){
@@ -1165,6 +1168,11 @@ var cart=[];
     c.classList.add('on');cat=c.dataset.cat;render();
   });
   search.addEventListener('input',function(){q=search.value.trim().toLowerCase();render();});
+  window.__ecTeams=function(){
+    cats=['All'];TEAMS.forEach(function(t){if(cats.indexOf(t.cat)<0)cats.push(t.cat);});
+    cat='All';filters.innerHTML=cats.map(function(c,i){return '<button class="chip'+(i===0?' on':'')+'" data-cat="'+esc(c)+'">'+esc(c)+'</button>';}).join('');
+    browse.style.display='';store.classList.remove('on');render();
+  };
   function openTeam(id){
     var t=TEAMS.filter(function(x){return x.id===id;})[0]; if(!t)return;
     var crest=$('#tsCrest'),crest_=window.__crest;
@@ -1173,7 +1181,7 @@ var cart=[];
     $('#tsMeta').textContent=t.cat+' · decorated and fulfilled by East Coast';
     $('#tsDeadline').innerHTML='<i class="ti ti-circle-check"></i> Store open';
     var items=t.items||DEFAULT_ITEMS;
-    $('#prodGrid').innerHTML=items.map(function(g){
+    $('#prodGrid').innerHTML=!items.length?'<p class="ts-empty" style="grid-column:1/-1">Products are being added. Check back soon.</p>':items.map(function(g){
       return '<div class="prod" data-k="'+g.k+'">'+
         '<div class="prod-vis'+(t.logo?' has-logo'+(t.dark?' dark':''):'')+'"'+(t.logo?'':' style="background:linear-gradient(150deg,'+t.c1+','+t.c2+')"')+'>'+
         (g.tag?'<span class="tag">'+g.tag+'</span>':'')+'<i class="ti '+g.ic+'"></i>'+
@@ -1395,6 +1403,7 @@ $('#checkoutBtn').addEventListener('click',function(){
       '<span><strong>'+esc(t.n)+'</strong><span>'+esc(t.r)+'</span></span></div></article>';
   }).join('');
 
+  function renderLocs(){
   $('#locGrid').innerHTML=LOCS.map(function(l){
     if(l.soon){
       return '<article class="loc loc-soon rv"><div class="loc-photo soon"><img src="'+l.img+'" alt="" loading="lazy">'+
@@ -1413,6 +1422,9 @@ $('#checkoutBtn').addEventListener('click',function(){
       '<div class="loc-actions"><a class="btn btn-dark btn-sm" href="tel:'+l.tel+'"><i class="ti ti-phone"></i> Call</a>'+
       '<a class="btn btn-ghost btn-sm" href="'+dir+'" target="_blank" rel="noopener"><i class="ti ti-navigation"></i> Directions</a></div></div></article>';
   }).join('');
+  }
+  renderLocs();
+  window.__ecLocs=function(){renderLocs();document.querySelectorAll('#locGrid .rv').forEach(function(n){n.classList.add('in');});};
 
   $('#igGrid').innerHTML=[A.bauer,A.sticks,A.sharp,A.figure,A.ccm,A.mold].map(function(src){
     return '<a class="ig-tile" href="https://www.instagram.com/east.coast.hockey.and.skating/" target="_blank" rel="noopener">'+
@@ -1526,6 +1538,59 @@ document.addEventListener('pointerdown',function(e){
       c.style.transitionDelay=Math.min(i*60,360)+'ms';
     });
   });
+})();
+
+
+/* ===== admin-managed content: overrides the built-in defaults when the API has saved edits ===== */
+(function(){
+  var API='/api/content';
+  function textSwap(oldV,newV){
+    if(!oldV||oldV===newV)return;
+    var w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT,{acceptNode:function(n){
+      var p=n.parentNode&&n.parentNode.nodeName;return (p==='SCRIPT'||p==='STYLE'||p==='TEXTAREA')?NodeFilter.FILTER_REJECT:(n.nodeValue.indexOf(oldV)>-1?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT);}});
+    var list=[],n;while((n=w.nextNode()))list.push(n);
+    list.forEach(function(t){t.nodeValue=t.nodeValue.split(oldV).join(newV);});
+  }
+  function hrefSwap(prefix,oldV,newV){
+    document.querySelectorAll('a[href="'+prefix+oldV+'"]').forEach(function(a){a.setAttribute('href',prefix+newV);});
+  }
+  function apply(c){
+    if(!c||!c.hero)return;
+    /* announcement */
+    var old=document.querySelector('.announce');if(old)old.remove();
+    if(c.announce&&c.announce.on&&c.announce.text){
+      var bar=document.createElement('div');bar.className='announce';bar.setAttribute('role','status');
+      if(c.announce.link){var a=document.createElement('a');a.href=c.announce.link;a.textContent=c.announce.text;if(/^https?:/.test(c.announce.link)){a.target='_blank';a.rel='noopener';}bar.appendChild(a);}
+      else bar.textContent=c.announce.text;
+      document.body.insertBefore(bar,document.body.firstChild);
+    }
+    /* hero copy */
+    var h1=document.querySelector('.hero h1');
+    if(h1){h1.textContent='';h1.appendChild(document.createTextNode(c.hero.lead+' '));var sp=document.createElement('span');sp.className='accent';sp.textContent=c.hero.accent;h1.appendChild(sp);}
+    var sub=document.querySelector('.hero p.sub');if(sub)sub.textContent=c.hero.sub;
+    /* email */
+    var oldMail=document.querySelector('a[href^="mailto:"]');oldMail=oldMail?oldMail.getAttribute('href').slice(7):'';
+    if(oldMail&&c.contact&&c.contact.email){textSwap(oldMail,c.contact.email);hrefSwap('mailto:',oldMail,c.contact.email);}
+    /* locations: static copy first (uses the originals), then the cards */
+    LOCS.forEach(function(l,i){
+      var n=c.locations&&c.locations[i];if(!n)return;
+      textSwap(l.a,n.a);textSwap(l.p,n.p);hrefSwap('tel:',l.tel,n.tel);
+      l.a=n.a;l.p=n.p;l.tel=n.tel;
+    });
+    if(window.__ecLocs)window.__ecLocs();
+    /* shop categories */
+    (c.shop||[]).forEach(function(s,i){if(SHOP[i]){SHOP[i].t=esc(s.t);SHOP[i].d=esc(s.d);SHOP[i].img=s.img||SHOP[i].img;}});
+    if(window.__ecShop)window.__ecShop();
+    /* team stores */
+    var teams=(c.teams||[]).filter(function(t){return !t.hidden;}).map(function(t){
+      return {id:t.id,n:t.n,cat:t.cat,status:t.status,logo:t.logo||'',dark:!!t.dark,c1:t.c1,c2:t.c2,url:t.url,note:t.note||'',
+        items:t.items.filter(function(i){return !i.hidden;}).map(function(i){return {k:i.k,n:i.n,ic:i.ic,price:i.price,tag:i.tag,pers:i.pers};})};
+    });
+    TEAMS.length=0;teams.forEach(function(t){TEAMS.push(t);});
+    if(window.__ecTeams)window.__ecTeams();
+    document.querySelectorAll('#tsGrid .rv').forEach(function(n){n.classList.add('in');});
+  }
+  fetch(API,{credentials:'same-origin'}).then(function(r){return r.ok?r.json():null;}).then(apply).catch(function(){/* keep built-in content */});
 })();
 
 $('#yr').textContent=new Date().getFullYear();

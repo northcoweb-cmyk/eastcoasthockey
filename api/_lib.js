@@ -1,0 +1,208 @@
+'use strict';
+/* Shared helpers for the admin API: auth, storage and input cleaning. */
+const crypto = require('crypto');
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
+const DEFAULTS = require('./defaults.json');
+
+const COOKIE = 'ec_admin';
+const SESSION_HOURS = 12;
+
+/* ---- credentials -------------------------------------------------------
+   TEST PROFILE: Mike / 1234. In production set ADMIN_USER and ADMIN_PASSWORD
+   (and ADMIN_SECRET) in the Vercel project settings; these then override the
+   defaults below. */
+const ADMIN_USER = process.env.ADMIN_USER || 'Mike';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '1234';
+const SECRET = process.env.ADMIN_SECRET || crypto.createHash('sha256').update('ec-admin::' + ADMIN_USER + '::' + ADMIN_PASSWORD).digest('hex');
+const USING_TEST_LOGIN = !process.env.ADMIN_PASSWORD;
+
+function sha(s) { return crypto.createHash('sha256').update(String(s)).digest(); }
+function safeEqual(a, b) { return crypto.timingSafeEqual(sha(a), sha(b)); }
+function checkLogin(user, pass) {
+  /* evaluate both so timing does not reveal which one was wrong */
+  const u = safeEqual(String(user || '').trim().toLowerCase(), ADMIN_USER.toLowerCase());
+  const p = safeEqual(pass || '', ADMIN_PASSWORD);
+  return u && p;
+}
+
+/* ---- session cookie (HMAC signed) ---- */
+function b64(s) { return Buffer.from(s).toString('base64url'); }
+function sign(payload) {
+  const body = b64(JSON.stringify(payload));
+  const mac = crypto.createHmac('sha256', SECRET).update(body).digest('base64url');
+  return body + '.' + mac;
+}
+function verify(token) {
+  if (!token || token.indexOf('.') < 0) return null;
+  const [body, mac] = token.split('.');
+  const good = crypto.createHmac('sha256', SECRET).update(body).digest('base64url');
+  if (mac.length !== good.length || !crypto.timingSafeEqual(Buffer.from(mac), Buffer.from(good))) return null;
+  try {
+    const p = JSON.parse(Buffer.from(body, 'base64url').toString());
+    return p.exp > Date.now() ? p : null;
+  } catch (e) { return null; }
+}
+function cookies(req) {
+  const out = {};
+  String(req.headers.cookie || '').split(';').forEach(function (c) {
+    const i = c.indexOf('=');
+    if (i > 0) out[c.slice(0, i).trim()] = decodeURIComponent(c.slice(i + 1).trim());
+  });
+  return out;
+}
+function setSession(res, user) {
+  const exp = Date.now() + SESSION_HOURS * 3600 * 1000;
+  const tok = sign({ u: user, exp });
+  const secure = process.env.VERCEL ? '; Secure' : '';
+  res.setHeader('Set-Cookie', COOKIE + '=' + tok + '; Path=/; HttpOnly; SameSite=Strict; Max-Age=' + SESSION_HOURS * 3600 + secure);
+}
+function clearSession(res) {
+  const secure = process.env.VERCEL ? '; Secure' : '';
+  res.setHeader('Set-Cookie', COOKIE + '=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0' + secure);
+}
+function session(req) { return verify(cookies(req)[COOKIE]); }
+
+/* writes must come from our own admin page */
+function requireAdmin(req, res) {
+  const s = session(req);
+  if (!s) { json(res, 401, { error: 'Please sign in.' }); return null; }
+  if (req.method !== 'GET' && req.headers['x-admin-request'] !== '1') { json(res, 403, { error: 'Blocked request.' }); return null; }
+  return s;
+}
+
+/* ---- tiny login throttle (best effort; per warm instance) ---- */
+const fails = {};
+function throttled(ip) {
+  const f = fails[ip];
+  return f && f.n >= 5 && Date.now() - f.t < 60000;
+}
+function noteFail(ip) {
+  const f = fails[ip] || { n: 0, t: 0 };
+  if (Date.now() - f.t > 60000) f.n = 0;
+  f.n++; f.t = Date.now(); fails[ip] = f;
+}
+function clearFails(ip) { delete fails[ip]; }
+function clientIp(req) { return String(req.headers['x-forwarded-for'] || (req.socket && req.socket.remoteAddress) || 'x').split(',')[0].trim(); }
+
+/* ---- http helpers ---- */
+function json(res, status, obj) {
+  res.statusCode = status;
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  res.setHeader('Cache-Control', 'no-store');
+  res.end(JSON.stringify(obj));
+}
+function readBody(req, limit) {
+  limit = limit || 200 * 1024;
+  return new Promise(function (resolve, reject) {
+    if (req.body && typeof req.body === 'object') return resolve(req.body);
+    let size = 0; const chunks = [];
+    req.on('data', function (c) { size += c.length; if (size > limit) { reject(new Error('Too large')); req.destroy(); } else chunks.push(c); });
+    req.on('end', function () {
+      try { resolve(JSON.parse(Buffer.concat(chunks).toString() || '{}')); } catch (e) { reject(new Error('Bad JSON')); }
+    });
+    req.on('error', reject);
+  });
+}
+
+/* ---- storage: Vercel Blob when connected, local temp file otherwise ---- */
+const BLOB_PATH = 'site/content.json';
+const hasBlob = !!process.env.BLOB_READ_WRITE_TOKEN;
+const TMP_FILE = path.join(os.tmpdir(), 'ec-content.json');
+
+async function loadSaved() {
+  if (hasBlob) {
+    const { list } = require('@vercel/blob');
+    const r = await list({ prefix: BLOB_PATH, limit: 1 });
+    const b = r.blobs.find(function (x) { return x.pathname === BLOB_PATH; });
+    if (!b) return null;
+    const res = await fetch(b.url + '?t=' + Date.now(), { cache: 'no-store' });
+    return res.ok ? res.json() : null;
+  }
+  try { return JSON.parse(fs.readFileSync(TMP_FILE, 'utf8')); } catch (e) { return null; }
+}
+async function saveContent(obj) {
+  const text = JSON.stringify(obj);
+  if (hasBlob) {
+    const { put } = require('@vercel/blob');
+    await put(BLOB_PATH, text, { access: 'public', contentType: 'application/json', addRandomSuffix: false, allowOverwrite: true, cacheControlMaxAge: 30 });
+  } else {
+    fs.writeFileSync(TMP_FILE, text);
+  }
+}
+async function resetContent() {
+  if (hasBlob) {
+    const { list, del } = require('@vercel/blob');
+    const r = await list({ prefix: BLOB_PATH, limit: 5 });
+    if (r.blobs.length) await del(r.blobs.map(function (b) { return b.url; }));
+  } else { try { fs.unlinkSync(TMP_FILE); } catch (e) { /* none */ } }
+}
+async function getContent() {
+  const saved = await loadSaved();
+  return saved ? clean(saved) : JSON.parse(JSON.stringify(DEFAULTS));
+}
+
+/* ---- validation: keep edits small, safe and well-formed ---- */
+function str(v, max, fallback) {
+  if (typeof v !== 'string') return fallback || '';
+  return v.replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, max);
+}
+function url(v) {
+  v = str(v, 500);
+  if (!v) return '';
+  if (/^https:\/\//i.test(v) || /^assets\/[\w\-./]+$/.test(v) || /^\/assets\/[\w\-./]+$/.test(v)) return v;
+  if (/^http:\/\//i.test(v)) return 'https://' + v.slice(7);
+  return '';
+}
+function link(v) { v = url(v); return v; }
+function money(v) { const n = Math.round(Number(v) * 100) / 100; return isFinite(n) ? Math.min(Math.max(n, 0), 2000) : 0; }
+function digits(p) { const d = String(p || '').replace(/\D/g, ''); return d.length === 10 ? '+1' + d : d.length === 11 && d[0] === '1' ? '+' + d : ''; }
+function pretty(p) { const d = String(p || '').replace(/\D/g, '').replace(/^1(?=\d{10}$)/, ''); return d.length === 10 ? '(' + d.slice(0, 3) + ') ' + d.slice(3, 6) + '-' + d.slice(6) : str(p, 24); }
+const ICONS = ['ti-shirt-sport', 'ti-shoe', 'ti-jacket', 'ti-hanger', 'ti-shirt', 'ti-star', 'ti-briefcase'];
+
+function clean(c) {
+  const D = DEFAULTS;
+  c = c && typeof c === 'object' ? c : {};
+  const out = { version: 1 };
+  const a = c.announce || {};
+  out.announce = { on: !!a.on, text: str(a.text, 160), link: link(a.link) };
+  const h = c.hero || {};
+  out.hero = { lead: str(h.lead, 80, D.hero.lead) || D.hero.lead, accent: str(h.accent, 60, D.hero.accent) || D.hero.accent, sub: str(h.sub, 320, D.hero.sub) || D.hero.sub };
+  out.contact = { email: /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/.test(str(c.contact && c.contact.email, 120)) ? str(c.contact.email, 120) : D.contact.email };
+  out.locations = D.locations.map(function (d, i) {
+    const l = (c.locations && c.locations[i]) || {};
+    const p = digits(l.p) ? pretty(l.p) : d.p;
+    return { n: d.n, a: str(l.a, 140, d.a) || d.a, p: p, tel: digits(p) || d.tel };
+  });
+  out.shop = D.shop.map(function (d, i) {
+    const s = (c.shop && c.shop[i]) || {};
+    return { t: str(s.t, 40, d.t) || d.t, d: str(s.d, 140, d.d) || d.d, img: url(s.img) || d.img };
+  });
+  const seen = {};
+  out.teams = (Array.isArray(c.teams) ? c.teams : D.teams).slice(0, 40).map(function (t, ti) {
+    t = t || {};
+    let id = str(t.id, 40).toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-') || 'team-' + (ti + 1);
+    while (seen[id]) id += '-x';
+    seen[id] = 1;
+    const color = function (v, f) { return /^#[0-9a-fA-F]{6}$/.test(v || '') ? v : f; };
+    const ks = {};
+    return {
+      id: id, n: str(t.n, 60) || 'New team', cat: str(t.cat, 30) || 'Youth hockey',
+      status: t.status === 'soon' ? 'soon' : 'open', logo: url(t.logo), dark: !!t.dark,
+      c1: color(t.c1, '#12305C'), c2: color(t.c2, '#2C6FC4'), url: link(t.url) || D.teams[0].url.replace(/\/[^/]*$/, '/'),
+      note: str(t.note, 240), hidden: !!t.hidden,
+      items: (Array.isArray(t.items) ? t.items : []).slice(0, 40).map(function (it, ii) {
+        it = it || {};
+        let k = str(it.k, 40).toLowerCase().replace(/[^a-z0-9-]/g, '-') || 'item-' + (ii + 1);
+        while (ks[k]) k += '-x';
+        ks[k] = 1;
+        return { k: k, n: str(it.n, 60) || 'New item', ic: ICONS.indexOf(it.ic) >= 0 ? it.ic : 'ti-shirt-sport', price: money(it.price), tag: str(it.tag, 20), pers: !!it.pers, hidden: !!it.hidden };
+      })
+    };
+  });
+  return out;
+}
+
+module.exports = { json, readBody, checkLogin, setSession, clearSession, session, requireAdmin, throttled, noteFail, clearFails, clientIp,
+  getContent, saveContent, resetContent, clean, hasBlob, USING_TEST_LOGIN, DEFAULTS };

@@ -1,0 +1,12 @@
+{
+  "name": "east-coast-hockey",
+  "private": true,
+  "version": "1.0.0",
+  "description": "East Coast Hockey & Skating Supply website with a lightweight admin portal",
+  "dependencies": {
+    "@vercel/blob": "^2.0.0"
+  },
+  "scripts": {
+    "dev": "node dev-server.js"
+  }
+}
