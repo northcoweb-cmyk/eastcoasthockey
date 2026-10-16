@@ -1,12 +1,11 @@
-/* Halftone section backgrounds (from the 21st.dev "blue halftone" shader, ported to plain JavaScript).
-   Each light section gets its own faint halftone panel that stops at the section edge, so colour changes
-   between sections stay crisp and nothing reads as an overlay. The hero and the dark sections are left clean.
-   One WebGL context renders into small 2D canvases, only for sections that are on screen. */
+/* Halftone section texture (from the 21st.dev "blue halftone" shader, ported to plain JavaScript).
+   The shader is rendered ONCE into a single image tile, which every light section then uses as an ordinary
+   CSS background (see .sh-host in the page styles). Nothing is drawn while scrolling, so it costs no performance.
+   The hero and the dark sections are not given the texture. */
 (function () {
   'use strict';
   var hosts = [].slice.call(document.querySelectorAll('.sec:not(.sec-ink), .brands'));
   if (!hosts.length) return;
-  var reduce = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
 
   var VERT = 'attribute vec2 a_position;\nvoid main(){gl_Position=vec4(a_position,0.0,1.0);}';
   var FRAG = `#ifdef GL_FRAGMENT_PRECISION_HIGH
@@ -235,96 +234,52 @@ void main() {
     colors: [[0.2314,0.5098,0.9647],[0.1451,0.3882,0.9216],[0.1137,0.3059,0.8471],[0.1176,0.2510,0.6863],[0.1176,0.2275,0.5412],[0.1176,0.2275,0.5412],[0.1176,0.2275,0.5412],[0.1176,0.2275,0.5412]],
     colorCount: 5, scale: 1.78, intensity: 0.19, paramA: 1.0, warp: 0.0, detail: 4.0, contrast: 0.6,
     brightness: -0.4, saturation: 0.7, hue: 0.0, vignette: 0.0, blur: 0.04, grain: 0.0, seed: 4990.0,
-    rotate: 2.9845, offsetX: -0.25, offsetY: -0.02, drift: 0.136, oklab: 1.0, timeScale: -0.6, ref: 900
+    rotate: 2.9845, offsetX: -0.25, offsetY: -0.02, drift: 0.136, oklab: 1.0, ref: 900
   };
+  var TILE_W = 1400, TILE_H = 1500;
 
-  var glc = document.createElement('canvas');
-  var gl = glc.getContext('webgl', { antialias: false, alpha: true, premultipliedAlpha: true });
-  if (!gl) return;                                    /* no WebGL: sections just keep their plain background */
-
-  function compile(type, src) { var s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return s; }
-  var prog = gl.createProgram();
-  gl.attachShader(prog, compile(gl.VERTEX_SHADER, VERT));
-  gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FRAG));
-  gl.linkProgram(prog);
-  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return;
-  gl.useProgram(prog);
-  var buf = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
-  var loc = gl.getAttribLocation(prog, 'a_position');
-  gl.enableVertexAttribArray(loc);
-  gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-  gl.clearColor(0, 0, 0, 0);
-
-  var L = {};
-  ['colors', 'scene', 'shape', 'surface', 'finish', 'transform', 'space', 'cursor', 'page'].forEach(function (n) { L[n] = gl.getUniformLocation(prog, 'u_' + n); });
-  gl.uniform3fv(L.colors, new Float32Array([].concat.apply([], U.colors)));
-  gl.uniform4f(L.shape, U.scale, U.intensity, U.paramA, U.warp);
-  gl.uniform4f(L.surface, U.detail, U.contrast, U.brightness, U.saturation);
-  gl.uniform4f(L.finish, U.hue, U.vignette, U.blur, U.grain);
-  gl.uniform4f(L.transform, U.seed, U.rotate, U.drift, U.oklab);
-  gl.uniform4f(L.space, U.offsetX, U.offsetY, 0, 0);
-  gl.uniform4f(L.cursor, 0, 0, 0, 0);                 /* cursor distortion off: keeps the texture calm */
-
-  var slots = hosts.map(function (h) {
+  function build() {
     var c = document.createElement('canvas');
-    c.className = 'sh-canvas'; c.setAttribute('aria-hidden', 'true');
-    h.classList.add('sh-host'); h.insertBefore(c, h.firstChild);
-    return { host: h, c: c, ctx: c.getContext('2d'), vis: false, drawn: false };
-  });
-
-  /* The texture is drawn once per section (and again only if the section is resized), then left alone.
-     No per-frame work means no cost while scrolling. */
-  function draw(s) {
-    var w = s.host.clientWidth, h = s.host.clientHeight;
-    if (!w || !h) return;
-    var k = Math.min(1, Math.sqrt(800000 / (w * h)));
-    var bw = Math.max(1, Math.round(w * k)), bh = Math.max(1, Math.round(h * k));
-    var top = Math.round(s.host.getBoundingClientRect().top + window.pageYOffset);
-    if (s.drawn && s.c.width === bw && s.c.height === bh && s.top === top) return;
-    if (glc.width !== bw || glc.height !== bh) { glc.width = bw; glc.height = bh; gl.viewport(0, 0, bw, bh); }
-    if (s.c.width !== bw || s.c.height !== bh) { s.c.width = bw; s.c.height = bh; }
-    gl.uniform4f(L.scene, bw, bh, 0, U.colorCount);
-    gl.uniform4f(L.page, 0, top, U.ref, 1 / k);
+    c.width = TILE_W; c.height = TILE_H;
+    var gl = c.getContext('webgl', { antialias: false, alpha: true, premultipliedAlpha: true, preserveDrawingBuffer: true });
+    if (!gl) return;                                  /* no WebGL: sections keep their plain background */
+    function compile(type, src) { var s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return s; }
+    var prog = gl.createProgram();
+    gl.attachShader(prog, compile(gl.VERTEX_SHADER, VERT));
+    gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FRAG));
+    gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return;
+    gl.useProgram(prog);
+    var buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    var loc = gl.getAttribLocation(prog, 'a_position');
+    gl.enableVertexAttribArray(loc);
+    gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+    var u = function (n) { return gl.getUniformLocation(prog, 'u_' + n); };
+    gl.uniform3fv(u('colors'), new Float32Array([].concat.apply([], U.colors)));
+    gl.uniform4f(u('shape'), U.scale, U.intensity, U.paramA, U.warp);
+    gl.uniform4f(u('surface'), U.detail, U.contrast, U.brightness, U.saturation);
+    gl.uniform4f(u('finish'), U.hue, U.vignette, U.blur, U.grain);
+    gl.uniform4f(u('transform'), U.seed, U.rotate, U.drift, U.oklab);
+    gl.uniform4f(u('space'), U.offsetX, U.offsetY, 0, 0);
+    gl.uniform4f(u('cursor'), 0, 0, 0, 0);
+    gl.uniform4f(u('scene'), TILE_W, TILE_H, 0, U.colorCount);
+    gl.uniform4f(u('page'), 0, 0, U.ref, 1);
+    gl.viewport(0, 0, TILE_W, TILE_H);
+    gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
-    s.ctx.clearRect(0, 0, bw, bh);
-    s.ctx.drawImage(glc, 0, 0);
-    /* bake the fade and the overall strength into the pixels once (no CSS mask / opacity work while scrolling) */
-    var A = window.innerWidth > 900 ? 0.08 : 0.045, g;
-    if (window.innerWidth > 900) {
-      g = s.ctx.createLinearGradient(0, 0, bw, 0);
-      g.addColorStop(0, 'rgba(0,0,0,' + A + ')'); g.addColorStop(0.1, 'rgba(0,0,0,' + A * 0.3 + ')'); g.addColorStop(0.26, 'rgba(0,0,0,0)');
-      g.addColorStop(0.74, 'rgba(0,0,0,0)'); g.addColorStop(0.9, 'rgba(0,0,0,' + A * 0.3 + ')'); g.addColorStop(1, 'rgba(0,0,0,' + A + ')');
-    } else { g = 'rgba(0,0,0,' + A + ')'; }
-    s.ctx.globalCompositeOperation = 'destination-in';
-    s.ctx.fillStyle = g; s.ctx.fillRect(0, 0, bw, bh);
-    s.ctx.globalCompositeOperation = 'source-over';
-    s.top = top;
-    if (!s.drawn) { s.drawn = true; s.c.classList.add('on'); }
+    c.toBlob(function (blob) {
+      if (!blob) return;
+      document.documentElement.style.setProperty('--sh-tile', 'url(' + URL.createObjectURL(blob) + ')');
+      hosts.forEach(function (h) { h.classList.add('sh-host'); });
+      document.documentElement.classList.add('sh-ready');
+      var ext = gl.getExtension('WEBGL_lose_context'); if (ext) ext.loseContext();   /* free the GL context */
+    }, 'image/png');
   }
 
-  var pending = 0;
-  function schedule() {
-    if (pending) return;
-    pending = (window.requestIdleCallback || function (f) { return setTimeout(f, 60); })(function () {
-      pending = 0;
-      slots.forEach(function (s) { if (s.vis) draw(s); });
-    });
-  }
-  var io = new IntersectionObserver(function (es) {
-    es.forEach(function (e) {
-      var s = slots.filter(function (x) { return x.host === e.target; })[0];
-      if (s) s.vis = e.isIntersecting;
-    });
-    schedule();
-  }, { rootMargin: '300px 0px' });
-  slots.forEach(function (s) { io.observe(s.host); });
-  var rz;
-  window.addEventListener('resize', function () { clearTimeout(rz); rz = setTimeout(schedule, 150); });
-  if (window.ResizeObserver) {
-    var ro = new ResizeObserver(function () { clearTimeout(rz); rz = setTimeout(schedule, 150); });
-    slots.forEach(function (s) { ro.observe(s.host); });
-  }
+  /* do the one-off render once the page has settled, off the critical path */
+  var go = function () { (window.requestIdleCallback || function (f) { setTimeout(f, 200); })(build, { timeout: 1500 }); };
+  if (document.readyState === 'complete') go(); else window.addEventListener('load', go);
 })();

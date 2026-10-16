@@ -93,8 +93,12 @@ header.scrolled .brand img{height:44px}
 
 .hero{position:relative;overflow:hidden;padding:clamp(52px,7.5vw,92px) 0 0;min-height:min(94vh,880px);display:flex;flex-direction:column}
 .sh-host{position:relative;isolation:isolate}
-.sh-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none;opacity:0;transition:opacity 1s ease}
-.sh-canvas.on{opacity:1}
+.sh-host::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:var(--sh-tile) center top/max(100%,1400px) auto no-repeat;opacity:0;transition:opacity 1s ease}
+.sh-ready .sh-host::before{opacity:.075}
+/* soft fade toward the content: a plain gradient in the section colour, no masking */
+.sh-host::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(90deg,transparent 0,var(--sh-bg,#fff) 26%,var(--sh-bg,#fff) 74%,transparent 100%)}
+.sh-host.sec-mist,.brands.sh-host{--sh-bg:var(--mist)}
+@media(max-width:900px){.sh-ready .sh-host::before{opacity:.045}.sh-host::after{display:none}}
 .announce{background:var(--red);color:#fff;text-align:center;font-size:14px;font-weight:500;padding:9px 16px;line-height:1.4}
 .announce a{color:#fff;text-decoration:underline;text-underline-offset:3px;font-weight:600}
 .hero-track{position:relative}
@@ -295,7 +299,9 @@ section{scroll-margin-top:calc(var(--header-h) + 12px)}
 .cart-secure{display:flex;align-items:center;justify-content:center;gap:7px;font-size:12px;color:var(--slate);margin-top:12px}
 .cart-secure i{font-size:15px;color:#2EB67D}
 
-.reels{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:18px;max-width:940px;margin:0 auto}
+.reels{display:flex;gap:16px;max-width:1200px;margin:0 auto;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:4px 2px 18px;scrollbar-width:thin}
+.reels .reel{flex:0 0 min(62vw,240px);scroll-snap-align:start}
+@media(min-width:1024px){.reels{overflow:visible;padding-bottom:0}.reels .reel{flex:1 1 0;min-width:0}}
 .reel{position:relative;border-radius:22px;overflow:hidden;background:var(--ink);aspect-ratio:9/16;box-shadow:0 34px 68px -44px rgba(4,22,52,.85);cursor:pointer}
 .reel video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 .reel{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
@@ -1099,10 +1105,11 @@ window.__crest=crest;function crest(t){return t.logo?'<img src="'+t.logo+'" alt=
 function money(n){return '$'+n.toFixed(2);}
 
 var header=$('#header'),mbar=$('#mobileBar');
+var sc1=false,sc2=false;
 window.addEventListener('scroll',function(){
-  var y=window.pageYOffset;
-  header.classList.toggle('scrolled',y>10);
-  mbar.classList.toggle('show',y>560);
+  var y=window.pageYOffset,a=y>10,b=y>560;
+  if(a!==sc1){sc1=a;header.classList.toggle('scrolled',a);}
+  if(b!==sc2){sc2=b;mbar.classList.toggle('show',b);}
 },{passive:true});
 
 var drawer=$('#drawer'),burger=$('#burger');
@@ -1512,11 +1519,14 @@ document.addEventListener('pointerdown',function(e){
 (function(){
   var links=Array.prototype.slice.call(document.querySelectorAll('.nav-links a'));
   var secs=links.map(function(a){return document.querySelector(a.getAttribute('href'));});
-  window.addEventListener('scroll',function(){
-    var y=window.pageYOffset+140,cur=-1;
-    secs.forEach(function(s,i){if(s&&s.offsetTop<=y)cur=i;});
-    links.forEach(function(a,i){a.classList.toggle('active',i===cur);});
-  },{passive:true});
+  var tops=[],lastCur=-2,busy=false;
+  function measure(){tops=secs.map(function(s){return s?s.getBoundingClientRect().top+window.pageYOffset:1e9;});}
+  function spy(){busy=false;var y=window.pageYOffset+140,cur=-1;
+    for(var i=0;i<tops.length;i++){if(tops[i]<=y)cur=i;}
+    if(cur!==lastCur){lastCur=cur;links.forEach(function(a,i){a.classList.toggle('active',i===cur);});}}
+  measure();window.addEventListener('load',function(){measure();spy();});window.addEventListener('resize',function(){measure();spy();});
+  setTimeout(measure,1500);
+  window.addEventListener('scroll',function(){if(!busy){busy=true;requestAnimationFrame(spy);}},{passive:true});
 })();
 
 /* stat count-up */
