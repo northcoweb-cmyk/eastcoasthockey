@@ -35,24 +35,24 @@
     svg.style.visibility=p>=1?'hidden':'visible';
 
     /* stick: slow lift and tap forward, then settle */
-    var a=clamp(p/.38,0,1),b=clamp((p-.38)/.62,0,1);
+    var a=clamp(p/.2,0,1),b=clamp((p-.2)/.5,0,1);
     var swing=easeInOut(a),follow=easeOut(b);
     var hx=heel0+swing*W*.035+follow*W*.03;
     var hy=y0-Math.sin(swing*Math.PI)*H*.035*(1-follow);
     var th=lerp(-9,3,swing)-follow*7;
     gStick.setAttribute('transform','translate('+hx.toFixed(1)+','+hy.toFixed(1)+') rotate('+th.toFixed(2)+') scale('+k.toFixed(3)+')');
 
-    /* puck: waits, then glides a short way and fades */
-    var u=clamp((p-.34)/.66,0,1),e=easeOut(u);
-    var px=puckX+e*W*.34,py=y0;
+    /* puck: waits for the tap, then is passed along the ice and off the right edge */
+    var u=clamp((p-.17)/.43,0,1),e=1-Math.pow(1-u,1.5);
+    var exitX=W+90*k+40,px=puckX+e*(exitX-puckX),py=y0-Math.sin(u*Math.PI)*5*k;
+    var out=u>0&&u<1?1:0;
     gPuck.setAttribute('transform','translate('+px.toFixed(1)+','+py.toFixed(1)+') scale('+k.toFixed(3)+')');
-    gPuck.style.opacity=(1-clamp((u-.55)/.45,0,1)).toFixed(2);
     gShadow.setAttribute('transform','translate('+px.toFixed(1)+','+(y0+3).toFixed(1)+') scale('+k.toFixed(3)+')');
-    gShadow.style.opacity=(.9*(1-clamp((u-.55)/.45,0,1))).toFixed(2);
-    var tl=Math.min(120*k*6,e*W*.34)*.5*(u>0&&u<1?1:0);
+    gShadow.style.opacity=(u<1?.9:0).toFixed(2);
     gTrail.setAttribute('transform','translate('+px.toFixed(1)+','+py.toFixed(1)+') scale('+k.toFixed(3)+')');
-    gTrail.style.opacity=(u>0?.55*(1-clamp((u-.55)/.45,0,1)):0).toFixed(2);
-    var ln=gTrail.children;for(var i=0;i<ln.length;i++){ln[i].setAttribute('x1',(-tl/k*(1-i*.3)).toFixed(1));ln[i].setAttribute('x2','0');}
+    gTrail.style.opacity=(out*.5).toFixed(2);
+    var tl=Math.min(260,e*W*.6/k)*.5,ln=gTrail.children;
+    for(var i=0;i<ln.length;i++){ln[i].setAttribute('x1',(-tl*(1-i*.3)).toFixed(1));ln[i].setAttribute('x2','0');}
   }
 
   function onScroll(){if(!ticking){ticking=true;requestAnimationFrame(function(){ticking=false;update();});}}
