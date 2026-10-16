@@ -92,6 +92,12 @@ header.scrolled .brand img{height:44px}
 .drawer-contact i{color:var(--red);font-size:18px}
 
 .hero{position:relative;overflow:hidden;padding:clamp(52px,7.5vw,92px) 0 0;min-height:min(94vh,880px);display:flex;flex-direction:column}
+.sh-host{position:relative;isolation:isolate}
+.sh-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none;opacity:0;transition:opacity 1s ease;
+  -webkit-mask-image:linear-gradient(90deg,#000 0,rgba(0,0,0,.3) 10%,transparent 26%,transparent 74%,rgba(0,0,0,.3) 90%,#000 100%);
+  mask-image:linear-gradient(90deg,#000 0,rgba(0,0,0,.3) 10%,transparent 26%,transparent 74%,rgba(0,0,0,.3) 90%,#000 100%)}
+.sh-canvas.on{opacity:.065}
+@media(max-width:900px){.sh-canvas{-webkit-mask-image:none;mask-image:none}.sh-canvas.on{opacity:.04}}
 .announce{background:var(--red);color:#fff;text-align:center;font-size:14px;font-weight:500;padding:9px 16px;line-height:1.4}
 .announce a{color:#fff;text-decoration:underline;text-underline-offset:3px;font-weight:600}
 .hero-track{position:relative}
@@ -1615,5 +1621,6 @@ $('#yr').textContent=new Date().getFullYear();
 })();
 </script>
 <script src="assets/hero-stick.js" defer></script>
+<script src="assets/shader-bg.js" defer></script>
 </body>
 </html>
