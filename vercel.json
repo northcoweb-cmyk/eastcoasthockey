@@ -49,5 +49,10 @@
         }
       ]
     }
-  ]
+  ],
+  "functions": {
+    "api/video.js": {
+      "includeFiles": "api/_private/**"
+    }
+  }
 }

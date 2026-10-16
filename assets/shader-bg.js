@@ -274,41 +274,57 @@ void main() {
     return { host: h, c: c, ctx: c.getContext('2d'), vis: false, drawn: false };
   });
 
-  var start = performance.now(), raf = 0, hidden = document.hidden;
-
-  function draw(s, now) {
+  /* The texture is drawn once per section (and again only if the section is resized), then left alone.
+     No per-frame work means no cost while scrolling. */
+  function draw(s) {
     var w = s.host.clientWidth, h = s.host.clientHeight;
     if (!w || !h) return;
     var k = Math.min(1, Math.sqrt(800000 / (w * h)));
     var bw = Math.max(1, Math.round(w * k)), bh = Math.max(1, Math.round(h * k));
+    var top = Math.round(s.host.getBoundingClientRect().top + window.pageYOffset);
+    if (s.drawn && s.c.width === bw && s.c.height === bh && s.top === top) return;
     if (glc.width !== bw || glc.height !== bh) { glc.width = bw; glc.height = bh; gl.viewport(0, 0, bw, bh); }
     if (s.c.width !== bw || s.c.height !== bh) { s.c.width = bw; s.c.height = bh; }
-    var top = s.host.getBoundingClientRect().top + window.pageYOffset;
-    gl.uniform4f(L.scene, bw, bh, reduce ? 0 : ((now - start) / 1000) * U.timeScale, U.colorCount);
+    gl.uniform4f(L.scene, bw, bh, 0, U.colorCount);
     gl.uniform4f(L.page, 0, top, U.ref, 1 / k);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
     s.ctx.clearRect(0, 0, bw, bh);
-    s.ctx.drawImage(glc, 0, 0);                         /* same task as the draw, so the GL buffer is still valid */
+    s.ctx.drawImage(glc, 0, 0);
+    /* bake the fade and the overall strength into the pixels once (no CSS mask / opacity work while scrolling) */
+    var A = window.innerWidth > 900 ? 0.08 : 0.045, g;
+    if (window.innerWidth > 900) {
+      g = s.ctx.createLinearGradient(0, 0, bw, 0);
+      g.addColorStop(0, 'rgba(0,0,0,' + A + ')'); g.addColorStop(0.1, 'rgba(0,0,0,' + A * 0.3 + ')'); g.addColorStop(0.26, 'rgba(0,0,0,0)');
+      g.addColorStop(0.74, 'rgba(0,0,0,0)'); g.addColorStop(0.9, 'rgba(0,0,0,' + A * 0.3 + ')'); g.addColorStop(1, 'rgba(0,0,0,' + A + ')');
+    } else { g = 'rgba(0,0,0,' + A + ')'; }
+    s.ctx.globalCompositeOperation = 'destination-in';
+    s.ctx.fillStyle = g; s.ctx.fillRect(0, 0, bw, bh);
+    s.ctx.globalCompositeOperation = 'source-over';
+    s.top = top;
     if (!s.drawn) { s.drawn = true; s.c.classList.add('on'); }
   }
-  function frame(now) {
-    raf = 0;
-    if (hidden) return;
-    slots.forEach(function (s) { if (s.vis) draw(s, now); });
-    if (!reduce && slots.some(function (s) { return s.vis; })) request();
-  }
-  function request() { if (!raf && !hidden) raf = requestAnimationFrame(frame); }
 
+  var pending = 0;
+  function schedule() {
+    if (pending) return;
+    pending = (window.requestIdleCallback || function (f) { return setTimeout(f, 60); })(function () {
+      pending = 0;
+      slots.forEach(function (s) { if (s.vis) draw(s); });
+    });
+  }
   var io = new IntersectionObserver(function (es) {
     es.forEach(function (e) {
       var s = slots.filter(function (x) { return x.host === e.target; })[0];
       if (s) s.vis = e.isIntersecting;
     });
-    request();
-  }, { rootMargin: '120px 0px' });
+    schedule();
+  }, { rootMargin: '300px 0px' });
   slots.forEach(function (s) { io.observe(s.host); });
-  window.addEventListener('resize', function () { slots.forEach(function (s) { s.drawn = s.drawn; }); request(); });
-  document.addEventListener('visibilitychange', function () { hidden = document.hidden; if (!hidden) request(); });
-  request();
+  var rz;
+  window.addEventListener('resize', function () { clearTimeout(rz); rz = setTimeout(schedule, 150); });
+  if (window.ResizeObserver) {
+    var ro = new ResizeObserver(function () { clearTimeout(rz); rz = setTimeout(schedule, 150); });
+    slots.forEach(function (s) { ro.observe(s.host); });
+  }
 })();
