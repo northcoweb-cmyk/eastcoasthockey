@@ -92,6 +92,9 @@ header.scrolled .brand img{height:44px}
 .drawer-contact i{color:var(--red);font-size:18px}
 
 .hero{position:relative;overflow:hidden;padding:clamp(52px,7.5vw,92px) 0 0;min-height:min(94vh,880px);display:flex;flex-direction:column}
+.hero-track{position:relative}
+.hero-scene{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none;overflow:hidden}
+@media(prefers-reduced-motion:reduce){.hero-scene{display:none}}
 .hero-glow{position:absolute;top:-32%;left:50%;transform:translateX(-50%);width:min(1100px,145vw);height:min(1100px,145vw);border-radius:50%;background:radial-gradient(circle,rgba(44,111,196,.15) 0%,rgba(44,111,196,0) 62%);pointer-events:none}
 .hero-inner{position:relative;z-index:2;text-align:center;display:flex;flex-direction:column;align-items:center}
 .hero-pill{display:inline-flex;align-items:center;gap:9px;padding:8px 18px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.72);backdrop-filter:blur(8px);font-size:13px;font-weight:500;color:var(--slate);margin-bottom:26px}
@@ -546,8 +549,72 @@ footer{background:var(--ink);color:rgba(255,255,255,.72);padding:clamp(48px,6vw,
 
 <main id="main">
 
+<div class="hero-track" id="heroTrack">
 <section class="hero" id="top">
   <div class="hero-glow"></div>
+  <svg class="hero-scene" id="heroScene" aria-hidden="true" focusable="false" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="hsShaft" x1="0" y1="-17" x2="0" y2="17" gradientUnits="userSpaceOnUse">
+  <stop offset="0" stop-color="#0b2147"/><stop offset=".22" stop-color="#2d63b3"/><stop offset=".5" stop-color="#16376e"/><stop offset="1" stop-color="#050f24"/>
+</linearGradient>
+<linearGradient id="hsBlade" x1="0" y1="-52" x2="0" y2="0" gradientUnits="userSpaceOnUse">
+  <stop offset="0" stop-color="#25407a"/><stop offset=".35" stop-color="#0d2149"/><stop offset="1" stop-color="#040c1e"/>
+</linearGradient>
+<linearGradient id="hsTape" x1="0" y1="-52" x2="0" y2="0" gradientUnits="userSpaceOnUse">
+  <stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#f1f4f9"/><stop offset=".88" stop-color="#d9e0ec"/><stop offset="1" stop-color="#b9c4d6"/>
+</linearGradient>
+<pattern id="hsWeave" width="3.2" height="3.2" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
+  <rect width="3.2" height="3.2" fill="none"/><rect width="1" height="3.2" fill="#6f7f9a" opacity=".16"/>
+</pattern>
+<pattern id="hsWrap" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)">
+  <rect width="9" height="9" fill="#0b0f18"/><rect width="4.2" height="9" fill="#262d3b"/>
+</pattern>
+<clipPath id="hsGround"><rect x="-900" y="-1200" width="1400" height="1200"/></clipPath>
+<clipPath id="hsBladeClip"><path d="M14,0 L150,0 C178,0 196,-3 201,-15 C205,-26 197,-37 185,-39 C150,-43 100,-46 42,-50 Q13,-50 8,-54 L10,-30 Z"/></clipPath>
+      <linearGradient id="hsPuckSide" x1="0" y1="-20" x2="0" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#2b3548"/><stop offset=".5" stop-color="#0b111d"/><stop offset="1" stop-color="#03060c"/></linearGradient>
+      <linearGradient id="hsPuckTop" x1="-26" y1="0" x2="26" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#3a4558"/><stop offset=".5" stop-color="#1a2232"/><stop offset="1" stop-color="#0c121d"/></linearGradient>
+      <linearGradient id="hsIceLine" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2C6FC4" stop-opacity="0"/><stop offset=".12" stop-color="#2C6FC4" stop-opacity=".35"/><stop offset=".88" stop-color="#E00A1E" stop-opacity=".3"/><stop offset="1" stop-color="#E00A1E" stop-opacity="0"/></linearGradient>
+      <linearGradient id="hsStreak" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2C6FC4" stop-opacity="0"/><stop offset="1" stop-color="#2C6FC4" stop-opacity=".75"/></linearGradient>
+    </defs>
+    <path id="hsIce" d="M0,0 L1,0" stroke="url(#hsIceLine)" stroke-width="2" fill="none" vector-effect="non-scaling-stroke"/>
+    <g id="hsShadow"><ellipse cx="0" cy="0" rx="40" ry="6" fill="#041634" opacity=".22"/></g>
+    <g id="hsTrail" style="opacity:0">
+      <line y1="-9" y2="-9" stroke="url(#hsStreak)" stroke-width="14" stroke-linecap="round"/>
+      <line y1="-9" y2="-9" stroke="url(#hsStreak)" stroke-width="7" stroke-linecap="round" opacity=".7"/>
+      <line y1="-9" y2="-9" stroke="#fff" stroke-opacity=".8" stroke-width="2.5" stroke-linecap="round"/>
+    </g>
+    <g id="hsStick">
+<!-- blade body -->
+<path d="M14,0 L150,0 C178,0 196,-3 201,-15 C205,-26 197,-37 185,-39 C150,-43 100,-46 42,-50 Q13,-50 8,-54 L10,-30 Z" fill="url(#hsBlade)"/>
+<g clip-path="url(#hsBladeClip)">
+  <path d="M30,-64 L36,-52 L29,-41 L37,-29 L30,-17 L36,-5 L32,8 L230,8 L230,-64 Z" fill="url(#hsTape)"/>
+  <path d="M30,-64 L36,-52 L29,-41 L37,-29 L30,-17 L36,-5 L32,8 L230,8 L230,-64 Z" fill="url(#hsWeave)"/>
+  <path d="M52,-1.5 L230,-1.5" stroke="#8d9bb4" stroke-opacity=".55" stroke-width="3"/>
+  <path d="M60,-48 C100,-44 150,-41 190,-39" stroke="#fff" stroke-width="2.4" fill="none" opacity=".9"/>
+  <path d="M42,-52 C80,-47 130,-44 188,-41" stroke="#9fb0cb" stroke-opacity=".5" stroke-width="1" fill="none"/>
+</g>
+<path d="M14,0 L150,0 C178,0 196,-3 201,-15 C205,-26 197,-37 185,-39 C150,-43 100,-46 42,-50 Q13,-50 8,-54" fill="none" stroke="#020a18" stroke-opacity=".6" stroke-width="1.5" stroke-linejoin="round"/>
+<!-- shaft over heel -->
+<g clip-path="url(#hsGround)"><g transform="translate(14,-24) rotate(-135)">
+  <rect x="-80" y="-17" width="846" height="34" rx="3" fill="url(#hsShaft)"/>
+  <rect x="-80" y="-17" width="846" height="7" rx="3" fill="#fff" opacity=".14"/>
+  <rect x="70" y="-17" width="7" height="34" fill="#0a0f1c" opacity=".55"/>
+  <rect x="150" y="-17" width="10" height="34" fill="#E00A1E"/><rect x="164" y="-17" width="3" height="34" fill="#fff" opacity=".9"/>
+  <rect x="236" y="-3" width="300" height="1.6" fill="#fff" opacity=".35"/>
+  <text x="262" y="5.5" fill="#fff" font-family="Outfit,Arial,sans-serif" font-weight="800" font-size="15" letter-spacing="3.5" opacity=".92" transform="rotate(180 400 0)">EAST COAST</text>
+  <rect x="630" y="-17" width="136" height="34" rx="4" fill="url(#hsWrap)"/>
+  <rect x="630" y="-17" width="136" height="34" rx="4" fill="none" stroke="#000" stroke-opacity=".35"/>
+  <rect x="756" y="-19" width="14" height="38" rx="5" fill="#0b0f18"/><rect x="758" y="-14" width="2.4" height="28" rx="1.2" fill="#fff" opacity=".4"/>
+</g></g>
+    </g>
+    <g id="hsPuck">
+      <rect x="-26" y="-18" width="52" height="18" rx="4" fill="url(#hsPuckSide)"/>
+      <rect x="-26" y="-9" width="52" height="3" fill="#fff" opacity=".08"/>
+      <ellipse cx="0" cy="-18" rx="26" ry="7" fill="url(#hsPuckTop)"/>
+      <ellipse cx="0" cy="-18.5" rx="22" ry="5" fill="none" stroke="#fff" stroke-opacity=".12"/>
+      <path d="M-20,-20 C-8,-23 8,-23 18,-21" stroke="#fff" stroke-opacity=".35" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    </g>
+  </svg>
   <div class="wrap hero-inner">
     <div class="hero-pill rv"><span class="dot"></span> Source for Sports affiliate retailer · Three locations across Maryland</div>
     <h1 class="h-display rv">Your Go-To Online Shop for <span class="accent">Hockey &amp; Skating Gear</span></h1>
@@ -565,6 +632,7 @@ footer{background:var(--ink);color:rgba(255,255,255,.72);padding:clamp(48px,6vw,
   </div>
   <div class="marquee" aria-hidden="true"><div class="marquee-track" id="marqueeTrack"></div></div>
 </section>
+</div>
 
 <div class="brands">
   <div class="wrap">
@@ -1463,5 +1531,6 @@ document.addEventListener('pointerdown',function(e){
 $('#yr').textContent=new Date().getFullYear();
 })();
 </script>
+<script src="assets/hero-stick.js" defer></script>
 </body>
 </html>
