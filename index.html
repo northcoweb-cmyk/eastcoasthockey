@@ -92,13 +92,6 @@ header.scrolled .brand img{height:44px}
 .drawer-contact i{color:var(--red);font-size:18px}
 
 .hero{position:relative;overflow:hidden;padding:clamp(52px,7.5vw,92px) 0 0;min-height:min(94vh,880px);display:flex;flex-direction:column}
-.sh-host{position:relative;isolation:isolate}
-.sh-host::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:var(--sh-tile) center top/max(100%,1400px) auto no-repeat;opacity:0;transition:opacity 1s ease}
-.sh-ready .sh-host::before{opacity:.075}
-/* soft fade toward the content: a plain gradient in the section colour, no masking */
-.sh-host::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(90deg,transparent 0,var(--sh-bg,#fff) 26%,var(--sh-bg,#fff) 74%,transparent 100%)}
-.sh-host.sec-mist,.brands.sh-host{--sh-bg:var(--mist)}
-@media(max-width:900px){.sh-ready .sh-host::before{opacity:.045}.sh-host::after{display:none}}
 .announce{background:var(--red);color:#fff;text-align:center;font-size:14px;font-weight:500;padding:9px 16px;line-height:1.4}
 .announce a{color:#fff;text-decoration:underline;text-underline-offset:3px;font-weight:600}
 .hero-track{position:relative}
@@ -1639,6 +1632,5 @@ $('#yr').textContent=new Date().getFullYear();
 })();
 </script>
 <script src="assets/hero-stick.js" defer></script>
-<script src="assets/shader-bg.js" defer></script>
 </body>
 </html>
