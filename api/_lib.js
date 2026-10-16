@@ -72,19 +72,63 @@ function requireAdmin(req, res) {
   return s;
 }
 
-/* ---- tiny login throttle (best effort; per warm instance) ---- */
-const fails = {};
-function throttled(ip) {
-  const f = fails[ip];
-  return f && f.n >= 5 && Date.now() - f.t < 60000;
+/* ---- login lockout: 5 wrong passwords from one address locks it out for 1 hour ----
+   The counter is stored in the Blob store (when connected) so it survives serverless restarts,
+   with an in-memory copy as a backstop. */
+const MAX_FAILS = 5;
+const LOCK_MS = 60 * 60 * 1000;
+const memFails = {};
+
+function ipKey(ip) { return crypto.createHash('sha256').update('ec-lock::' + ip).digest('hex').slice(0, 32); }
+function clientIp(req) {
+  const h = req.headers;
+  return String(h['x-vercel-forwarded-for'] || h['x-forwarded-for'] || h['x-real-ip'] || (req.socket && req.socket.remoteAddress) || 'unknown').split(',')[0].trim();
 }
-function noteFail(ip) {
-  const f = fails[ip] || { n: 0, t: 0 };
-  if (Date.now() - f.t > 60000) f.n = 0;
-  f.n++; f.t = Date.now(); fails[ip] = f;
+async function readLock(key) {
+  const mem = memFails[key] || null;
+  let disk = null;
+  try {
+    if (hasBlob) {
+      const { get } = require('@vercel/blob');
+      const r = await get('security/' + key + '.json', { access: ACCESS, useCache: false });
+      if (r && r.stream) disk = JSON.parse(await streamText(r.stream));
+    } else {
+      disk = JSON.parse(fs.readFileSync(path.join(os.tmpdir(), 'ec-lock-' + key + '.json'), 'utf8'));
+    }
+  } catch (e) { disk = null; }
+  /* take the stricter of the two records */
+  const rec = [mem, disk].filter(Boolean).sort(function (a, b) { return (b.lockedUntil || 0) - (a.lockedUntil || 0) || (b.n || 0) - (a.n || 0); })[0];
+  return rec || { n: 0, first: 0, lockedUntil: 0 };
 }
-function clearFails(ip) { delete fails[ip]; }
-function clientIp(req) { return String(req.headers['x-forwarded-for'] || (req.socket && req.socket.remoteAddress) || 'x').split(',')[0].trim(); }
+async function writeLock(key, rec) {
+  memFails[key] = rec;
+  try {
+    if (hasBlob) {
+      const { put } = require('@vercel/blob');
+      await put('security/' + key + '.json', JSON.stringify(rec), { access: ACCESS, contentType: 'application/json', addRandomSuffix: false, allowOverwrite: true });
+    } else {
+      fs.writeFileSync(path.join(os.tmpdir(), 'ec-lock-' + key + '.json'), JSON.stringify(rec));
+    }
+  } catch (e) { console.error('lock write failed', e); }
+}
+/* returns minutes left if locked, else 0 */
+async function lockedMinutes(ip) {
+  const rec = await readLock(ipKey(ip));
+  return rec.lockedUntil > Date.now() ? Math.ceil((rec.lockedUntil - Date.now()) / 60000) : 0;
+}
+/* records a wrong password; returns { locked, left } */
+async function noteFail(ip) {
+  const key = ipKey(ip), rec = await readLock(key), now = Date.now();
+  if (!rec.first || now - rec.first > LOCK_MS) { rec.n = 0; rec.first = now; rec.lockedUntil = 0; }
+  rec.n++;
+  if (rec.n >= MAX_FAILS) rec.lockedUntil = now + LOCK_MS;
+  await writeLock(key, rec);
+  return { locked: rec.n >= MAX_FAILS, left: Math.max(0, MAX_FAILS - rec.n) };
+}
+async function clearFails(ip) {
+  const key = ipKey(ip), rec = await readLock(key);
+  if (rec.n || rec.lockedUntil) await writeLock(key, { n: 0, first: 0, lockedUntil: 0 });
+}
 
 /* ---- http helpers ---- */
 function json(res, status, obj) {
@@ -216,5 +260,5 @@ function clean(c) {
   return out;
 }
 
-module.exports = { json, readBody, checkLogin, setSession, clearSession, session, requireAdmin, throttled, noteFail, clearFails, clientIp,
+module.exports = { json, readBody, checkLogin, setSession, clearSession, session, requireAdmin, lockedMinutes, noteFail, clearFails, clientIp,
   getContent, saveContent, resetContent, putImage, getImage, clean, hasBlob, USING_TEST_LOGIN, DEFAULTS };

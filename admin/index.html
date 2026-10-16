@@ -249,7 +249,8 @@ $('#loginForm').addEventListener('submit',function(e){
   e.preventDefault();var f=e.target,b=$('#loginBtn');b.disabled=true;$('#loginErr').textContent='';
   api('/api/login',{method:'POST',body:JSON.stringify({username:f.username.value,password:f.password.value})})
     .then(function(){return api('/api/me');}).then(showApp)
-    .catch(function(err){$('#loginErr').textContent=err.message;}).then(function(){b.disabled=false;});
+    .catch(function(err){$('#loginErr').textContent=err.message;if(err.status===429){f.username.disabled=true;f.password.disabled=true;return;}b.disabled=false;f.password.select();})
+    .then(function(){if(!f.username.disabled)b.disabled=false;});
 });
 $('#logoutBtn').addEventListener('click',function(){
   if(dirty&&!confirm('You have unsaved changes. Sign out anyway?'))return;
