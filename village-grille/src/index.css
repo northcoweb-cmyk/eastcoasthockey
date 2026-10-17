@@ -1,0 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html { scroll-behavior: smooth; }
+body { @apply bg-[#050505] text-zinc-100 font-sans antialiased; }
+::selection { @apply bg-orange-500 text-black; }
