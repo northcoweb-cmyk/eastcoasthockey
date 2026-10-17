@@ -117,11 +117,28 @@ header.scrolled .brand img{height:44px}
 .marquee-card:nth-child(even){transform:rotate(2.5deg)}
 .marquee-card img{width:100%;height:100%;object-fit:cover}
 
-.brands{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--mist);padding:30px 0}
-.brands-head{text-align:center;font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--slate);margin-bottom:20px}
-.brands-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:14px 34px}
-.brand-word{font-size:clamp(1.05rem,2.2vw,1.6rem);font-weight:800;letter-spacing:-.03em;opacity:.44;transition:opacity .2s,transform .2s}
-.brand-word:hover{opacity:1;transform:translateY(-2px)}
+.brands{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--mist);padding:clamp(40px,5vw,60px) 0 clamp(36px,4.5vw,52px)}
+.partners-title{text-align:center;font-size:clamp(1.15rem,2.6vw,1.75rem);font-weight:500;letter-spacing:-.02em;line-height:1.25}
+.partners-title span{display:block;color:var(--slate);font-size:.62em;font-weight:600;letter-spacing:.16em;text-transform:uppercase;margin-bottom:6px}
+.partners-title strong{display:block;color:var(--ink);font-weight:800;letter-spacing:-.035em}
+.lc-line{height:1px;background:linear-gradient(90deg,transparent,#C9D4E2,transparent);margin:22px auto}
+.lc-line.short{max-width:360px;margin-top:20px}
+.lc{position:relative;overflow:hidden;padding:12px 0}
+.lc-set{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:22px 56px}
+.lc-item{position:relative;display:flex;align-items:center;flex-shrink:0}
+.lc-item img{display:block;height:calc(var(--lh,24px)*var(--ls,1));width:auto;max-width:none;user-select:none;-webkit-user-drag:none;pointer-events:none;transition:opacity .35s ease}
+.lc-item .lc-mono{opacity:.86}
+.lc-item .lc-color{position:absolute;inset:0;opacity:0}
+.lc-item:hover .lc-mono{opacity:0}.lc-item:hover .lc-color{opacity:1}
+/* scrolling mode (added by JS): one long line, soft fades at both ends instead of a mask */
+.lc.lc-js{overflow:hidden}
+.lc.lc-js .lc-track{display:flex;width:max-content;will-change:transform}
+.lc.lc-js .lc-set{flex-wrap:nowrap;justify-content:flex-start;gap:0;flex-shrink:0}
+.lc.lc-js .lc-item{margin-right:56px}
+.lc.lc-js::before,.lc.lc-js::after{content:"";position:absolute;top:0;bottom:0;width:clamp(48px,12vw,160px);z-index:2;pointer-events:none}
+.lc.lc-js::before{left:0;background:linear-gradient(90deg,var(--mist),rgba(244,247,251,0))}
+.lc.lc-js::after{right:0;background:linear-gradient(270deg,var(--mist),rgba(244,247,251,0))}
+@media(max-width:700px){.lc-item{--ls:.82}.lc.lc-js .lc-item{margin-right:40px}}
 
 section{scroll-margin-top:calc(var(--header-h) + 12px)}
 .sec{padding:clamp(64px,8.5vw,112px) 0}
@@ -454,7 +471,6 @@ footer{background:var(--ink);color:rgba(255,255,255,.72);padding:clamp(48px,6vw,
 .nav-links a::after{content:'';position:absolute;left:13px;right:13px;bottom:4px;height:2px;background:var(--red);transform:scaleX(0);transform-origin:100% 50%;transition:transform .3s cubic-bezier(.22,1,.36,1);border-radius:2px}
 .nav-links a:hover::after,.nav-links a.active::after{transform:scaleX(1);transform-origin:0 50%}
 .tilt{transition:transform .35s cubic-bezier(.22,1,.36,1)}
-.brand-word{cursor:default}
 .cart-btn.pop{animation:pop .45s cubic-bezier(.22,1.4,.4,1)}
 @keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.22)}100%{transform:scale(1)}}
 .fly{position:fixed;z-index:500;width:22px;height:22px;border-radius:50%;background:var(--red);box-shadow:0 6px 18px -4px rgba(224,10,30,.8);pointer-events:none;transition:transform .65s cubic-bezier(.5,-0.2,.4,1),opacity .65s ease}
@@ -646,13 +662,20 @@ footer{background:var(--ink);color:rgba(255,255,255,.72);padding:clamp(48px,6vw,
 </section>
 </div>
 
-<div class="brands">
+<div class="brands" id="partners">
   <div class="wrap">
-    <p class="brands-head">The brands we stock, fit and service</p>
-    <div class="brands-row">
-      <span class="brand-word">BAUER</span><span class="brand-word">CCM</span><span class="brand-word">TRUE</span><span class="brand-word">WARRIOR</span>
-      <span class="brand-word">JACKSON</span><span class="brand-word">EDEA</span>
+    <h2 class="partners-title"><span>The brands we stock, fit and service</span><strong>Our Partners</strong></h2>
+    <div class="lc-line short"></div>
+    <div class="lc" id="lc">
+        <ul class="lc-set" aria-label="Partner brands">
+          <li class="lc-item" style="--lh:24px"><img class="lc-mono" src="assets/brands/bauer-mono.png" alt="Bauer" loading="lazy" decoding="async"><img class="lc-color" src="assets/brands/bauer.png" alt="" aria-hidden="true" loading="lazy" decoding="async"></li>
+          <li class="lc-item" style="--lh:22px"><img class="lc-mono" src="assets/brands/ccm-mono.png" alt="CCM" loading="lazy" decoding="async"><img class="lc-color" src="assets/brands/ccm.png" alt="" aria-hidden="true" loading="lazy" decoding="async"></li>
+          <li class="lc-item" style="--lh:22px"><img class="lc-mono" src="assets/brands/true-mono.png" alt="True" loading="lazy" decoding="async"><img class="lc-color" src="assets/brands/true.png" alt="" aria-hidden="true" loading="lazy" decoding="async"></li>
+          <li class="lc-item" style="--lh:17px"><img class="lc-mono" src="assets/brands/warrior-mono.png" alt="Warrior" loading="lazy" decoding="async"><img class="lc-color" src="assets/brands/warrior.png" alt="" aria-hidden="true" loading="lazy" decoding="async"></li>
+          <li class="lc-item" style="--lh:44px"><img class="lc-mono" src="assets/brands/edea-mono.png" alt="Edea" loading="lazy" decoding="async"><img class="lc-color" src="assets/brands/edea.png" alt="" aria-hidden="true" loading="lazy" decoding="async"></li>
+        </ul>
     </div>
+    <div class="lc-line"></div>
   </div>
 </div>
 
@@ -1619,5 +1642,6 @@ $('#yr').textContent=new Date().getFullYear();
 })();
 </script>
 <script src="assets/hero-stick.js" defer></script>
+<script src="assets/logo-cloud.js" defer></script>
 </body>
 </html>
