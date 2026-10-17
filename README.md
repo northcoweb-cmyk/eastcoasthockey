@@ -33,3 +33,19 @@ portal shows a warning.
 The site does not sell gear online. Families send **team-store order requests** from the cart; these are saved in the
 Blob store (`orders/`) and shown under **Orders** in the admin. No payment is processed on the site; the shop contacts
 the family to confirm and take payment.
+
+## Store setup checklist
+
+Set these in Vercel (Settings → Environment Variables), then redeploy:
+
+| Variable | Purpose |
+| --- | --- |
+| `ADMIN_USER`, `ADMIN_PASSWORD`, `ADMIN_SECRET` | admin login and session signing |
+| `RESEND_API_KEY` | sends order receipts, shop alerts, shipping updates and contact-form forwards (https://resend.com) |
+| `MAIL_FROM` | e.g. `East Coast Hockey <orders@eastcoasthockeyandskating.com>` (domain must be verified in Resend) |
+| `SHOP_NOTIFY_TO` | comma-separated inboxes for new-order and contact alerts |
+
+Without the email variables the site still works; orders and messages simply appear in the admin only.
+
+Orders are managed under **Admin → Orders** (status, payment, tracking, team production sheets, CSV exports, packing slips).
+Payment is not processed by the site yet: the shop confirms each order and collects payment, then marks it paid.

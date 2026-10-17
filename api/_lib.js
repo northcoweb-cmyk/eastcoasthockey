@@ -265,6 +265,8 @@ function link(v) { v = url(v); return v; }
 function money(v) { const n = Math.round(Number(v) * 100) / 100; return isFinite(n) ? Math.min(Math.max(n, 0), 2000) : 0; }
 function digits(p) { const d = String(p || '').replace(/\D/g, ''); return d.length === 10 ? '+1' + d : d.length === 11 && d[0] === '1' ? '+' + d : ''; }
 function pretty(p) { const d = String(p || '').replace(/\D/g, '').replace(/^1(?=\d{10}$)/, ''); return d.length === 10 ? '(' + d.slice(0, 3) + ') ' + d.slice(3, 6) + '-' + d.slice(6) : str(p, 24); }
+const RULES = ['off', 'optional', 'required'];
+const SIZE_SETS = { standard: ['YS', 'YM', 'YL', 'S', 'M', 'L', 'XL', '2XL'], youth: ['YS', 'YM', 'YL'], adult: ['S', 'M', 'L', 'XL', '2XL', '3XL'], none: [] };
 const ICONS = ['ti-shirt-sport', 'ti-shoe', 'ti-jacket', 'ti-hanger', 'ti-shirt', 'ti-star', 'ti-briefcase'];
 
 function clean(c) {
@@ -303,12 +305,20 @@ function clean(c) {
         let k = str(it.k, 40).toLowerCase().replace(/[^a-z0-9-]/g, '-') || 'item-' + (ii + 1);
         while (ks[k]) k += '-x';
         ks[k] = 1;
-        return { k: k, n: str(it.n, 60) || 'New item', ic: ICONS.indexOf(it.ic) >= 0 ? it.ic : 'ti-shirt-sport', img: url(it.img), price: money(it.price), tag: str(it.tag, 20), pers: !!it.pers, hidden: !!it.hidden };
+        const rule = function (v, legacy) { return RULES.indexOf(v) >= 0 ? v : (legacy ? 'required' : 'off'); };
+        return { k: k, n: str(it.n, 60) || 'New item', ic: ICONS.indexOf(it.ic) >= 0 ? it.ic : 'ti-shirt-sport', img: url(it.img), price: money(it.price), tag: str(it.tag, 20),
+          sizes: SIZE_SETS[it.sizes] ? it.sizes : 'standard', name: rule(it.name, it.pers), number: rule(it.number, it.pers), hidden: !!it.hidden };
       })
     };
   });
+  const st = c.store || {}, ds = D.store || { taxRate: 6, shipEnabled: true, shipFee: 9.95 };
+  out.store = {
+    taxRate: Math.min(Math.max(Math.round((Number(st.taxRate) || 0) * 1000) / 1000, 0), 15),
+    shipEnabled: st.shipEnabled === undefined ? ds.shipEnabled : !!st.shipEnabled,
+    shipFee: Math.min(Math.max(money(st.shipFee === undefined ? ds.shipFee : st.shipFee), 0), 100)
+  };
   return out;
 }
 
-module.exports = { sign, verify, json, readBody, checkLogin, setSession, clearSession, session, requireAdmin, lockedMinutes, noteFail, clearFails, clientIp,
+module.exports = { SIZE_SETS, RULES, sign, verify, json, readBody, checkLogin, setSession, clearSession, session, requireAdmin, lockedMinutes, noteFail, clearFails, clientIp,
   store, getContent, saveContent, resetContent, putImage, getImage, clean, hasBlob, TOKEN_KEY, USING_TEST_LOGIN, DEFAULTS };

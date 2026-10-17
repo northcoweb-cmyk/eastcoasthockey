@@ -93,6 +93,17 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px 90px}
 .ic-btn{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;color:var(--slate);border:1px solid var(--line);background:#fff}
 .ic-btn:hover{color:var(--red);border-color:var(--red)}
 .danger{color:#b00816}
+.sheet-modal{position:fixed;inset:0;z-index:60;background:rgba(4,22,52,.55);overflow:auto;padding:22px 14px}
+.sheet-box{max-width:980px;margin:0 auto;background:#fff;border-radius:16px;padding:20px}
+.sheet-preview .ps{font-size:14px}.sheet-preview h1{font-size:1.4rem;margin-bottom:4px}.sheet-preview h2{font-size:1.05rem;margin:22px 0 4px}
+.sheet-preview table,.ps table{width:100%;border-collapse:collapse;margin:6px 0 12px}
+.sheet-preview th,.sheet-preview td,.ps th,.ps td{border:1px solid #CBD5E1;padding:5px 8px;text-align:left;font-size:13.5px}
+.sheet-preview th{background:#F4F7FB}.ps .sz{margin:0 0 6px;color:#243752}
+#printArea{display:none}
+@media print{body>*:not(#printArea){display:none!important}#printArea{display:block!important;padding:0}
+#printArea .ps{font-family:Arial,Helvetica,sans-serif;color:#000}#printArea h1{font-size:20pt;margin:0 0 4pt}#printArea h2{font-size:13pt;margin:16pt 0 3pt;page-break-after:avoid}
+#printArea p{font-size:10.5pt;margin:0 0 6pt}#printArea table{width:100%;border-collapse:collapse;margin:4pt 0 10pt;page-break-inside:auto}
+#printArea tr{page-break-inside:avoid}#printArea th,#printArea td{border:1px solid #000;padding:3pt 6pt;font-size:10.5pt;text-align:left}#printArea th{background:#eee}}
 .toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);background:var(--ink);color:#fff;padding:12px 20px;border-radius:999px;font-size:14.5px;opacity:0;pointer-events:none;transition:.25s;z-index:50;max-width:92vw}
 .toast.on{opacity:1;transform:translate(-50%,0)}.toast.bad{background:#b00816}
 .savebar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);padding:12px 20px;z-index:30;transform:translateY(110%);transition:transform .25s}
@@ -135,6 +146,7 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px 90px}
       <button class="tab" data-tab="shop">In-store categories</button>
       <button class="tab" data-tab="teams">Team stores</button>
       <button class="tab" data-tab="orders">Orders <span class="pill" id="orderBadge" style="display:none;background:#E00A1E;color:#fff;margin-left:4px">0</span></button>
+      <button class="tab" data-tab="messages">Messages <span class="pill" id="msgBadge" style="display:none;background:#E00A1E;color:#fff;margin-left:4px">0</span></button>
     </div>
   </div>
 
@@ -189,17 +201,22 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px 90px}
           <button class="btn btn-d btn-s" id="addTeam"><i class="ti ti-plus"></i> Add team</button>
         </div>
       </div>
+      <div class="card">
+        <h2>Checkout settings</h2>
+        <p class="d">Used to total team orders. Confirm the tax rate and any shipping charge with your accountant.</p>
+        <div class="grid2">
+          <label class="f"><span>Sales tax rate (%)</span><input class="in" id="stTax" type="number" min="0" max="15" step="0.001" inputmode="decimal"></label>
+          <label class="f"><span>Flat shipping fee ($)</span><input class="in" id="stShip" type="number" min="0" max="100" step="0.01" inputmode="decimal"></label>
+        </div>
+        <label class="sw" style="margin-top:4px"><input type="checkbox" id="stShipOn"><span class="tr"></span> Offer shipping (otherwise pickup only)</label>
+      </div>
       <div id="teamList"></div>
     </section>
 
-    <section id="p-orders" class="hide">
-      <div class="card">
-        <div class="row" style="justify-content:space-between">
-          <div><h2>Team order requests</h2><p class="d" style="margin:0">Orders families send from the team stores. No payment is taken on the site: contact each family to confirm and arrange payment, then mark it done.</p></div>
-          <button class="btn btn-g btn-s" id="refreshOrders"><i class="ti ti-refresh"></i> Refresh</button>
-        </div>
-      </div>
-      <div id="orderList"></div>
+    <section id="p-orders" class="hide"><div id="orderRoot"></div></section>
+    <section id="p-messages" class="hide">
+      <div class="card"><h2>Messages</h2><p class="d" style="margin:0">Messages sent from the contact form on the website. Replies go straight to the customer's email.</p></div>
+      <div id="msgList"></div>
     </section>
 
     <div class="card" style="margin-top:26px" id="resetCard">
@@ -215,6 +232,8 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px 90px}
     <button class="btn btn-p" id="save"><i class="ti ti-device-floppy"></i> Save changes</button>
   </div></div>
 </div>
+<div id="sheetModal" class="sheet-modal hide"></div>
+<div id="printArea"></div>
 <div class="toast" id="toast" role="status"></div>
 
 <script>
@@ -255,7 +274,7 @@ function showApp(me){
   persistent=me.persistent;
   $('#warnStore').classList.toggle('hide',persistent);
   $('#warnTest').classList.toggle('hide',!me.testLogin);
-  return fetch('/api/content',{cache:'no-store'}).then(function(r){return r.json();}).then(function(c){C=c;saved=JSON.stringify(C);renderAll();markDirty();}).then(function(){api('/api/orders').then(function(r){var n=r.orders.filter(function(o){return o.status!=='done';}).length,bd=$('#orderBadge');bd.textContent=n;bd.style.display=n?'inline-block':'none';}).catch(function(){});});
+  return fetch('/api/content',{cache:'no-store'}).then(function(r){return r.json();}).then(function(c){C=c;saved=JSON.stringify(C);renderAll();markDirty();}).then(function(){api('/api/orders').then(function(r){setBadge('#orderBadge',r.orders.filter(function(o){return o.status==='new';}).length);}).catch(function(){});api('/api/messages').then(function(r){setBadge('#msgBadge',r.messages.filter(function(m){return !m.read;}).length);}).catch(function(){});});
 }
 $('#loginForm').addEventListener('submit',function(e){
   e.preventDefault();var f=e.target,b=$('#loginBtn');b.disabled=true;$('#loginErr').textContent='';
@@ -274,9 +293,10 @@ api('/api/me').then(showApp).catch(function(){});
 $('#tabs').addEventListener('click',function(e){
   var t=e.target.closest('.tab');if(!t)return;
   document.querySelectorAll('.tab').forEach(function(x){x.classList.toggle('on',x===t);});
-  ['home','locs','shop','teams','orders'].forEach(function(k){$('#p-'+k).classList.toggle('hide',k!==t.dataset.tab);});
-  $('#resetCard').classList.toggle('hide',t.dataset.tab==='orders');
+  ['home','locs','shop','teams','orders','messages'].forEach(function(k){$('#p-'+k).classList.toggle('hide',k!==t.dataset.tab);});
+  $('#resetCard').classList.toggle('hide',t.dataset.tab==='orders'||t.dataset.tab==='messages');
   if(t.dataset.tab==='orders')loadOrders();
+  if(t.dataset.tab==='messages')loadMessages();
 });
 
 /* ---------- save / discard / reset ---------- */
@@ -302,7 +322,7 @@ $('#resetAll').addEventListener('click',function(){
 function bind(el,get,set){el.value=get();el.addEventListener('input',function(){set(el.value);markDirty();});}
 function bindChk(el,get,set){el.checked=!!get();el.addEventListener('change',function(){set(el.checked);markDirty();});}
 
-function renderAll(){renderHome();renderLocs();renderShop();renderTeams();}
+function renderAll(){renderHome();renderLocs();renderShop();renderStore();renderTeams();}
 
 function renderHome(){
   function annState(){var a=C.announce,el=$('#annState');
@@ -372,6 +392,12 @@ function logoTile(t){
   if(t.logo)d.appendChild(h('img',{src:t.logo,alt:''}));else d.appendChild(h('b',{text:initials(t.n)}));
   return d;
 }
+function renderStore(){
+  C.store=C.store||{taxRate:6,shipEnabled:true,shipFee:9.95};
+  bind($('#stTax'),function(){return C.store.taxRate;},function(v){C.store.taxRate=parseFloat(v)||0;});
+  bind($('#stShip'),function(){return C.store.shipFee;},function(v){C.store.shipFee=parseFloat(v)||0;});
+  bindChk($('#stShipOn'),function(){return C.store.shipEnabled;},function(v){C.store.shipEnabled=v;});
+}
 function renderTeams(){
   var box=$('#teamList');box.innerHTML='';
   C.teams.forEach(function(t,ti){box.appendChild(teamCard(t,ti));});
@@ -417,12 +443,16 @@ function teamCard(t,ti){
     t.items.forEach(function(it,ii){
       var nm=h('input',{class:'in',maxlength:'60',placeholder:'Product name'}),pr=h('input',{class:'in',type:'number',min:'0',step:'0.01',inputmode:'decimal','aria-label':'Price'}),
           tag=h('input',{class:'in tag',maxlength:'20',placeholder:'Label (optional)','aria-label':'Label'}),ty=h('select',{class:'in','aria-label':'Type'},ICONS.map(function(i){return h('option',{value:i[0],text:i[1]});})),
-          pers=h('input',{type:'checkbox'}),vis=h('input',{type:'checkbox'});
+          vis=h('input',{type:'checkbox'});
       bind(nm,function(){return it.n;},function(v){it.n=v;});
       bind(pr,function(){return it.price;},function(v){it.price=parseFloat(v)||0;});
       bind(tag,function(){return it.tag;},function(v){it.tag=v;});
       ty.value=it.ic;ty.addEventListener('change',function(){it.ic=ty.value;markDirty();});
-      bindChk(pers,function(){return it.pers;},function(v){it.pers=v;});
+      function sel(label,opts,key){var s=h('select',{class:'in','aria-label':label},opts.map(function(o){return h('option',{value:o[0],text:o[1]});}));s.value=it[key]||opts[0][0];s.addEventListener('change',function(){it[key]=s.value;markDirty();});return h('label',{class:'mini',style:'flex-direction:column;align-items:flex-start;gap:3px'},[h('span',{text:label,style:'font-size:11.5px;color:#5A6B7C;font-weight:600'}),s]);}
+      var rules=h('div',{class:'item-opts'},[
+        sel('Sizes',[['standard','Youth + adult (YS-2XL)'],['youth','Youth (YS-YL)'],['adult','Adult (S-3XL)'],['none','One size / no size']],'sizes'),
+        sel('Player name',[['off','Not needed'],['optional','Optional'],['required','Required (last name)']],'name'),
+        sel('Player number',[['off','Not needed'],['optional','Optional'],['required','Required']],'number')]);
       var thumb=h('div',{class:'logo-t',style:'width:56px;height:56px;padding:0;flex-shrink:0'},[it.img?h('img',{src:it.img,alt:'',style:'object-fit:cover'}):h('i',{class:'ti '+it.ic,style:'font-size:22px;color:#5A6B7C'})]);
       var photoBtn=h('button',{class:'btn btn-g btn-s',type:'button',onclick:function(){pickImage(function(u){it.img=u;drawItems();markDirty();});}},[h('i',{class:'ti ti-photo-up'}),it.img?'Change photo':'Add photo']);
       var photoRm=it.img?h('button',{class:'btn btn-g btn-s',type:'button',onclick:function(){it.img='';drawItems();markDirty();}},'Remove photo'):null;
@@ -430,12 +460,11 @@ function teamCard(t,ti){
         h('div',{class:'full row',style:'gap:12px;flex-wrap:nowrap'},[thumb,h('div',{class:'row',style:'gap:8px'},[photoBtn,photoRm])]),
         nm,h('div',{style:'position:relative'},[h('span',{text:'$',style:'position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#5A6B7C'}),pr]),
         h('div',{class:'item-opts'},[ty,tag,
-          h('label',{class:'mini'},[pers,'Name & number']),
           h('label',{class:'mini'},[vis,'Visible']),
           h('span',{class:'sp'}),
           h('button',{class:'ic-btn',type:'button','aria-label':'Move up',onclick:function(){if(ii>0){t.items.splice(ii-1,0,t.items.splice(ii,1)[0]);drawItems();markDirty();}}},[h('i',{class:'ti ti-arrow-up'})]),
           h('button',{class:'ic-btn',type:'button','aria-label':'Move down',onclick:function(){if(ii<t.items.length-1){t.items.splice(ii+1,0,t.items.splice(ii,1)[0]);drawItems();markDirty();}}},[h('i',{class:'ti ti-arrow-down'})]),
-          h('button',{class:'ic-btn',type:'button','aria-label':'Delete product',onclick:function(){if(confirm('Delete “'+(it.n||'this product')+'”?')){t.items.splice(ii,1);drawItems();markDirty();}}},[h('i',{class:'ti ti-trash'})])])]);
+          h('button',{class:'ic-btn',type:'button','aria-label':'Delete product',onclick:function(){if(confirm('Delete “'+(it.n||'this product')+'”?')){t.items.splice(ii,1);drawItems();markDirty();}}},[h('i',{class:'ti ti-trash'})])]),rules]);
       pr.style.paddingLeft='26px';
       bindChk(vis,function(){return !it.hidden;},function(v){it.hidden=!v;row.classList.toggle('is-hidden',!v);});
       list.appendChild(row);
@@ -444,7 +473,7 @@ function teamCard(t,ti){
   }
   drawItems();
   body.appendChild(h('div',{class:'row',style:'margin-top:12px'},[
-    h('button',{class:'btn btn-g btn-s',type:'button',onclick:function(){t.items.push({k:'item-'+Date.now().toString(36),n:'New product',ic:'ti-shirt-sport',price:0,tag:'',pers:false,hidden:false});drawItems();markDirty();}},[h('i',{class:'ti ti-plus'}),'Add product'])]));
+    h('button',{class:'btn btn-g btn-s',type:'button',onclick:function(){t.items.push({k:'item-'+Date.now().toString(36),n:'New product',ic:'ti-shirt-sport',price:0,tag:'',sizes:'standard',name:'off',number:'off',hidden:false});drawItems();markDirty();}},[h('i',{class:'ti ti-plus'}),'Add product'])]));
   body.appendChild(h('div',{class:'row',style:'margin-top:22px;padding-top:16px;border-top:1px solid #E1E7EF;justify-content:space-between'},[
     h('span',{class:'limit',style:'text-align:left',text:'Products without a photo show the team logo.'}),
     h('button',{class:'btn btn-g btn-s danger',type:'button',onclick:function(){if(confirm('Delete the whole “'+t.n+'” team store? You can also just hide it.')){C.teams.splice(ti,1);renderTeams();markDirty();}}},[h('i',{class:'ti ti-trash'}),'Delete team'])]));
@@ -454,44 +483,214 @@ $('#addTeam').addEventListener('click',function(){
   var base=slug('new-team'),id=base,i=1;while(C.teams.some(function(t){return t.id===id;}))id=base+'-'+(++i);
   var tpl=C.teams.length?C.teams[C.teams.length-1].items:[];
   C.teams.push({id:id,n:'New team',cat:'Youth hockey',status:'open',logo:'',dark:false,c1:'#12305C',c2:'#2C6FC4',url:'',note:'',hidden:true,
-    items:tpl.map(function(it,k){return {k:'item-'+k+'-'+Date.now().toString(36),n:it.n,ic:it.ic,price:it.price,tag:it.tag,pers:it.pers,hidden:false};})});
+    items:tpl.map(function(it,k){return {k:'item-'+k+'-'+Date.now().toString(36),n:it.n,ic:it.ic,price:it.price,tag:it.tag,sizes:it.sizes,name:it.name,number:it.number,hidden:false};})});
   openTeams[id]=true;renderTeams();markDirty();toast('Team added (hidden). Add a logo, then switch it on.');
   var last=$('#teamList').lastElementChild;if(last)last.scrollIntoView({behavior:'smooth',block:'center'});
 });
 /* ---------- orders ---------- */
+var ORDERS=[],MAIL=false,F={team:'',status:'',pay:'',q:''};
+var STATUS_LABEL={new:'New',in_production:'In production',ready:'Ready for pickup',shipped:'Shipped',complete:'Complete',cancelled:'Cancelled'};
+var SIZE_ORDER=['YS','YM','YL','S','M','L','XL','2XL','3XL',''];
 function money(n){return '$'+Number(n).toFixed(2);}
+function ref(o){return '#'+o.id.slice(-6).toUpperCase();}
+function fmtDate(s){return new Date(s).toLocaleString([], {dateStyle:'medium',timeStyle:'short'});}
+function escH(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function csvCell(v){var s=String(v==null?'':v);if(/^[=+\-@\t\r]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';}
+function download(name,rows){
+  var csv='﻿'+rows.map(function(r){return r.map(csvCell).join(',');}).join('\r\n');
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download=name;
+  document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},600);
+}
+function who(i){return [i.first,i.last].filter(Boolean).join(' ');}
+function addrOf(o){var s=o.shipping;return s?[s.address1,s.address2,s.city+', '+s.state+' '+s.zip].filter(Boolean).join(', '):'';}
+function teamsInOrders(){var m={};ORDERS.forEach(function(o){o.items.forEach(function(i){m[i.teamId]=i.team;});});return Object.keys(m).map(function(k){return {id:k,n:m[k]};}).sort(function(a,b){return a.n.localeCompare(b.n);});}
+function filtered(){
+  var q=F.q.trim().toLowerCase();
+  return ORDERS.filter(function(o){
+    if(F.team&&!o.items.some(function(i){return i.teamId===F.team;}))return false;
+    if(F.status&&o.status!==F.status)return false;
+    if(F.pay&&(o.payment||{}).status!==F.pay)return false;
+    if(q){var hay=(o.contact.name+' '+o.contact.email+' '+ref(o)+' '+o.items.map(function(i){return i.last+' '+i.first+' '+i.name;}).join(' ')).toLowerCase();if(hay.indexOf(q)<0)return false;}
+    return true;
+  });
+}
 function loadOrders(){
-  var box=$('#orderList');
-  api('/api/orders').then(function(r){
-    box.innerHTML='';
-    var open=r.orders.filter(function(o){return o.status!=='done';}).length;
-    var bd=$('#orderBadge');bd.textContent=open;bd.style.display=open?'inline-block':'none';
-    if(!r.orders.length){box.appendChild(h('div',{class:'card',text:'No order requests yet.'}));return;}
-    r.orders.forEach(function(o){box.appendChild(orderCard(o));});
+  return api('/api/orders').then(function(r){ORDERS=r.orders;MAIL=r.mail;setBadge('#orderBadge',ORDERS.filter(function(o){return o.status==='new';}).length);renderOrders();})
+    .catch(function(e){var b=$('#orderRoot');b.innerHTML='';b.appendChild(h('div',{class:'card',text:e.message}));});
+}
+function setBadge(sel,n){var b=$(sel);b.textContent=n;b.style.display=n?'inline-block':'none';}
+function opts(map,sel,onchange,label){var s=h('select',{class:'in','aria-label':label,style:'min-height:40px;padding:6px 10px;width:auto'},Object.keys(map).map(function(k){return h('option',{value:k,text:map[k]});}));s.value=sel;if(onchange)s.addEventListener('change',function(){onchange(s.value);});return s;}
+
+function renderOrders(){
+  var root=$('#orderRoot');root.innerHTML='';
+  var tl=teamsInOrders(),teamMap={'':'All teams'};tl.forEach(function(t){teamMap[t.id]=t.n;});
+  var list=filtered();
+  var tools=h('div',{class:'card'},[
+    h('div',{class:'row',style:'justify-content:space-between;align-items:flex-start'},[
+      h('div',{},[h('h2',{text:'Orders'}),h('p',{class:'d',style:'margin:0',text:'Team orders from the website. Nothing is charged on the site: confirm each order with the family, collect payment, then update its status.'})]),
+      h('button',{class:'btn btn-g btn-s',type:'button',onclick:loadOrders},[h('i',{class:'ti ti-refresh'}),'Refresh'])]),
+    h('div',{class:'row',style:'margin-top:16px;gap:10px'},[
+      opts(teamMap,F.team,function(v){F.team=v;renderOrders();},'Team'),
+      opts(Object.assign({'':'Any status'},STATUS_LABEL),F.status,function(v){F.status=v;renderOrders();},'Status'),
+      opts({'':'Paid or unpaid',unpaid:'Unpaid',paid:'Paid',refunded:'Refunded'},F.pay,function(v){F.pay=v;renderOrders();},'Payment'),
+      (function(){var i=h('input',{class:'in',placeholder:'Search name, email, #ref, player',value:F.q,style:'min-height:40px;max-width:280px'});i.addEventListener('input',function(){F.q=i.value;clearTimeout(i._t);i._t=setTimeout(function(){renderOrders();var n=$('#orderRoot input.in[placeholder^="Search"]');if(n){n.focus();n.setSelectionRange(F.q.length,F.q.length);}},250);});return i;})()]),
+    h('div',{class:'row',style:'margin-top:14px;gap:8px'},[
+      h('button',{class:'btn btn-d btn-s',type:'button',onclick:function(){openSheet(F.team);}},[h('i',{class:'ti ti-clipboard-list'}),'Team sheet']),
+      h('button',{class:'btn btn-g btn-s',type:'button',onclick:function(){exportOrders(list);}},[h('i',{class:'ti ti-file-spreadsheet'}),'Export orders CSV']),
+      h('button',{class:'btn btn-g btn-s',type:'button',onclick:function(){exportShip(list);}},[h('i',{class:'ti ti-truck-delivery'}),'Shipping CSV (Pirate Ship)'])]),
+    h('p',{class:'d',style:'margin:12px 0 0;font-size:13px',text:MAIL?'Email is connected: customers get a receipt and the shop gets an alert.':'Email is not connected yet, so no receipts or alerts are sent. Orders still appear here.'})]);
+  root.appendChild(tools);
+  var cnt=function(f){return ORDERS.filter(f).length;};
+  root.appendChild(h('div',{class:'row',style:'gap:10px;margin-bottom:14px'},[
+    chip('New',cnt(function(o){return o.status==='new';})),chip('Unpaid',cnt(function(o){return o.status!=='cancelled'&&(o.payment||{}).status==='unpaid';})),
+    chip('In production',cnt(function(o){return o.status==='in_production';})),chip('To ship',cnt(function(o){return o.fulfillment==='ship'&&['new','in_production','ready'].indexOf(o.status)>=0;})),
+    chip('Showing',list.length+' of '+ORDERS.length)]));
+  if(!list.length)root.appendChild(h('div',{class:'card',text:ORDERS.length?'No orders match these filters.':'No orders yet.'}));
+  list.forEach(function(o){root.appendChild(orderCard(o));});
+}
+function chip(l,n){return h('span',{class:'pill',style:'background:#fff;border:1px solid #E1E7EF;color:#041634;font-size:12px;padding:6px 12px'},[l+': ',h('b',{text:String(n)})]);}
+
+function orderCard(o){
+  var pay=o.payment||{status:'unpaid',method:'',note:''},trk=o.tracking||{carrier:'',number:''},d={status:o.status,pay:pay.status,method:pay.method,note:pay.note||'',carrier:trk.carrier,number:trk.number,notes:o.notes||''};
+  var save=h('button',{class:'btn btn-p btn-s',type:'button'},[h('i',{class:'ti ti-device-floppy'}),'Save changes']);
+  var dirty=function(){save.disabled=false;};save.disabled=true;
+  var lines=h('table',{style:'width:100%;border-collapse:collapse;font-size:14px;margin:10px 0'},[
+    h('tr',{style:'text-align:left;color:#5A6B7C;font-size:12px'},['Qty','Team','Item','Size','Name','#','Total'].map(function(t){return h('th',{text:t,style:'padding:4px 6px;font-weight:600'});}))
+  ].concat(o.items.map(function(i){return h('tr',{style:'border-top:1px solid #E1E7EF'},[String(i.qty),i.team,i.name,i.size||'—',who(i)||'—',i.num===''?'—':i.num,money(i.price*i.qty)].map(function(t){return h('td',{text:t,style:'padding:6px'});}));})));
+  var t=o.totals;
+  var ful=o.fulfillment==='ship'?'Ship to: '+o.shipping.name+', '+addrOf(o):'Pickup: '+o.pickupShop;
+  var stSel=opts(STATUS_LABEL,d.status,function(v){d.status=v;dirty();},'Status');
+  var paySel=opts({unpaid:'Unpaid',paid:'Paid',refunded:'Refunded'},d.pay,function(v){d.pay=v;dirty();},'Payment');
+  var mSel=opts({'':'Method…',card:'Card',cash:'Cash',check:'Check',invoice:'Invoice',other:'Other'},d.method,function(v){d.method=v;dirty();},'Payment method');
+  var carrier=opts({'':'Carrier…',USPS:'USPS',UPS:'UPS',FedEx:'FedEx',Other:'Other'},d.carrier,function(v){d.carrier=v;dirty();},'Carrier');
+  var tn=h('input',{class:'in',placeholder:'Tracking number',value:d.number,style:'min-height:40px;max-width:240px'});tn.addEventListener('input',function(){d.number=tn.value;dirty();});
+  var nt=h('textarea',{class:'in',placeholder:'Internal notes (not shown to the customer)',style:'min-height:60px'});nt.value=d.notes;nt.addEventListener('input',function(){d.notes=nt.value;dirty();});
+  save.addEventListener('click',function(){
+    var notify=true;
+    if(d.status!==o.status&&(d.status==='ready'||d.status==='shipped')&&MAIL)notify=confirm('Email '+o.contact.name+' that this order is '+STATUS_LABEL[d.status].toLowerCase()+'?');
+    save.disabled=true;
+    api('/api/orders?id='+o.id,{method:'PUT',body:JSON.stringify({status:d.status,payment:{status:d.pay,method:d.method,note:d.note},tracking:{carrier:d.carrier,number:d.number},notes:d.notes,notify:notify})})
+      .then(function(r){Object.assign(o,r.order);toast(r.emailed?'Saved and customer emailed.':'Saved.');renderOrders();setBadge('#orderBadge',ORDERS.filter(function(x){return x.status==='new';}).length);})
+      .catch(function(e){toast(e.message,true);save.disabled=false;});
+  });
+  var hist=(o.history||[]).map(function(x){return fmtDate(x.at)+' — '+x.event;}).join('  ·  ');
+  return h('div',{class:'card',style:o.status==='cancelled'?'opacity:.6':''},[
+    h('div',{class:'row',style:'justify-content:space-between;align-items:flex-start'},[
+      h('div',{},[h('h2',{text:o.contact.name+' · '+ref(o)}),h('p',{class:'d',style:'margin:0',text:fmtDate(o.createdAt)})]),
+      h('div',{class:'row',style:'gap:6px'},[h('span',{class:'pill'+(pay.status==='paid'?'':' soon'),text:pay.status==='paid'?'Paid':pay.status==='refunded'?'Refunded':'Unpaid'}),h('span',{class:'pill off',text:STATUS_LABEL[o.status]})])]),
+    h('p',{style:'margin:10px 0 2px;font-size:14px'},[h('a',{href:'mailto:'+o.contact.email,text:o.contact.email}),o.contact.phone?' · ':'',o.contact.phone?h('a',{href:'tel:'+o.contact.phone.replace(/[^\d+]/g,''),text:o.contact.phone}):null]),
+    h('p',{style:'margin:0;font-size:14px;font-weight:600',text:ful}),
+    lines,
+    h('p',{style:'font-size:13.5px;color:#5A6B7C;margin:0 0 4px',text:'Subtotal '+money(t.subtotal)+' · Tax '+money(t.tax)+' ('+t.taxRate+'%) · Shipping '+money(t.shipping)}),
+    h('p',{style:'font-size:16px;font-weight:800;margin:0 0 10px',text:'Total '+money(t.total)}),
+    o.contact.notes?h('p',{style:'font-size:14px;background:#F4F7FB;padding:10px 12px;border-radius:10px',text:'Customer note: '+o.contact.notes}):null,
+    h('div',{class:'row',style:'gap:8px;margin:12px 0'},[stSel,paySel,mSel]),
+    o.fulfillment==='ship'?h('div',{class:'row',style:'gap:8px;margin-bottom:12px'},[carrier,tn]):null,
+    nt,
+    h('p',{style:'font-size:12px;color:#7a8794;margin:10px 0',text:hist}),
+    h('div',{class:'row',style:'justify-content:space-between;margin-top:6px'},[
+      h('div',{class:'row',style:'gap:8px'},[save,h('button',{class:'btn btn-g btn-s',type:'button',onclick:function(){printHTML(slipHtml(o));}},[h('i',{class:'ti ti-printer'}),'Packing slip'])]),
+      h('button',{class:'btn btn-g btn-s danger',type:'button',onclick:function(){if(confirm('Delete this order permanently? Cancel it instead if you want to keep a record.'))api('/api/orders?id='+o.id,{method:'DELETE'}).then(loadOrders).catch(function(e){toast(e.message,true);});}},'Delete')])]);
+}
+
+/* ---- exports ---- */
+function exportOrders(list){
+  var rows=[['Order #','Date','Status','Payment','Customer','Email','Phone','Fulfillment','Pickup shop / ship to','Team','Item','Size','Qty','Last name','First name','Number','Unit price','Line total','Subtotal','Tax','Shipping','Order total','Tracking']];
+  list.forEach(function(o){o.items.forEach(function(i){rows.push([ref(o),fmtDate(o.createdAt),STATUS_LABEL[o.status],(o.payment||{}).status,o.contact.name,o.contact.email,o.contact.phone,o.fulfillment==='ship'?'Ship':'Pickup',o.fulfillment==='ship'?o.shipping.name+', '+addrOf(o):o.pickupShop,i.team,i.name,i.size,i.qty,i.last,i.first,i.num,i.price.toFixed(2),(i.price*i.qty).toFixed(2),o.totals.subtotal.toFixed(2),o.totals.tax.toFixed(2),o.totals.shipping.toFixed(2),o.totals.total.toFixed(2),o.tracking&&o.tracking.number?(o.tracking.carrier+' '+o.tracking.number).trim():'']);});});
+  download('orders-'+new Date().toISOString().slice(0,10)+'.csv',rows);
+}
+function exportShip(list){
+  var ships=list.filter(function(o){return o.fulfillment==='ship'&&o.status!=='cancelled'&&o.status!=='shipped'&&o.status!=='complete';});
+  if(!ships.length){toast('No orders waiting to ship in this view.',true);return;}
+  var rows=[['Name','Company','Address 1','Address 2','City','State','Zip','Country','Phone','Email','Order #','Weight (oz)','Contents']];
+  ships.forEach(function(o){var s=o.shipping;rows.push([s.name,'',s.address1,s.address2,s.city,s.state,s.zip,'US',o.contact.phone,o.contact.email,ref(o),'',o.items.map(function(i){return i.qty+'x '+i.name;}).join('; ')]);});
+  download('shipping-'+new Date().toISOString().slice(0,10)+'.csv',rows);
+}
+
+/* ---- printing ---- */
+function printHTML(html){var p=$('#printArea');p.innerHTML=html;setTimeout(function(){window.print();},50);}
+function slipHtml(o){
+  var t=o.totals;
+  return '<div class="ps"><h1>Packing slip '+escH(ref(o))+'</h1><p>'+escH(fmtDate(o.createdAt))+'</p><p><strong>'+escH(o.contact.name)+'</strong><br>'+escH(o.contact.email)+(o.contact.phone?'<br>'+escH(o.contact.phone):'')+'</p>'+
+    '<p><strong>'+(o.fulfillment==='ship'?'SHIP TO':'PICKUP')+':</strong> '+escH(o.fulfillment==='ship'?o.shipping.name+', '+addrOf(o):o.pickupShop)+'</p>'+
+    '<table><tr><th>✓</th><th>Qty</th><th>Team</th><th>Item</th><th>Size</th><th>Name</th><th>#</th></tr>'+o.items.map(function(i){return '<tr><td>☐</td><td>'+i.qty+'</td><td>'+escH(i.team)+'</td><td>'+escH(i.name)+'</td><td>'+escH(i.size||'—')+'</td><td>'+escH(who(i)||'—')+'</td><td>'+escH(i.num===''?'—':i.num)+'</td></tr>';}).join('')+'</table>'+
+    '<p>Total '+money(t.total)+' · '+escH((o.payment||{}).status||'unpaid')+(o.notes?'<br>Notes: '+escH(o.notes):'')+'</p></div>';
+}
+
+/* ---- team sheet: every player, item, size and number for one team ---- */
+var SHEET={team:'',paid:false};
+function sheetData(teamId,onlyPaid){
+  var groups={},orders={};
+  ORDERS.forEach(function(o){
+    if(o.status==='cancelled')return;if(onlyPaid&&(o.payment||{}).status!=='paid')return;
+    o.items.forEach(function(i){
+      if(i.teamId!==teamId)return;orders[o.id]=1;
+      var g=groups[i.k]=groups[i.k]||{name:i.name,rows:[]};
+      g.rows.push({num:i.num,last:i.last,first:i.first,size:i.size,qty:i.qty,ref:ref(o),paid:(o.payment||{}).status==='paid'});
+    });
+  });
+  var out=Object.keys(groups).map(function(k){return groups[k];}).sort(function(a,b){return a.name.localeCompare(b.name);});
+  out.forEach(function(g){g.rows.sort(function(a,b){var an=a.num===''?1e9:+a.num,bn=b.num===''?1e9:+b.num;return an-bn||a.last.localeCompare(b.last)||a.first.localeCompare(b.first);});
+    var sz={};g.rows.forEach(function(r){sz[r.size]=(sz[r.size]||0)+r.qty;});
+    g.sizes=Object.keys(sz).sort(function(a,b){return SIZE_ORDER.indexOf(a)-SIZE_ORDER.indexOf(b);}).map(function(k){return {size:k||'One size',qty:sz[k]};});
+    g.total=g.rows.reduce(function(s,r){return s+r.qty;},0);});
+  return {groups:out,orderCount:Object.keys(orders).length};
+}
+function sheetHtml(teamId,onlyPaid){
+  var tm=teamsInOrders().filter(function(t){return t.id===teamId;})[0],sd=sheetData(teamId,onlyPaid);
+  var html='<div class="ps"><h1>'+escH(tm?tm.n:'Team')+' — production sheet</h1><p>'+escH(new Date().toLocaleDateString([], {dateStyle:'long'}))+' · '+sd.orderCount+' order'+(sd.orderCount===1?'':'s')+(onlyPaid?' · paid orders only':' · all open orders')+'</p>';
+  if(!sd.groups.length)return html+'<p>No items.</p></div>';
+  sd.groups.forEach(function(g){
+    html+='<h2>'+escH(g.name)+' — '+g.total+' total</h2><p class="sz">'+g.sizes.map(function(s){return '<b>'+escH(s.size)+'</b> × '+s.qty;}).join(' &nbsp;·&nbsp; ')+'</p>'+
+      '<table><tr><th>#</th><th>Last name</th><th>First name</th><th>Size</th><th>Qty</th><th>Order</th><th>Paid</th></tr>'+
+      g.rows.map(function(r){return '<tr><td>'+escH(r.num===''?'—':r.num)+'</td><td>'+escH(r.last||'—')+'</td><td>'+escH(r.first||'')+'</td><td>'+escH(r.size||'—')+'</td><td>'+r.qty+'</td><td>'+escH(r.ref)+'</td><td>'+(r.paid?'Yes':'No')+'</td></tr>';}).join('')+'</table>';
+  });
+  return html+'</div>';
+}
+function sheetCsv(teamId,onlyPaid){
+  var tm=teamsInOrders().filter(function(t){return t.id===teamId;})[0],sd=sheetData(teamId,onlyPaid);
+  var rows=[['Team','Item','Number','Last name','First name','Size','Qty','Order #','Paid']];
+  sd.groups.forEach(function(g){g.rows.forEach(function(r){rows.push([tm?tm.n:'',g.name,r.num,r.last,r.first,r.size,r.qty,r.ref,r.paid?'Yes':'No']);});});
+  download((tm?tm.n.replace(/[^\w]+/g,'-'):'team')+'-sheet-'+new Date().toISOString().slice(0,10)+'.csv',rows);
+}
+function openSheet(teamId){
+  var tl=teamsInOrders();if(!tl.length){toast('There are no orders yet.',true);return;}
+  SHEET.team=teamId||tl[0].id;
+  var m=$('#sheetModal');m.classList.remove('hide');drawSheet();
+}
+function drawSheet(){
+  var tl=teamsInOrders(),m=$('#sheetModal');m.innerHTML='';
+  var tmap={};tl.forEach(function(t){tmap[t.id]=t.n;});
+  var pc=h('input',{type:'checkbox'});pc.checked=SHEET.paid;pc.addEventListener('change',function(){SHEET.paid=pc.checked;drawSheet();});
+  m.appendChild(h('div',{class:'sheet-box'},[
+    h('div',{class:'row',style:'justify-content:space-between;margin-bottom:14px'},[
+      h('div',{class:'row',style:'gap:10px'},[opts(tmap,SHEET.team,function(v){SHEET.team=v;drawSheet();},'Team'),h('label',{class:'mini'},[pc,'Paid orders only'])]),
+      h('div',{class:'row',style:'gap:8px'},[
+        h('button',{class:'btn btn-d btn-s',type:'button',onclick:function(){printHTML(sheetHtml(SHEET.team,SHEET.paid));}},[h('i',{class:'ti ti-printer'}),'Print']),
+        h('button',{class:'btn btn-g btn-s',type:'button',onclick:function(){sheetCsv(SHEET.team,SHEET.paid);}},[h('i',{class:'ti ti-file-spreadsheet'}),'CSV']),
+        h('button',{class:'btn btn-g btn-s',type:'button',onclick:function(){m.classList.add('hide');}},'Close')])]),
+    (function(){var d=h('div',{class:'sheet-preview'});d.innerHTML=sheetHtml(SHEET.team,SHEET.paid);return d;})()]));
+}
+
+/* ---------- messages (contact form) ---------- */
+function loadMessages(){
+  var box=$('#msgList');
+  api('/api/messages').then(function(r){
+    box.innerHTML='';setBadge('#msgBadge',r.messages.filter(function(m){return !m.read;}).length);
+    if(!r.messages.length){box.appendChild(h('div',{class:'card',text:'No messages yet.'}));return;}
+    r.messages.forEach(function(m){
+      box.appendChild(h('div',{class:'card',style:m.read?'opacity:.65':''},[
+        h('div',{class:'row',style:'justify-content:space-between'},[h('div',{},[h('h2',{text:m.name}),h('p',{class:'d',style:'margin:0',text:fmtDate(m.createdAt)+' · '+m.topic})]),m.read?null:h('span',{class:'pill soon',text:'New'})]),
+        h('p',{style:'margin:10px 0 6px;font-size:14px'},[h('a',{href:'mailto:'+m.email,text:m.email}),m.phone?' · ':'',m.phone?h('a',{href:'tel:'+m.phone.replace(/[^\d+]/g,''),text:m.phone}):null]),
+        h('p',{style:'white-space:pre-wrap;font-size:15px',text:m.message}),
+        h('div',{class:'row',style:'gap:8px;margin-top:10px'},[
+          m.read?null:h('button',{class:'btn btn-g btn-s',type:'button',onclick:function(){api('/api/messages?id='+m.id,{method:'PUT'}).then(loadMessages);}},'Mark read'),
+          h('a',{class:'btn btn-d btn-s',href:'mailto:'+m.email+'?subject='+encodeURIComponent('Re: your message to East Coast Hockey')},[h('i',{class:'ti ti-mail'}),'Reply']),
+          h('button',{class:'btn btn-g btn-s danger',type:'button',onclick:function(){if(confirm('Delete this message?'))api('/api/messages?id='+m.id,{method:'DELETE'}).then(loadMessages);}},'Delete')])]));
+    });
   }).catch(function(e){box.innerHTML='';box.appendChild(h('div',{class:'card',text:e.message}));});
 }
-function orderCard(o){
-  var c=o.contact,done=o.status==='done';
-  var when=new Date(o.createdAt).toLocaleString([], {dateStyle:'medium',timeStyle:'short'});
-  var lines=o.items.map(function(i){
-    var who=(i.first||i.last||i.num)?' — '+[i.first,i.last].filter(Boolean).join(' ')+(i.num?' #'+i.num:''):'';
-    return h('li',{text:i.qty+' × '+i.team+' · '+i.name+' ('+i.size+')'+who+' — '+money(i.price*i.qty)});
-  });
-  var card=h('div',{class:'card'+(done?' is-hidden':''),style:done?'opacity:.6':''},[
-    h('div',{class:'row',style:'justify-content:space-between;align-items:flex-start'},[
-      h('div',{},[h('h2',{text:c.name+' · #'+o.id.slice(-6).toUpperCase()}),h('p',{class:'d',style:'margin:0',text:when+' · Pickup: '+c.pickup})]),
-      h('span',{class:'pill'+(done?' off':' soon'),text:done?'Done':'New'})]),
-    h('p',{style:'margin:12px 0 6px;font-size:14px'},[h('a',{href:'mailto:'+c.email,text:c.email}),c.phone?' · ':'',c.phone?h('a',{href:'tel:'+c.phone.replace(/[^\d+]/g,''),text:c.phone}):null]),
-    h('ul',{style:'margin:8px 0 8px 18px;font-size:14px;line-height:1.7'},lines),
-    c.notes?h('p',{style:'font-size:14px;color:#5A6B7C;margin-bottom:8px',text:'Notes: '+c.notes}):null,
-    h('div',{class:'row',style:'justify-content:space-between;margin-top:10px'},[
-      h('strong',{text:'Total '+money(o.total)}),
-      h('div',{class:'row',style:'gap:8px'},[
-        h('button',{class:'btn btn-g btn-s',type:'button',onclick:function(){api('/api/orders?id='+o.id,{method:'PUT',body:JSON.stringify({status:done?'new':'done'})}).then(loadOrders).catch(function(e){toast(e.message,true);});}},done?'Reopen':'Mark done'),
-        h('button',{class:'btn btn-g btn-s danger',type:'button',onclick:function(){if(confirm('Delete this order request?'))api('/api/orders?id='+o.id,{method:'DELETE'}).then(loadOrders).catch(function(e){toast(e.message,true);});}},'Delete')])])]);
-  return card;
-}
-$('#refreshOrders').addEventListener('click',loadOrders);
+
 document.body.appendChild(h('datalist',{id:'cats'},['Youth hockey','College','High school','Adult league','Figure skating'].map(function(c){return h('option',{value:c});})));
 })();
 </script>

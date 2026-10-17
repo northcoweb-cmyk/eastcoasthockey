@@ -314,6 +314,20 @@ section{scroll-margin-top:calc(var(--header-h) + 12px)}
 .order-form input,.order-form select,.order-form textarea{width:100%;min-height:42px;padding:9px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;font:inherit;font-weight:400;font-size:14px;outline:none}
 .order-form textarea{min-height:60px;resize:vertical}
 .order-form input:focus,.order-form select:focus,.order-form textarea:focus{border-color:var(--steel)}
+[hidden]{display:none!important}
+.cart-tots{display:grid;gap:6px;margin-bottom:14px;font-size:14px}
+.cart-tots>div{display:flex;justify-content:space-between;color:var(--slate)}
+.cart-tots b{color:var(--ink);font-weight:600}
+.cart-tots .grand{border-top:1px solid var(--line);padding-top:10px;margin-top:4px;align-items:center}
+.cart-tots .grand span{color:var(--ink);font-weight:600}.cart-tots .grand strong{font-size:23px;font-weight:800;letter-spacing:-.03em;color:var(--ink)}
+.order-form .ful{border:1.5px solid var(--line);border-radius:10px;padding:8px 12px;display:grid;gap:6px}
+.order-form .ful legend{font-size:12.5px;font-weight:600;padding:0 4px}
+.order-form label.radio{display:flex;align-items:flex-start;gap:8px;font-weight:500;font-size:13.5px}
+.order-form label.radio input{width:auto;min-height:0;margin-top:3px}
+.order-form .two{display:grid;grid-template-columns:2fr 1fr;gap:10px}
+.order-form label.agree a{text-decoration:underline}
+.one-size{display:flex;align-items:center;gap:6px;font-size:12.5px;color:rgba(255,255,255,.55);margin:2px 0 6px}
+.prod-size.bad{outline:2px solid #E0566B;outline-offset:4px;border-radius:10px}
 .order-form .hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
 .order-done{text-align:center;padding:50px 22px}.order-done i{font-size:48px;color:#2EB67D;display:block;margin-bottom:12px}
 .order-done h4{font-size:1.2rem;margin-bottom:8px}.order-done p{color:var(--slate);font-size:14.5px}
@@ -453,6 +467,8 @@ footer{background:var(--ink);color:rgba(255,255,255,.72);padding:clamp(48px,6vw,
 .f-line i{color:var(--steel);font-size:18px;flex-shrink:0;margin-top:1px}
 .f-bottom{border-top:1px solid rgba(255,255,255,.11);padding:22px 0;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;font-size:13px}
 .f-bottom a:hover{color:#fff}
+.f-links{display:inline-flex;flex-wrap:wrap;gap:8px 22px;align-items:center}
+.f-made strong{color:#fff;font-weight:700}
 
 .mobile-bar{position:fixed;left:0;right:0;bottom:0;z-index:180;display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:rgba(255,255,255,.94);backdrop-filter:blur(14px);border-top:1px solid var(--line);transform:translateY(115%);transition:transform .32s cubic-bezier(.22,1,.36,1)}
 .mobile-bar.show{transform:translateY(0)}
@@ -885,6 +901,7 @@ footer{background:var(--ink);color:rgba(255,255,255,.72);padding:clamp(48px,6vw,
             </div>
             <div class="field full"><label for="ms">Message</label><textarea id="ms" placeholder="Tell us what you're looking for"></textarea><span class="err">Add a short message</span></div>
             <div class="field full">
+              <input name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
               <button type="submit" class="btn btn-primary" style="width:100%"><i class="ti ti-send"></i> Send message</button>
               <p class="msg" id="formMsg" role="status"></p>
             </div>
@@ -947,7 +964,7 @@ footer{background:var(--ink);color:rgba(255,255,255,.72);padding:clamp(48px,6vw,
     </div>
     <div class="f-bottom">
       <span>© <span id="yr"></span> East Coast Hockey &amp; Skating Supply. All rights reserved.</span>
-      <span style="display:inline-flex;gap:18px;align-items:center"><a href="/admin" rel="nofollow" class="f-admin"><i class="ti ti-lock" style="margin-right:5px"></i>Admin</a><a href="#top">Back to top</a></span>
+      <span class="f-links"><a href="returns.html">Returns &amp; refunds</a><a href="https://northco.us" target="_blank" rel="noopener" class="f-made">Made by <strong>NorthCo</strong></a><a href="/admin" rel="nofollow" class="f-admin"><i class="ti ti-lock" style="margin-right:5px"></i>Admin</a><a href="#top">Back to top</a></span>
     </div>
   </div>
 </footer>
@@ -966,14 +983,32 @@ footer{background:var(--ink);color:rgba(255,255,255,.72);padding:clamp(48px,6vw,
   </div>
   <div class="cart-body" id="cartBody"></div>
   <div class="cart-foot">
-    <div class="cart-tot"><span>Subtotal</span><strong id="cartTotal">$0.00</strong></div>
+    <div class="cart-tots">
+      <div><span>Subtotal</span><b id="tSub">$0.00</b></div>
+      <div><span>Tax (<span id="tRate">6</span>%)</span><b id="tTax">$0.00</b></div>
+      <div id="tShipRow" hidden><span>Shipping</span><b id="tShip">$0.00</b></div>
+      <div class="grand"><span>Total</span><strong id="cartTotal">$0.00</strong></div>
+    </div>
     <button class="btn btn-primary" id="checkoutBtn" disabled><i class="ti ti-send"></i> Request this order</button>
     <form id="orderForm" class="order-form" hidden novalidate>
       <label>Your name<input name="name" autocomplete="name" maxlength="80"></label>
       <label>Email<input name="email" type="email" autocomplete="email" maxlength="120"></label>
       <label>Phone (optional)<input name="phone" type="tel" autocomplete="tel" maxlength="30"></label>
-      <label>Pickup<select name="pickup" id="orderPickup"></select></label>
+      <fieldset class="ful"><legend>How do you want to get it?</legend>
+        <label class="radio"><input type="radio" name="fulfillment" value="pickup" checked> Pick up in a shop</label>
+        <label class="radio" id="shipRadio"><input type="radio" name="fulfillment" value="ship"> Ship to me</label>
+      </fieldset>
+      <label id="pickupWrap">Pickup shop<select name="pickupShop" id="orderPickup"></select></label>
+      <div id="shipWrap" hidden class="order-form">
+        <label>Name on package<input name="shipName" autocomplete="shipping name" maxlength="80"></label>
+        <label>Address<input name="address1" autocomplete="shipping address-line1" maxlength="90"></label>
+        <label>Apartment, suite (optional)<input name="address2" autocomplete="shipping address-line2" maxlength="60"></label>
+        <div class="two"><label>City<input name="city" autocomplete="shipping address-level2" maxlength="50"></label>
+        <label>State<input name="state" autocomplete="shipping address-level1" maxlength="2" placeholder="MD"></label></div>
+        <label>ZIP code<input name="zip" autocomplete="shipping postal-code" inputmode="numeric" maxlength="10"></label>
+      </div>
       <label>Notes (optional)<textarea name="notes" maxlength="500" rows="2"></textarea></label>
+      <label class="radio agree"><input type="checkbox" name="agree"> <span>I understand personalized team items are final sale. See <a href="returns.html" target="_blank" rel="noopener">Returns &amp; refunds</a>.</span></label>
       <input name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
       <button type="submit" class="btn btn-dark" id="orderSend"><i class="ti ti-check"></i> Send order request</button>
       <p class="msg" id="orderMsg" role="status"></p>
@@ -1060,24 +1095,25 @@ var FAQ=[
    Team colours below are set for the crest gradient only. Prices marked
    VERIFY are shop defaults: confirm each against the live catalogue. */
 var DEFAULT_ITEMS=[
-  {k:'jersey',n:'Game Jersey',ic:'ti-shirt-sport',price:75,tag:'On ice',pers:true},
-  {k:'pantshell',n:'Pant Shell',ic:'ti-shoe',price:55,tag:'',pers:true},
-  {k:'warmup-jacket',n:'Warm-Up Jacket',ic:'ti-jacket',price:85,tag:'Team set',pers:true},
-  {k:'warmup-pant',n:'Warm-Up Pant',ic:'ti-shoe',price:65,tag:'',pers:true},
-  {k:'hoodie',n:'Team Hoodie',ic:'ti-hanger',price:54,tag:'Best seller',pers:true},
-  {k:'tee',n:'Practice Tee',ic:'ti-shirt',price:24,tag:'',pers:true},
-  {k:'hat',n:'Team Hat',ic:'ti-star',price:28,tag:'',pers:false},
-  {k:'bag',n:'Equipment Bag',ic:'ti-briefcase',price:79,tag:'',pers:true}
+  {k:'jersey',n:'Game Jersey',ic:'ti-shirt-sport',price:75,tag:'On ice',sizes:'standard',name:'required',number:'required'},
+  {k:'pantshell',n:'Pant Shell',ic:'ti-shoe',price:55,tag:'',sizes:'standard',name:'off',number:'off'},
+  {k:'warmup-jacket',n:'Warm-Up Jacket',ic:'ti-jacket',price:85,tag:'Team set',sizes:'standard',name:'optional',number:'optional'},
+  {k:'warmup-pant',n:'Warm-Up Pant',ic:'ti-shoe',price:65,tag:'',sizes:'standard',name:'off',number:'off'},
+  {k:'hoodie',n:'Team Hoodie',ic:'ti-hanger',price:54,tag:'Best seller',sizes:'standard',name:'optional',number:'off'},
+  {k:'tee',n:'Practice Tee',ic:'ti-shirt',price:24,tag:'',sizes:'standard',name:'off',number:'off'},
+  {k:'hat',n:'Team Hat',ic:'ti-star',price:28,tag:'',sizes:'none',name:'off',number:'off'},
+  {k:'bag',n:'Equipment Bag',ic:'ti-briefcase',price:79,tag:'',sizes:'none',name:'optional',number:'off'}
 ];
-var SIZES=['YS','YM','YL','S','M','L','XL','2XL'];
+var SIZE_SETS={standard:['YS','YM','YL','S','M','L','XL','2XL'],youth:['YS','YM','YL'],adult:['S','M','L','XL','2XL','3XL'],none:[]};
+var STORE_CFG={taxRate:6,shipEnabled:true,shipFee:9.95};
 var TEAMS=[
   {id:'navy-youth',n:'Navy Youth Hockey',cat:'Youth hockey',c1:'#041E42',c2:'#C8A951',status:'open',
    logo:'assets/teams/navy-youth-hockey.jpg',
    note:'All Navy Youth Hockey apparel includes the Navy Youth Hockey logo. Check each item for player name and number options.',
    items:[
-     {k:'mite-jersey',n:'MITE Jersey (Blue)',ic:'ti-shirt-sport',price:75,tag:'Game wear',pers:true},
-     {k:'pantshell',n:'Pant Shell',ic:'ti-shoe',price:55,tag:'Game wear',pers:true},
-     {k:'academy-jersey',n:'ACADEMY Jersey',ic:'ti-shirt-sport',price:75,tag:'Game wear',pers:true}
+     {k:'mite-jersey',n:'MITE Jersey (Blue)',ic:'ti-shirt-sport',price:75,tag:'Game wear',sizes:'standard',name:'required',number:'required'},
+     {k:'pantshell',n:'Pant Shell',ic:'ti-shoe',price:55,tag:'Game wear',sizes:'standard',name:'required',number:'required'},
+     {k:'academy-jersey',n:'ACADEMY Jersey',ic:'ti-shirt-sport',price:75,tag:'Game wear',sizes:'standard',name:'required',number:'required'}
    ]},
   {id:'richmond-hc',n:'Richmond Hockey Club',cat:'Youth hockey',c1:'#05080f',c2:'#0B2545',status:'open',
    logo:'assets/teams/richmond-hockey-club.webp',dark:true},
@@ -1188,6 +1224,20 @@ var cart=[];
     cat='All';filters.innerHTML=cats.map(function(c,i){return '<button class="chip'+(i===0?' on':'')+'" data-cat="'+esc(c)+'">'+esc(c)+'</button>';}).join('');
     browse.style.display='';store.classList.remove('on');render();
   };
+  function sizeHtml(g){
+    var list=SIZE_SETS[g.sizes||'standard']||[];
+    if(!list.length)return '<p class="one-size"><i class="ti ti-ruler-measure-2"></i> One size</p>';
+    return '<div class="prod-size" role="group" aria-label="Choose a size">'+list.map(function(sz){return '<button type="button" class="size-btn" data-s="'+sz+'">'+sz+'</button>';}).join('')+'</div>';
+  }
+  function persHtml(g){
+    var nm=g.name||'off',nu=g.number||'off';
+    if(nm==='off'&&nu==='off')return '';
+    var h='<div class="pers">';
+    if(nm!=='off')h+='<div class="pers-row"><input class="pf" type="text" maxlength="24" placeholder="First name" aria-label="First name (optional)" autocomplete="off"><input class="pl" type="text" maxlength="24" placeholder="Last name'+(nm==='required'?' *':'')+'" aria-label="Last name'+(nm==='required'?' (required)':' (optional)')+'" autocomplete="off"></div>';
+    if(nu!=='off')h+='<input class="pn" type="text" inputmode="numeric" maxlength="2" placeholder="Number'+(nu==='required'?' *':'')+'" aria-label="Number'+(nu==='required'?' (required)':' (optional)')+'" autocomplete="off">';
+    var what=nm!=='off'&&nu!=='off'?'Name and number':nm!=='off'?'Name':'Number',need=nm==='required'||nu==='required';
+    return h+'<p class="pers-hint"><i class="ti ti-needle-thread"></i> '+what+' stitched on, included in the price. '+(need?'* required':'Optional')+'.</p></div>';
+  }
   function openTeam(id){
     var t=TEAMS.filter(function(x){return x.id===id;})[0]; if(!t)return;
     var crest=$('#tsCrest'),crest_=window.__crest;
@@ -1205,12 +1255,7 @@ var cart=[];
             (g.tag?'<span class="tag">'+esc(g.tag)+'</span>':'')+'<i class="ti '+g.ic+'"></i>'+
             (t.logo?'<span class="prod-logo"><img src="'+esc(t.logo)+'" alt="" loading="lazy"></span>':'<span class="prod-crest">'+esc(initials(t.n))+'</span>')+'</div>')+
         '<div class="prod-body"><h4>'+esc(g.n)+'</h4><div class="prod-price">'+money(g.price)+'</div>'+
-        '<div class="prod-size">'+SIZES.map(function(s,j){return '<button class="size-btn'+(j===4?' on':'')+'" data-s="'+s+'">'+s+'</button>';}).join('')+'</div>'+
-        (g.pers?'<div class="pers"><div class="pers-row">'+
-          '<input class="pf" type="text" placeholder="First name" aria-label="Player first name" autocomplete="off">'+
-          '<input class="pl" type="text" placeholder="Last name" aria-label="Player last name" autocomplete="off"></div>'+
-          '<input class="pn" type="text" inputmode="numeric" maxlength="2" placeholder="Number" aria-label="Player number" autocomplete="off">'+
-          '<p class="pers-hint"><i class="ti ti-needle-thread"></i> Name and number are stitched on — included in the price.</p></div>':'')+
+        sizeHtml(g)+persHtml(g)+
         '<button class="add"><i class="ti ti-plus"></i> Add to order</button></div></div>';
     }).join('');
     var nb=$('#tsNote');
@@ -1225,21 +1270,28 @@ var cart=[];
       card.querySelector('.add').addEventListener('click',function(){
         var g=(t.items||DEFAULT_ITEMS).filter(function(x){return x.k===card.dataset.k;})[0];
         var b=this,f=card.querySelector('.pf'),l=card.querySelector('.pl'),num=card.querySelector('.pn');
-        if(g.pers){
-          var missing=false;
-          [f,l,num].forEach(function(inp){
-            if(!inp.value.trim()){inp.classList.add('bad');missing=true;} else inp.classList.remove('bad');
-          });
-          if(missing){
-            card.classList.add('shake');
-            setTimeout(function(){card.classList.remove('shake');},480);
-            b.innerHTML='<i class="ti ti-alert-triangle"></i> Add name &amp; number';
-            setTimeout(function(){b.innerHTML='<i class="ti ti-plus"></i> Add to order';},1600);
-            return;
-          }
+        var problems=[],NAME=/^[\p{L}\p{M}][\p{L}\p{M}' .-]{0,23}$/u;
+        var szBtn=card.querySelector('.size-btn.on'),hasSizes=(SIZE_SETS[g.sizes||'standard']||[]).length>0;
+        card.querySelectorAll('.bad').forEach(function(x){x.classList.remove('bad');});
+        card.querySelector('.prod-size')&&card.querySelector('.prod-size').classList.remove('bad');
+        if(hasSizes&&!szBtn){problems.push('Choose a size');card.querySelector('.prod-size').classList.add('bad');}
+        if(l){
+          var lv=l.value.trim(),fv=f.value.trim();
+          if((g.name==='required'&&!lv)||(lv&&!NAME.test(lv))){problems.push(g.name==='required'&&!lv?'Add a last name':'Check the last name');l.classList.add('bad');}
+          if(fv&&!NAME.test(fv)){problems.push('Check the first name');f.classList.add('bad');}
         }
-        addToCart(t,g,card.querySelector('.size-btn.on').dataset.s,
-          f?f.value.trim():'', l?l.value.trim():'', num?num.value.trim():'');
+        if(num){
+          var nv=num.value.trim();
+          if((g.number==='required'&&nv==='')||(nv!==''&&!/^\d{1,2}$/.test(nv))){problems.push(nv===''?'Add a number':'Number must be 0-99');num.classList.add('bad');}
+        }
+        if(problems.length){
+          card.classList.add('shake');
+          setTimeout(function(){card.classList.remove('shake');},480);
+          b.innerHTML='<i class="ti ti-alert-triangle"></i> '+problems[0];
+          setTimeout(function(){b.innerHTML='<i class="ti ti-plus"></i> Add to order';},1800);
+          return;
+        }
+        addToCart(t,g,szBtn?szBtn.dataset.s:'', f?f.value.trim():'', l?l.value.trim():'', num?num.value.trim():'');
         b.classList.add('done');b.innerHTML='<i class="ti ti-check"></i> Added';
         flyToCart(card);
         setTimeout(function(){b.classList.remove('done');b.innerHTML='<i class="ti ti-plus"></i> Add to order';},1300);
@@ -1289,14 +1341,14 @@ function renderCart(){
   var body=$('#cartBody'),count=0,total=0;
   cart.forEach(function(c){count+=c.qty;total+=c.qty*c.price;});
   var cc=$('#cartCount');cc.textContent=count;cc.classList.toggle('on',count>0);
-  $('#cartTotal').textContent=money(total);
+  window.__cartSub=total;updateTotals();
   $('#checkoutBtn').disabled=count===0;
   if(!count){body.innerHTML='<div class="cart-empty"><i class="ti ti-shopping-cart-off"></i>Nothing here yet.<br>Pick a team store above to get started.</div>';return;}
   body.innerHTML=cart.map(function(c,i){
     return '<div class="cart-item">'+
       '<span class="cart-thumb" style="background:linear-gradient(140deg,'+c.c1+','+c.c2+')"><i class="ti '+c.ic+'"></i></span>'+
-      '<div class="ci"><strong>'+esc(c.name)+'</strong><div class="meta">'+esc(c.team)+' · Size '+esc(c.size)+'</div>'+
-      (c.first?'<div class="meta pers-meta"><i class="ti ti-user"></i> '+esc(c.first+' '+c.last)+' · #'+esc(c.num)+'</div>':'')+
+      '<div class="ci"><strong>'+esc(c.name)+'</strong><div class="meta">'+esc(c.team)+(c.size?' · Size '+esc(c.size):'')+'</div>'+
+      ((c.first||c.last||c.num!=='')?'<div class="meta pers-meta"><i class="ti ti-user"></i> '+esc([c.first,c.last].filter(Boolean).join(' '))+(c.num!==''?' · #'+esc(c.num):'')+'</div>':'')+
       '<div class="row"><div class="qty"><button data-a="dec" data-i="'+i+'" aria-label="Decrease">−</button>'+
       '<span>'+c.qty+'</span><button data-a="inc" data-i="'+i+'" aria-label="Increase">+</button></div>'+
       '<span class="price">'+money(c.qty*c.price)+'</span></div>'+
@@ -1316,25 +1368,57 @@ renderCart();
 
 /* team order request: saved on the site for the shop to follow up; no payment is taken online */
 var orderForm=$('#orderForm');
-$('#orderPickup').innerHTML=LOCS.map(function(l){return '<option>'+esc(l.n)+'</option>';}).join('')+'<option>Ship to me</option>';
+$('#orderPickup').innerHTML=LOCS.map(function(l){return '<option>'+esc(l.n)+'</option>';}).join('');
+function updateTotals(){
+  if(!orderForm)return;
+  var sub=Math.round((window.__cartSub||0)*100),rate=+STORE_CFG.taxRate||0,tax=Math.round(sub*rate/100);
+  var ship=orderForm&&orderForm.elements.fulfillment.value==='ship'&&STORE_CFG.shipEnabled?Math.round(STORE_CFG.shipFee*100):0;
+  $('#tSub').textContent=money(sub/100);$('#tRate').textContent=rate;$('#tTax').textContent=money(tax/100);
+  $('#tShipRow').hidden=!ship;$('#tShip').textContent=money(ship/100);
+  $('#cartTotal').textContent=money((sub+tax+ship)/100);
+}
+function syncFulfillment(){
+  var ship=orderForm.elements.fulfillment.value==='ship';
+  $('#shipWrap').hidden=!ship;$('#pickupWrap').hidden=ship;updateTotals();
+}
+orderForm.addEventListener('change',function(e){if(e.target.name==='fulfillment')syncFulfillment();});
+window.__applyStore=function(st){
+  if(!st)return;STORE_CFG=st;
+  $('#shipRadio').hidden=!st.shipEnabled;
+  if(!st.shipEnabled&&orderForm.elements.fulfillment.value==='ship'){orderForm.elements.fulfillment.value='pickup';syncFulfillment();}
+  updateTotals();
+};
+renderCart();
+/* team order: saved on the site for the shop to confirm and collect payment; nothing is charged online */
 $('#checkoutBtn').addEventListener('click',function(){
   orderForm.hidden=!orderForm.hidden;
-  if(!orderForm.hidden){orderForm.querySelector('input[name=name]').focus();orderForm.scrollIntoView({block:'nearest',behavior:'smooth'});}
+  if(!orderForm.hidden){orderForm.elements.name.focus();orderForm.scrollIntoView({block:'nearest',behavior:'smooth'});}
 });
 orderForm.addEventListener('submit',function(e){
   e.preventDefault();
-  var f=orderForm.elements,msg=$('#orderMsg'),btn=$('#orderSend');
-  if(!cart.length){msg.className='msg err';msg.textContent='Your order is empty.';return;}
+  var f=orderForm.elements,msg=$('#orderMsg'),btn=$('#orderSend'),ship=f.fulfillment.value==='ship';
+  function err(t){msg.className='msg err';msg.textContent=t;}
+  if(!cart.length)return err('Your order is empty.');
+  if(f.name.value.trim().length<2)return err('Please enter your name.');
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(f.email.value.trim()))return err('Please enter a valid email address.');
+  if(ship){
+    if(f.shipName.value.trim().length<2||f.address1.value.trim().length<4||f.city.value.trim().length<2)return err('Please complete the shipping address.');
+    if(!/^[A-Za-z]{2}$/.test(f.state.value.trim()))return err('Enter the 2-letter state, like MD.');
+    if(!/^\d{5}(-\d{4})?$/.test(f.zip.value.trim()))return err('Enter a valid ZIP code.');
+  }
+  if(!f.agree.checked)return err('Please confirm you understand the team item policy.');
   msg.className='msg';msg.textContent='';btn.disabled=true;
   fetch('/api/order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
     website:f.website.value,
-    contact:{name:f.name.value,email:f.email.value,phone:f.phone.value,pickup:f.pickup.value,notes:f.notes.value},
+    contact:{name:f.name.value,email:f.email.value,phone:f.phone.value,notes:f.notes.value},
+    fulfillment:ship?'ship':'pickup',pickupShop:f.pickupShop.value,
+    shipping:ship?{name:f.shipName.value,address1:f.address1.value,address2:f.address2.value,city:f.city.value,state:f.state.value,zip:f.zip.value}:null,
     items:cart.map(function(c){return {teamId:c.teamId,k:c.k,size:c.size,qty:c.qty,first:c.first,last:c.last,num:c.num};})
   })}).then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error(j.error||'Could not send your order.');return j;});})
   .then(function(j){
-    var email=f.email.value;cart.length=0;renderCart();orderForm.reset();orderForm.hidden=true;
-    $('#cartBody').innerHTML='<div class="order-done"><i class="ti ti-circle-check"></i><h4>Order request received</h4><p>Reference <strong>#'+esc(j.id)+'</strong>. We will contact you at '+esc(email)+' to confirm the details and arrange payment.</p></div>';
-  }).catch(function(err){msg.className='msg err';msg.textContent=err.message||'Could not send your order. Please call the shop.';})
+    var email=f.email.value;cart.length=0;renderCart();orderForm.reset();orderForm.hidden=true;syncFulfillment();
+    $('#cartBody').innerHTML='<div class="order-done"><i class="ti ti-circle-check"></i><h4>Order request received</h4><p>Reference <strong>#'+esc(j.id)+'</strong> · Total <strong>'+money(j.total)+'</strong>.<br>Nothing has been charged. We will contact you at '+esc(email)+' to confirm the details and arrange payment.</p></div>';
+  }).catch(function(er){err(er.message||'Could not send your order. Please call the shop.');})
   .then(function(){btn.disabled=false;});
 });
 
@@ -1485,8 +1569,13 @@ orderForm.addEventListener('submit',function(e){
     n+=bad('ph',$('#ph').value.replace(/\D/g,'').length<10);
     n+=bad('ms',!$('#ms').value.trim());
     if(n){msg.className='msg err';msg.textContent='Fix the highlighted fields and try again.';return;}
-    msg.className='msg ok';msg.textContent='Thanks — your message is ready to send. Connect this form to the shop inbox to go live.';
-    f.reset();
+    var btn=f.querySelector('button[type=submit]');btn.disabled=true;msg.className='msg';msg.textContent='Sending…';
+    fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      name:($('#fn').value+' '+$('#ln').value).trim(),email:$('#em').value,phone:$('#ph').value,topic:$('#tp').value,message:$('#ms').value,website:(f.elements.website||{}).value||''
+    })}).then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error(j.error||'Could not send.');return j;});})
+    .then(function(){msg.className='msg ok';msg.textContent='Thanks — we got your message and will get back to you soon.';f.reset();})
+    .catch(function(er){msg.className='msg err';msg.textContent=er.message+' You can also call any shop.';})
+    .then(function(){btn.disabled=false;});
   });
 })();
 
@@ -1617,10 +1706,11 @@ document.addEventListener('pointerdown',function(e){
     /* shop categories */
     (c.shop||[]).forEach(function(s,i){if(SHOP[i]){SHOP[i].t=esc(s.t);SHOP[i].d=esc(s.d);SHOP[i].img=s.img||SHOP[i].img;}});
     if(window.__ecShop)window.__ecShop();
+    if(c.store&&window.__applyStore)window.__applyStore(c.store);
     /* team stores */
     var teams=(c.teams||[]).filter(function(t){return !t.hidden;}).map(function(t){
       return {id:t.id,n:t.n,cat:t.cat,status:t.status,logo:t.logo||'',dark:!!t.dark,c1:t.c1,c2:t.c2,note:t.note||'',
-        items:t.items.filter(function(i){return !i.hidden;}).map(function(i){return {k:i.k,n:i.n,ic:i.ic,price:i.price,tag:i.tag,pers:i.pers,img:i.img||''};})};
+        items:t.items.filter(function(i){return !i.hidden;}).map(function(i){return {k:i.k,n:i.n,ic:i.ic,price:i.price,tag:i.tag,sizes:i.sizes||'standard',name:i.name||'off',number:i.number||'off',img:i.img||''};})};
     });
     TEAMS.length=0;teams.forEach(function(t){TEAMS.push(t);});
     if(window.__ecTeams)window.__ecTeams();

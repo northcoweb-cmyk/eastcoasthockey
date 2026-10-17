@@ -80,8 +80,10 @@
      "ic": "ti-shirt-sport",
      "price": 75,
      "tag": "Game wear",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "standard",
+     "name": "required",
+     "number": "required"
     },
     {
      "k": "pantshell",
@@ -89,8 +91,10 @@
      "ic": "ti-shoe",
      "price": 55,
      "tag": "Game wear",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "standard",
+     "name": "off",
+     "number": "off"
     },
     {
      "k": "academy-jersey",
@@ -98,8 +102,10 @@
      "ic": "ti-shirt-sport",
      "price": 75,
      "tag": "Game wear",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "standard",
+     "name": "required",
+     "number": "required"
     }
    ]
   },
@@ -122,8 +128,10 @@
      "ic": "ti-shirt-sport",
      "price": 75,
      "tag": "On ice",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "standard",
+     "name": "required",
+     "number": "required"
     },
     {
      "k": "pantshell",
@@ -131,8 +139,10 @@
      "ic": "ti-shoe",
      "price": 55,
      "tag": "",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "standard",
+     "name": "off",
+     "number": "off"
     },
     {
      "k": "warmup-jacket",
@@ -140,8 +150,10 @@
      "ic": "ti-jacket",
      "price": 85,
      "tag": "Team set",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "standard",
+     "name": "optional",
+     "number": "optional"
     },
     {
      "k": "warmup-pant",
@@ -149,8 +161,10 @@
      "ic": "ti-shoe",
      "price": 65,
      "tag": "",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "standard",
+     "name": "off",
+     "number": "off"
     },
     {
      "k": "hoodie",
@@ -158,8 +172,10 @@
      "ic": "ti-hanger",
      "price": 54,
      "tag": "Best seller",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "standard",
+     "name": "optional",
+     "number": "off"
     },
     {
      "k": "tee",
@@ -167,8 +183,10 @@
      "ic": "ti-shirt",
      "price": 24,
      "tag": "",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "standard",
+     "name": "off",
+     "number": "off"
     },
     {
      "k": "hat",
@@ -176,8 +194,10 @@
      "ic": "ti-star",
      "price": 28,
      "tag": "",
-     "pers": false,
-     "hidden": false
+     "hidden": false,
+     "sizes": "none",
+     "name": "off",
+     "number": "off"
     },
     {
      "k": "bag",
@@ -185,8 +205,10 @@
      "ic": "ti-briefcase",
      "price": 79,
      "tag": "",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "none",
+     "name": "optional",
+     "number": "off"
     }
    ]
   },
@@ -209,8 +231,10 @@
      "ic": "ti-shirt-sport",
      "price": 75,
      "tag": "On ice",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "standard",
+     "name": "required",
+     "number": "required"
     },
     {
      "k": "pantshell",
@@ -218,8 +242,10 @@
      "ic": "ti-shoe",
      "price": 55,
      "tag": "",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "standard",
+     "name": "off",
+     "number": "off"
     },
     {
      "k": "warmup-jacket",
@@ -227,8 +253,10 @@
      "ic": "ti-jacket",
      "price": 85,
      "tag": "Team set",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "standard",
+     "name": "optional",
+     "number": "optional"
     },
     {
      "k": "warmup-pant",
@@ -236,8 +264,10 @@
      "ic": "ti-shoe",
      "price": 65,
      "tag": "",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "standard",
+     "name": "off",
+     "number": "off"
     },
     {
      "k": "hoodie",
@@ -245,8 +275,10 @@
      "ic": "ti-hanger",
      "price": 54,
      "tag": "Best seller",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "standard",
+     "name": "optional",
+     "number": "off"
     },
     {
      "k": "tee",
@@ -254,8 +286,10 @@
      "ic": "ti-shirt",
      "price": 24,
      "tag": "",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "standard",
+     "name": "off",
+     "number": "off"
     },
     {
      "k": "hat",
@@ -263,8 +297,10 @@
      "ic": "ti-star",
      "price": 28,
      "tag": "",
-     "pers": false,
-     "hidden": false
+     "hidden": false,
+     "sizes": "none",
+     "name": "off",
+     "number": "off"
     },
     {
      "k": "bag",
@@ -272,8 +308,10 @@
      "ic": "ti-briefcase",
      "price": 79,
      "tag": "",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "none",
+     "name": "optional",
+     "number": "off"
     }
    ]
   },
@@ -296,8 +334,10 @@
      "ic": "ti-shirt-sport",
      "price": 75,
      "tag": "On ice",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "standard",
+     "name": "required",
+     "number": "required"
     },
     {
      "k": "pantshell",
@@ -305,8 +345,10 @@
      "ic": "ti-shoe",
      "price": 55,
      "tag": "",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "standard",
+     "name": "off",
+     "number": "off"
     },
     {
      "k": "warmup-jacket",
@@ -314,8 +356,10 @@
      "ic": "ti-jacket",
      "price": 85,
      "tag": "Team set",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "standard",
+     "name": "optional",
+     "number": "optional"
     },
     {
      "k": "warmup-pant",
@@ -323,8 +367,10 @@
      "ic": "ti-shoe",
      "price": 65,
      "tag": "",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "standard",
+     "name": "off",
+     "number": "off"
     },
     {
      "k": "hoodie",
@@ -332,8 +378,10 @@
      "ic": "ti-hanger",
      "price": 54,
      "tag": "Best seller",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "standard",
+     "name": "optional",
+     "number": "off"
     },
     {
      "k": "tee",
@@ -341,8 +389,10 @@
      "ic": "ti-shirt",
      "price": 24,
      "tag": "",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "standard",
+     "name": "off",
+     "number": "off"
     },
     {
      "k": "hat",
@@ -350,8 +400,10 @@
      "ic": "ti-star",
      "price": 28,
      "tag": "",
-     "pers": false,
-     "hidden": false
+     "hidden": false,
+     "sizes": "none",
+     "name": "off",
+     "number": "off"
     },
     {
      "k": "bag",
@@ -359,8 +411,10 @@
      "ic": "ti-briefcase",
      "price": 79,
      "tag": "",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "none",
+     "name": "optional",
+     "number": "off"
     }
    ]
   },
@@ -383,8 +437,10 @@
      "ic": "ti-shirt-sport",
      "price": 75,
      "tag": "On ice",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "standard",
+     "name": "required",
+     "number": "required"
     },
     {
      "k": "pantshell",
@@ -392,8 +448,10 @@
      "ic": "ti-shoe",
      "price": 55,
      "tag": "",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "standard",
+     "name": "off",
+     "number": "off"
     },
     {
      "k": "warmup-jacket",
@@ -401,8 +459,10 @@
      "ic": "ti-jacket",
      "price": 85,
      "tag": "Team set",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "standard",
+     "name": "optional",
+     "number": "optional"
     },
     {
      "k": "warmup-pant",
@@ -410,8 +470,10 @@
      "ic": "ti-shoe",
      "price": 65,
      "tag": "",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "standard",
+     "name": "off",
+     "number": "off"
     },
     {
      "k": "hoodie",
@@ -419,8 +481,10 @@
      "ic": "ti-hanger",
      "price": 54,
      "tag": "Best seller",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "standard",
+     "name": "optional",
+     "number": "off"
     },
     {
      "k": "tee",
@@ -428,8 +492,10 @@
      "ic": "ti-shirt",
      "price": 24,
      "tag": "",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "standard",
+     "name": "off",
+     "number": "off"
     },
     {
      "k": "hat",
@@ -437,8 +503,10 @@
      "ic": "ti-star",
      "price": 28,
      "tag": "",
-     "pers": false,
-     "hidden": false
+     "hidden": false,
+     "sizes": "none",
+     "name": "off",
+     "number": "off"
     },
     {
      "k": "bag",
@@ -446,8 +514,10 @@
      "ic": "ti-briefcase",
      "price": 79,
      "tag": "",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "none",
+     "name": "optional",
+     "number": "off"
     }
    ]
   },
@@ -470,8 +540,10 @@
      "ic": "ti-shirt-sport",
      "price": 75,
      "tag": "On ice",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "standard",
+     "name": "required",
+     "number": "required"
     },
     {
      "k": "pantshell",
@@ -479,8 +551,10 @@
      "ic": "ti-shoe",
      "price": 55,
      "tag": "",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "standard",
+     "name": "off",
+     "number": "off"
     },
     {
      "k": "warmup-jacket",
@@ -488,8 +562,10 @@
      "ic": "ti-jacket",
      "price": 85,
      "tag": "Team set",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "standard",
+     "name": "optional",
+     "number": "optional"
     },
     {
      "k": "warmup-pant",
@@ -497,8 +573,10 @@
      "ic": "ti-shoe",
      "price": 65,
      "tag": "",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "standard",
+     "name": "off",
+     "number": "off"
     },
     {
      "k": "hoodie",
@@ -506,8 +584,10 @@
      "ic": "ti-hanger",
      "price": 54,
      "tag": "Best seller",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "standard",
+     "name": "optional",
+     "number": "off"
     },
     {
      "k": "tee",
@@ -515,8 +595,10 @@
      "ic": "ti-shirt",
      "price": 24,
      "tag": "",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "standard",
+     "name": "off",
+     "number": "off"
     },
     {
      "k": "hat",
@@ -524,8 +606,10 @@
      "ic": "ti-star",
      "price": 28,
      "tag": "",
-     "pers": false,
-     "hidden": false
+     "hidden": false,
+     "sizes": "none",
+     "name": "off",
+     "number": "off"
     },
     {
      "k": "bag",
@@ -533,8 +617,10 @@
      "ic": "ti-briefcase",
      "price": 79,
      "tag": "",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "none",
+     "name": "optional",
+     "number": "off"
     }
    ]
   },
@@ -557,8 +643,10 @@
      "ic": "ti-shirt-sport",
      "price": 75,
      "tag": "On ice",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "standard",
+     "name": "required",
+     "number": "required"
     },
     {
      "k": "pantshell",
@@ -566,8 +654,10 @@
      "ic": "ti-shoe",
      "price": 55,
      "tag": "",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "standard",
+     "name": "off",
+     "number": "off"
     },
     {
      "k": "warmup-jacket",
@@ -575,8 +665,10 @@
      "ic": "ti-jacket",
      "price": 85,
      "tag": "Team set",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "standard",
+     "name": "optional",
+     "number": "optional"
     },
     {
      "k": "warmup-pant",
@@ -584,8 +676,10 @@
      "ic": "ti-shoe",
      "price": 65,
      "tag": "",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "standard",
+     "name": "off",
+     "number": "off"
     },
     {
      "k": "hoodie",
@@ -593,8 +687,10 @@
      "ic": "ti-hanger",
      "price": 54,
      "tag": "Best seller",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "standard",
+     "name": "optional",
+     "number": "off"
     },
     {
      "k": "tee",
@@ -602,8 +698,10 @@
      "ic": "ti-shirt",
      "price": 24,
      "tag": "",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "standard",
+     "name": "off",
+     "number": "off"
     },
     {
      "k": "hat",
@@ -611,8 +709,10 @@
      "ic": "ti-star",
      "price": 28,
      "tag": "",
-     "pers": false,
-     "hidden": false
+     "hidden": false,
+     "sizes": "none",
+     "name": "off",
+     "number": "off"
     },
     {
      "k": "bag",
@@ -620,10 +720,17 @@
      "ic": "ti-briefcase",
      "price": 79,
      "tag": "",
-     "pers": true,
-     "hidden": false
+     "hidden": false,
+     "sizes": "none",
+     "name": "optional",
+     "number": "off"
     }
    ]
   }
- ]
+ ],
+ "store": {
+  "taxRate": 6,
+  "shipEnabled": true,
+  "shipFee": 9.95
+ }
 }
