@@ -2,6 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-html { scroll-behavior: smooth; }
-body { @apply bg-[#050505] text-zinc-100 font-sans antialiased; }
-::selection { @apply bg-orange-500 text-black; }
+html { scroll-behavior: smooth; scroll-padding-top: 6rem; }
+body { @apply bg-white text-zinc-900 font-sans antialiased; }
+::selection { @apply bg-brand text-white; }

@@ -1,48 +1,54 @@
-import { ArrowDown, MapPin } from "lucide-react";
+import { ArrowRight, MapPin, Phone } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { INFO, PHOTOS } from "@/data/menu";
 
-const marquee = ["Deli Classics", "Diner Favorites", "Tex-Mex", "Burgers", "Subs", "Breakfast", "Pizza", "Wraps"];
+const marquee = ["Deli Delights", "Diner Favorites", "Tex-Mex", "Gourmet Burgers", "Hot Subs", "Breakfast", "Pizza", "Wraps"];
 
 export function Hero() {
   return (
-    <section id="top" className="relative flex min-h-screen flex-col justify-end overflow-hidden pt-24">
-      <img
-        src={PHOTOS.cali}
-        alt="California club sandwich"
-        className="absolute inset-0 h-full w-full object-cover opacity-45"
-        fetchPriority="high"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/70 to-[#050505]/20" />
-      <div className="absolute -left-40 top-1/3 h-[480px] w-[480px] rounded-full bg-orange-600/20 blur-[140px]" />
+    <section id="top" className="relative overflow-hidden pt-20">
+      <div className="mx-auto grid max-w-7xl items-center gap-10 px-5 pb-16 pt-10 md:grid-cols-2 md:px-10 md:pb-24 md:pt-20">
+        <div>
+          <p className="mb-6 inline-flex items-center gap-2 rounded-full bg-brand-tint px-4 py-1.5 text-sm font-semibold text-brand">
+            <MapPin className="h-4 w-4" /> Rockville, MD
+          </p>
+          <h1 className="text-[clamp(3rem,8vw,6.5rem)] font-extrabold leading-[0.92] tracking-tight">
+            Where Rockville comes for <span className="text-brand">seriously good food.</span>
+          </h1>
+          <p className="mt-6 max-w-lg text-lg text-zinc-600">
+            Stacked deli sandwiches, juicy burgers and authentic Tex-Mex. Order online for quick pickup or delivery.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <a href="#order" className={buttonVariants({ size: "lg" })}>
+              Order online <ArrowRight className="h-5 w-5" />
+            </a>
+            <a href={INFO.phoneHref} className={buttonVariants({ size: "lg", variant: "outline" })}>
+              <Phone className="h-5 w-5" /> {INFO.phone}
+            </a>
+          </div>
+        </div>
 
-      <div className="relative mx-auto w-full max-w-7xl px-5 pb-16 md:px-10 md:pb-24">
-        <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/40 px-4 py-1.5 text-sm text-zinc-300 backdrop-blur">
-          <MapPin className="h-4 w-4 text-orange-500" /> Rockville, MD
-        </p>
-        <h1 className="font-display text-[clamp(3.5rem,13vw,11rem)] font-extrabold uppercase leading-[0.82] tracking-tighter">
-          Seriously
-          <br />
-          <span className="text-orange-500">good</span> food.
-        </h1>
-        <p className="mt-8 max-w-xl text-lg text-zinc-300 md:text-xl">
-          Stacked deli sandwiches, juicy burgers and bold Tex-Mex — all under one roof at {INFO.address.split(",")[0]}.
-        </p>
-        <div className="mt-10 flex flex-wrap gap-3">
-          <a href="#order" className={buttonVariants({ size: "lg" })}>
-            Order online <ArrowDown className="h-5 w-5" />
-          </a>
-          <a href="#visit" className={buttonVariants({ size: "lg", variant: "outline" })}>
-            Hours &amp; location
-          </a>
+        <div className="relative">
+          <div className="absolute -right-6 -top-6 h-full w-full rounded-[2.5rem] bg-brand" />
+          <img
+            src={PHOTOS.cali}
+            alt="California club sandwich at Village Grille"
+            className="relative aspect-[4/5] w-full rounded-[2.5rem] object-cover shadow-2xl md:aspect-square"
+            fetchPriority="high"
+          />
+          <img
+            src={PHOTOS.burrito}
+            alt="Burrito bowl"
+            className="absolute -bottom-6 -left-4 hidden h-36 w-36 rounded-3xl border-4 border-white object-cover shadow-xl md:block"
+          />
         </div>
       </div>
 
-      <div className="relative overflow-hidden border-y border-white/10 bg-black/60 py-4 backdrop-blur">
-        <div className="flex w-max animate-marquee gap-12 whitespace-nowrap font-display text-2xl font-bold uppercase text-zinc-500">
+      <div className="overflow-hidden bg-brand py-4 text-white">
+        <div className="flex w-max animate-marquee gap-10 whitespace-nowrap text-xl font-bold uppercase">
           {[...marquee, ...marquee, ...marquee, ...marquee].map((m, i) => (
-            <span key={i} className="flex items-center gap-12">
-              {m} <span className="text-orange-500">✦</span>
+            <span key={i} className="flex items-center gap-10">
+              {m} <span className="opacity-60">✦</span>
             </span>
           ))}
         </div>

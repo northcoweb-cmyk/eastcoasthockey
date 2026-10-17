@@ -9,7 +9,7 @@ import { INFO } from "@/data/menu";
 type Step = "cart" | "details" | "done";
 
 const field =
-  "h-12 w-full rounded-xl border border-white/10 bg-white/5 px-4 text-sm outline-none transition placeholder:text-zinc-500 focus:border-orange-500";
+  "h-12 w-full rounded-xl border border-black/10 bg-zinc-100 px-4 text-sm outline-none transition placeholder:text-zinc-500 focus:border-brand";
 
 export function CartDrawer() {
   const { open, setOpen, lines, subtotal, tax, total, dispatch, count } = useCart();
@@ -38,32 +38,32 @@ export function CartDrawer() {
       <div
         onClick={close}
         className={cn(
-          "fixed inset-0 z-50 bg-black/70 backdrop-blur-sm transition-opacity",
+          "fixed inset-0 z-50 bg-black/50 backdrop-blur-sm transition-opacity",
           open ? "opacity-100" : "pointer-events-none opacity-0"
         )}
       />
       <aside
         aria-hidden={!open}
         className={cn(
-          "fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col border-l border-white/10 bg-[#0b0b0b] transition-transform duration-300",
+          "fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col border-l border-black/10 bg-white transition-transform duration-300",
           open ? "translate-x-0" : "translate-x-full"
         )}
       >
-        <div className="flex h-16 flex-none items-center justify-between border-b border-white/10 px-5">
+        <div className="flex h-16 flex-none items-center justify-between border-b border-black/10 px-5">
           <h2 className="font-display text-xl font-bold">
             {step === "cart" ? "Your order" : step === "details" ? "Checkout" : "Order placed"}
           </h2>
-          <button onClick={close} aria-label="Close" className="rounded-full p-2 hover:bg-white/10">
+          <button onClick={close} aria-label="Close" className="rounded-full p-2 hover:bg-zinc-100">
             <X className="h-5 w-5" />
           </button>
         </div>
 
         {step === "done" ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8 text-center">
-            <CheckCircle2 className="h-16 w-16 text-emerald-400" />
+            <CheckCircle2 className="h-16 w-16 text-emerald-600" />
             <h3 className="font-display text-3xl font-extrabold">Thanks, {d.name.split(" ")[0]}!</h3>
-            <p className="text-zinc-400">
-              Order <span className="font-semibold text-white">{confirmation}</span> is in. We'll text {d.phone} when
+            <p className="text-zinc-600">
+              Order <span className="font-semibold text-zinc-950">{confirmation}</span> is in. We'll text {d.phone} when
               it's {d.method === "pickup" ? "ready for pickup" : "on the way"}.
             </p>
             <Button onClick={close} className="mt-4">
@@ -72,7 +72,7 @@ export function CartDrawer() {
           </div>
         ) : step === "cart" ? (
           <>
-            <ul className="flex-1 divide-y divide-white/10 overflow-y-auto px-5">
+            <ul className="flex-1 divide-y divide-black/10 overflow-y-auto px-5">
               {lines.length === 0 && (
                 <li className="py-20 text-center text-zinc-500">Your cart is empty. Add something tasty.</li>
               )}
@@ -82,12 +82,12 @@ export function CartDrawer() {
                     <p className="truncate font-medium">{item.name}</p>
                     <p className="text-sm text-zinc-500">{money(item.price)}</p>
                   </div>
-                  <div className="flex items-center gap-2 rounded-full border border-white/10 p-1">
-                    <button onClick={() => dispatch({ type: "dec", id: item.id })} aria-label="Remove one" className="grid h-7 w-7 place-items-center rounded-full hover:bg-white/10">
+                  <div className="flex items-center gap-2 rounded-full border border-black/10 p-1">
+                    <button onClick={() => dispatch({ type: "dec", id: item.id })} aria-label="Remove one" className="grid h-7 w-7 place-items-center rounded-full hover:bg-zinc-100">
                       <Minus className="h-3.5 w-3.5" />
                     </button>
                     <span className="w-5 text-center text-sm">{qty}</span>
-                    <button onClick={() => dispatch({ type: "inc", id: item.id })} aria-label="Add one" className="grid h-7 w-7 place-items-center rounded-full hover:bg-white/10">
+                    <button onClick={() => dispatch({ type: "inc", id: item.id })} aria-label="Add one" className="grid h-7 w-7 place-items-center rounded-full hover:bg-zinc-100">
                       <Plus className="h-3.5 w-3.5" />
                     </button>
                   </div>
@@ -105,7 +105,7 @@ export function CartDrawer() {
         ) : (
           <form onSubmit={submit} className="flex min-h-0 flex-1 flex-col">
             <div className="flex-1 space-y-4 overflow-y-auto p-5">
-              <div className="grid grid-cols-2 gap-2 rounded-full border border-white/10 p-1">
+              <div className="grid grid-cols-2 gap-2 rounded-full border border-black/10 p-1">
                 {(["pickup", "delivery"] as const).map((m) => (
                   <button
                     type="button"
@@ -113,7 +113,7 @@ export function CartDrawer() {
                     onClick={() => setD({ ...d, method: m })}
                     className={cn(
                       "rounded-full py-2 text-sm font-semibold capitalize transition",
-                      d.method === m ? "bg-orange-500 text-black" : "text-zinc-400"
+                      d.method === m ? "bg-brand text-white" : "text-zinc-600"
                     )}
                   >
                     {m}
@@ -126,8 +126,8 @@ export function CartDrawer() {
               {d.method === "delivery" ? (
                 <input required className={field} placeholder="Delivery address" value={d.address ?? ""} onChange={(e) => setD({ ...d, address: e.target.value })} />
               ) : (
-                <p className="rounded-xl bg-white/5 p-4 text-sm text-zinc-400">
-                  Pick up at <span className="text-zinc-200">{INFO.address}</span>
+                <p className="rounded-xl bg-zinc-100 p-4 text-sm text-zinc-600">
+                  Pick up at <span className="text-zinc-800">{INFO.address}</span>
                 </p>
               )}
               <select className={field} value={d.when} onChange={(e) => setD({ ...d, when: e.target.value })}>
@@ -156,9 +156,9 @@ export function CartDrawer() {
 
 function Totals({ subtotal, tax, total }: { subtotal: number; tax: number; total: number }) {
   return (
-    <dl className="flex-none space-y-1.5 border-t border-white/10 p-5 text-sm">
-      <div className="flex justify-between text-zinc-400"><dt>Subtotal</dt><dd>{money(subtotal)}</dd></div>
-      <div className="flex justify-between text-zinc-400"><dt>Tax (6%)</dt><dd>{money(tax)}</dd></div>
+    <dl className="flex-none space-y-1.5 border-t border-black/10 p-5 text-sm">
+      <div className="flex justify-between text-zinc-600"><dt>Subtotal</dt><dd>{money(subtotal)}</dd></div>
+      <div className="flex justify-between text-zinc-600"><dt>Tax (6%)</dt><dd>{money(tax)}</dd></div>
       <div className="flex justify-between pt-1 text-lg font-bold"><dt>Total</dt><dd>{money(total)}</dd></div>
     </dl>
   );

@@ -16,7 +16,7 @@ function ItemCard({ item }: { item: MenuItem }) {
   };
 
   return (
-    <li className="group flex gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4 transition hover:border-orange-500/40 hover:bg-white/[0.06]">
+    <li className="group flex gap-4 rounded-2xl border border-black/10 bg-zinc-50 p-4 transition hover:border-brand/40 hover:shadow-md hover:bg-white">
       {item.image && (
         <img
           src={item.image}
@@ -27,15 +27,15 @@ function ItemCard({ item }: { item: MenuItem }) {
       )}
       <div className="flex min-w-0 flex-1 flex-col">
         <h3 className="font-display text-lg font-bold leading-tight">{item.name}</h3>
-        {item.desc && <p className="mt-1 line-clamp-3 text-sm text-zinc-400">{item.desc}</p>}
+        {item.desc && <p className="mt-1 line-clamp-3 text-sm text-zinc-600">{item.desc}</p>}
         <div className="mt-auto flex items-center justify-between pt-3">
-          <span className="font-semibold text-orange-400">{money(item.price)}</span>
+          <span className="font-semibold text-brand">{money(item.price)}</span>
           <button
             onClick={add}
             aria-label={`Add ${item.name} to cart`}
             className={cn(
               "flex h-9 items-center gap-1 rounded-full px-3 text-sm font-semibold transition active:scale-95",
-              flash ? "bg-emerald-500 text-black" : "bg-orange-500 text-black hover:bg-orange-400"
+              flash ? "bg-emerald-600 text-white" : "bg-brand text-white hover:bg-brand-dark"
             )}
           >
             {flash ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
@@ -67,9 +67,9 @@ export function OrderMenu() {
     <section id="order" className="relative mx-auto max-w-7xl px-5 py-24 md:px-10 md:py-32">
       <div className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-end">
         <div>
-          <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-orange-500">Order online</p>
-          <h2 className="font-display text-5xl font-extrabold uppercase leading-[0.9] tracking-tighter md:text-7xl">
-            The menu
+          <p className="mb-3 text-sm font-semibold font-bold uppercase tracking-widest text-brand">Order online</p>
+          <h2 className="text-4xl font-extrabold tracking-tight md:text-6xl">
+            Our menu
           </h2>
         </div>
         <label className="relative block w-full md:w-80">
@@ -78,12 +78,12 @@ export function OrderMenu() {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search the menu…"
-            className="h-12 w-full rounded-full border border-white/10 bg-white/5 pl-11 pr-4 text-sm outline-none transition placeholder:text-zinc-500 focus:border-orange-500"
+            className="h-12 w-full rounded-full border border-black/10 bg-zinc-100 pl-11 pr-4 text-sm outline-none transition placeholder:text-zinc-500 focus:border-brand"
           />
         </label>
       </div>
 
-      <div className="sticky top-16 z-30 -mx-5 mb-10 overflow-x-auto bg-[#050505]/85 px-5 py-3 backdrop-blur-xl md:-mx-10 md:px-10 [scrollbar-width:none]">
+      <div className="sticky top-20 z-30 -mx-5 mb-10 overflow-x-auto bg-white/90 px-5 py-3 backdrop-blur-xl md:-mx-10 md:px-10 [scrollbar-width:none]">
         <div className="flex w-max gap-2">
           {[{ id: "all", name: "All" }, ...MENU].map((c) => (
             <button
@@ -92,8 +92,8 @@ export function OrderMenu() {
               className={cn(
                 "rounded-full border px-4 py-2 text-sm font-medium transition",
                 active === c.id
-                  ? "border-orange-500 bg-orange-500 text-black"
-                  : "border-white/10 text-zinc-300 hover:border-white/30"
+                  ? "border-brand bg-brand text-white"
+                  : "border-black/10 text-zinc-700 hover:border-black/30"
               )}
             >
               {c.name}
@@ -107,8 +107,8 @@ export function OrderMenu() {
       <div className="space-y-14">
         {cats.map((c) => (
           <div key={c.id}>
-            <h3 className="mb-5 font-display text-2xl font-bold text-zinc-100">
-              {c.name} <span className="text-base font-medium text-zinc-600">{c.items.length}</span>
+            <h3 className="mb-5 font-display text-2xl font-bold text-zinc-900">
+              {c.name} <span className="text-base font-medium text-zinc-400">{c.items.length}</span>
             </h3>
             <ul className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {c.items.map((i) => (
