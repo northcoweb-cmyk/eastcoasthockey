@@ -6,8 +6,8 @@ const marquee = ["Deli Delights", "Diner Favorites", "Tex-Mex", "Gourmet Burgers
 
 export function Hero() {
   return (
-    <section id="top" className="relative overflow-hidden pt-20">
-      <div className="mx-auto grid max-w-7xl items-center gap-10 px-5 pb-16 pt-10 md:grid-cols-2 md:px-10 md:pb-24 md:pt-20">
+    <section id="top" className="relative overflow-hidden pt-24">
+      <div className="mx-auto grid max-w-7xl items-center gap-10 px-5 pb-16 pt-10 md:grid-cols-2 md:px-10 md:pb-24 md:pt-24">
         <div>
           <p className="mb-6 inline-flex items-center gap-2 rounded-full bg-brand-tint px-4 py-1.5 text-sm font-semibold text-brand">
             <MapPin className="h-4 w-4" /> Rockville, MD

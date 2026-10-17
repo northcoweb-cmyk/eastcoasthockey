@@ -83,7 +83,7 @@ export function OrderMenu() {
         </label>
       </div>
 
-      <div className="sticky top-20 z-30 -mx-5 mb-10 overflow-x-auto bg-white/90 px-5 py-3 backdrop-blur-xl md:-mx-10 md:px-10 [scrollbar-width:none]">
+      <div className="sticky top-0 z-30 -mx-5 mb-10 overflow-x-auto bg-white/90 px-5 py-3 backdrop-blur-xl md:-mx-10 md:px-10 [scrollbar-width:none]">
         <div className="flex w-max gap-2">
           {[{ id: "all", name: "All" }, ...MENU].map((c) => (
             <button
