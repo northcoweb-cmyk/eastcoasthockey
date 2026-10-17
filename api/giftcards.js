@@ -1,0 +1,60 @@
+'use strict';
+const L = require('./_lib');
+const G = require('./_gift');
+const Pay = require('./_pay');
+const Mail = require('./_mail');
+
+function clip(v, n) { return typeof v === 'string' ? v.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f<>]/g, ' ').trim().slice(0, n) : ''; }
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const view = function (c) { return Object.assign({}, c, { display: G.pretty(c.code) }); };
+
+/* Admin only: look up a card (type it or scan it), spend from it in the shop, issue one for an in-store sale, resend, void. */
+module.exports = async function (req, res) {
+  if (!L.requireAdmin(req, res)) return;
+  try {
+    if (req.method === 'GET') {
+      const q = new URL(req.url, 'http://x').searchParams.get('code');
+      if (q) {
+        const c = await G.get(G.norm(q));
+        return c ? L.json(res, 200, { card: view(c) }) : L.json(res, 404, { error: 'No gift card with that code.' });
+      }
+      const cards = (await G.list()).filter(function (c) { return c.status !== 'pending' || Date.now() - Date.parse(c.createdAt) < 86400000; }).sort(function (a, b) { return a.createdAt < b.createdAt ? 1 : -1; });
+      return L.json(res, 200, { cards: cards.map(view), payments: !!Pay.active(), mail: Mail.configured });
+    }
+    if (req.method !== 'POST') { res.setHeader('Allow', 'GET, POST'); return L.json(res, 405, { error: 'Method not allowed' }); }
+    const b = await L.readBody(req, 8 * 1024), act = b.action, code = G.norm(b.code);
+    if (act === 'issue') {
+      const dollars = Number(b.amount);
+      if (!(dollars >= 1 && dollars <= 2000) || Math.round(dollars * 100) !== dollars * 100) return L.json(res, 400, { error: 'Enter an amount from $1 to $2000.' });
+      const email = clip(b.email, 120).toLowerCase();
+      if (email && !EMAIL.test(email)) return L.json(res, 400, { error: 'That email address does not look right.' });
+      const card = await G.create({ cents: Math.round(dollars * 100), status: 'active', source: 'store', recipient: { name: clip(b.name, 80), email: email }, message: clip(b.message, 300), from: clip(b.from, 80) });
+      let sent = false;
+      if (email && b.send !== false) { sent = (await Mail.giftCard(card, Pay.origin(req))).sent; card.emailed = sent; await G.save(card); }
+      return L.json(res, 200, { ok: true, card: view(card), emailed: sent });
+    }
+    if (!G.valid(code)) return L.json(res, 400, { error: 'That is not a valid gift card code.' });
+    if (act === 'redeem') {
+      const dollars = Number(b.amount);
+      if (!(dollars > 0) || Math.round(dollars * 100) !== dollars * 100) return L.json(res, 400, { error: 'Enter the amount to take off the card.' });
+      const r = await G.adjust(code, Math.round(dollars * 100), 'Used in shop', clip(b.note, 80));
+      if (!r.ok) return L.json(res, 400, { error: r.error });
+      return L.json(res, 200, { ok: true, card: view(r.card), applied: r.applied / 100 });
+    }
+    if (act === 'void' || act === 'reactivate') {
+      const c = await G.setStatus(code, act === 'void' ? 'void' : 'active');
+      return c ? L.json(res, 200, { ok: true, card: view(c) }) : L.json(res, 404, { error: 'Not found.' });
+    }
+    if (act === 'resend') {
+      const c = await G.get(code);
+      if (!c || c.status !== 'active') return L.json(res, 400, { error: 'Only active cards can be emailed.' });
+      const to = clip(b.email, 120).toLowerCase() || c.recipient.email;
+      if (!EMAIL.test(to)) return L.json(res, 400, { error: 'Enter an email address to send it to.' });
+      c.recipient.email = to;
+      const r = await Mail.giftCard(c, Pay.origin(req));
+      if (r.sent) { c.emailed = true; c.history.push({ at: new Date().toISOString(), event: 'Emailed to ' + to, cents: 0 }); await G.save(c); }
+      return L.json(res, 200, { ok: true, emailed: r.sent, card: view(c) });
+    }
+    return L.json(res, 400, { error: 'Unknown action.' });
+  } catch (e) { console.error('giftcards failed', e); return L.json(res, 500, { error: 'Something went wrong.' }); }
+};

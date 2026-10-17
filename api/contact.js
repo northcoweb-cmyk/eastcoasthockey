@@ -25,7 +25,7 @@ module.exports = async function (req, res) {
     const id = new Date().toISOString().replace(/[:.]/g, '-') + '-' + crypto.randomBytes(3).toString('hex');
     await L.store.put('messages/' + id + '.json', Object.assign({ id: id, createdAt: new Date().toISOString(), read: false }, m));
     hits[ip].push(now);
-    Mail.contactAlert(m).catch(function () { /* never blocks the form */ });
+    await Mail.contactAlert(m).catch(function () { /* never blocks the form */ });
     return L.json(res, 200, { ok: true });
   } catch (e) { console.error('contact failed', e); return L.json(res, 500, { error: 'We could not send your message. Please call the shop.' }); }
 };

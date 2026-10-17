@@ -731,6 +731,7 @@
  "store": {
   "taxRate": 6,
   "shipEnabled": true,
-  "shipFee": 9.95
+  "shipFee": 9.95,
+  "giftEnabled": true
  }
 }

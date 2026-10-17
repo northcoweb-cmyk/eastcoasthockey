@@ -1,6 +1,7 @@
 'use strict';
 const L = require('./_lib');
 const Mail = require('./_mail');
+const G = require('./_gift');
 
 const STATUSES = ['new', 'in_production', 'ready', 'shipped', 'complete', 'cancelled'];
 const METHODS = ['', 'card', 'cash', 'check', 'invoice', 'other'];
@@ -28,13 +29,14 @@ module.exports = async function (req, res) {
         if (b.status !== o.status) { o.status = b.status; log('Status: ' + b.status.replace('_', ' ')); }
       }
       if (b.payment) {
-        const ps = b.payment.status === 'paid' ? 'paid' : b.payment.status === 'refunded' ? 'refunded' : 'unpaid';
+        const ps = b.payment.status === 'paid' ? 'paid' : b.payment.status === 'refunded' ? 'refunded' : b.payment.status === 'pending' && o.payment.status === 'pending' ? 'pending' : 'unpaid';
         const method = METHODS.indexOf(b.payment.method) >= 0 ? b.payment.method : '';
         if (ps !== o.payment.status) log('Payment: ' + ps + (method ? ' (' + method + ')' : ''));
-        o.payment = { status: ps, method: method, note: clip(b.payment.note, 200) };
+        o.payment = Object.assign({}, o.payment, { status: ps, method: method, note: clip(b.payment.note, 200) });
       }
       if (b.tracking) o.tracking = { carrier: clip(b.tracking.carrier, 30), number: clip(b.tracking.number, 60) };
       if (b.notes !== undefined) o.notes = clip(b.notes, 1000);
+      if (o.status === 'cancelled' && before !== 'cancelled' && o.payment.status !== 'paid' && await G.restoreOrder(o)) log('Gift card balance restored');
       await L.store.put(p, o);
       let emailed = false;
       if (o.status !== before && (o.status === 'ready' || o.status === 'shipped') && b.notify !== false) emailed = (await Mail.statusUpdate(o)).sent;

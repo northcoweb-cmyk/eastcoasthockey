@@ -143,6 +143,15 @@ function json(res, status, obj) {
   res.setHeader('Cache-Control', 'no-store');
   res.end(JSON.stringify(obj));
 }
+function readRaw(req, limit) {
+  limit = limit || 256 * 1024;
+  return new Promise(function (resolve, reject) {
+    let size = 0; const chunks = [];
+    req.on('data', function (c) { size += c.length; if (size > limit) { reject(new Error('Too large')); req.destroy(); } else chunks.push(c); });
+    req.on('end', function () { resolve(Buffer.concat(chunks).toString('utf8')); });
+    req.on('error', reject);
+  });
+}
 function readBody(req, limit) {
   limit = limit || 200 * 1024;
   return new Promise(function (resolve, reject) {
@@ -315,10 +324,11 @@ function clean(c) {
   out.store = {
     taxRate: Math.min(Math.max(Math.round((Number(st.taxRate) || 0) * 1000) / 1000, 0), 15),
     shipEnabled: st.shipEnabled === undefined ? ds.shipEnabled : !!st.shipEnabled,
-    shipFee: Math.min(Math.max(money(st.shipFee === undefined ? ds.shipFee : st.shipFee), 0), 100)
+    shipFee: Math.min(Math.max(money(st.shipFee === undefined ? ds.shipFee : st.shipFee), 0), 100),
+    giftEnabled: st.giftEnabled === undefined ? ds.giftEnabled !== false : !!st.giftEnabled
   };
   return out;
 }
 
-module.exports = { SIZE_SETS, RULES, sign, verify, json, readBody, checkLogin, setSession, clearSession, session, requireAdmin, lockedMinutes, noteFail, clearFails, clientIp,
+module.exports = { readRaw, SIZE_SETS, RULES, sign, verify, json, readBody, checkLogin, setSession, clearSession, session, requireAdmin, lockedMinutes, noteFail, clearFails, clientIp,
   store, getContent, saveContent, resetContent, putImage, getImage, clean, hasBlob, TOKEN_KEY, USING_TEST_LOGIN, DEFAULTS };

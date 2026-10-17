@@ -146,6 +146,7 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px 90px}
       <button class="tab" data-tab="shop">In-store categories</button>
       <button class="tab" data-tab="teams">Team stores</button>
       <button class="tab" data-tab="orders">Orders <span class="pill" id="orderBadge" style="display:none;background:#E00A1E;color:#fff;margin-left:4px">0</span></button>
+      <button class="tab" data-tab="gift">Gift cards</button>
       <button class="tab" data-tab="messages">Messages <span class="pill" id="msgBadge" style="display:none;background:#E00A1E;color:#fff;margin-left:4px">0</span></button>
     </div>
   </div>
@@ -209,11 +210,40 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px 90px}
           <label class="f"><span>Flat shipping fee ($)</span><input class="in" id="stShip" type="number" min="0" max="100" step="0.01" inputmode="decimal"></label>
         </div>
         <label class="sw" style="margin-top:4px"><input type="checkbox" id="stShipOn"><span class="tr"></span> Offer shipping (otherwise pickup only)</label>
+        <label class="sw" style="margin-top:10px"><input type="checkbox" id="stGiftOn"><span class="tr"></span> Sell gift cards online (needs online payments connected)</label>
       </div>
       <div id="teamList"></div>
     </section>
 
     <section id="p-orders" class="hide"><div id="orderRoot"></div></section>
+    <section id="p-gift" class="hide">
+      <div class="banner warn hide" id="gcPayWarn"><i class="ti ti-credit-card-off"></i><div><b>Online payments are not connected yet.</b> Gift cards can still be sold in the shop below. To sell them (and take team orders) online, add the payment keys in Vercel: see "Payments" in the README.</div></div>
+      <div class="card">
+        <h2>Look up or use a gift card</h2>
+        <p class="d">Click the box and scan the barcode (a USB scanner types the code for you), or type it in.</p>
+        <form id="gcFind" class="row" style="gap:8px"><input class="in" id="gcCode" placeholder="Scan or type the code" autocomplete="off" spellcheck="false" style="flex:1;text-transform:uppercase;letter-spacing:.06em"><button class="btn btn-d" type="submit"><i class="ti ti-search"></i> Look up</button></form>
+        <div id="gcResult"></div>
+      </div>
+      <div class="card">
+        <h2>Sell a gift card in the shop</h2>
+        <p class="d">Creates a live card right away. Add an email to send it to the customer, or leave it blank and write the code on a card.</p>
+        <form id="gcIssue">
+          <div class="grid2">
+            <label class="f"><span>Amount ($)</span><input class="in" name="amount" type="number" min="1" max="2000" step="0.01" inputmode="decimal" required></label>
+            <label class="f"><span>Customer email (optional)</span><input class="in" name="email" type="email" maxlength="120"></label>
+            <label class="f"><span>Recipient name (optional)</span><input class="in" name="name" maxlength="80"></label>
+            <label class="f"><span>From (optional)</span><input class="in" name="from" maxlength="80"></label>
+          </div>
+          <label class="f"><span>Message (optional)</span><input class="in" name="message" maxlength="300"></label>
+          <button class="btn btn-p" type="submit" style="margin-top:10px"><i class="ti ti-gift"></i> Create gift card</button>
+        </form>
+        <div id="gcIssued"></div>
+      </div>
+      <div class="card">
+        <div class="row" style="justify-content:space-between"><div><h2>All gift cards</h2><p class="d" style="margin:0">Newest first. Export to a spreadsheet to match against your register.</p></div><button class="btn btn-g btn-s" id="gcCsv"><i class="ti ti-file-spreadsheet"></i> CSV</button></div>
+        <div id="gcList" style="margin-top:12px"></div>
+      </div>
+    </section>
     <section id="p-messages" class="hide">
       <div class="card"><h2>Messages</h2><p class="d" style="margin:0">Messages sent from the contact form on the website. Replies go straight to the customer's email.</p></div>
       <div id="msgList"></div>
@@ -293,8 +323,9 @@ api('/api/me').then(showApp).catch(function(){});
 $('#tabs').addEventListener('click',function(e){
   var t=e.target.closest('.tab');if(!t)return;
   document.querySelectorAll('.tab').forEach(function(x){x.classList.toggle('on',x===t);});
-  ['home','locs','shop','teams','orders','messages'].forEach(function(k){$('#p-'+k).classList.toggle('hide',k!==t.dataset.tab);});
-  $('#resetCard').classList.toggle('hide',t.dataset.tab==='orders'||t.dataset.tab==='messages');
+  ['home','locs','shop','teams','orders','gift','messages'].forEach(function(k){$('#p-'+k).classList.toggle('hide',k!==t.dataset.tab);});
+  $('#resetCard').classList.toggle('hide',t.dataset.tab==='orders'||t.dataset.tab==='messages'||t.dataset.tab==='gift');
+  if(t.dataset.tab==='gift')loadGifts();
   if(t.dataset.tab==='orders')loadOrders();
   if(t.dataset.tab==='messages')loadMessages();
 });
@@ -393,10 +424,11 @@ function logoTile(t){
   return d;
 }
 function renderStore(){
-  C.store=C.store||{taxRate:6,shipEnabled:true,shipFee:9.95};
+  C.store=C.store||{taxRate:6,shipEnabled:true,shipFee:9.95,giftEnabled:true};
   bind($('#stTax'),function(){return C.store.taxRate;},function(v){C.store.taxRate=parseFloat(v)||0;});
   bind($('#stShip'),function(){return C.store.shipFee;},function(v){C.store.shipFee=parseFloat(v)||0;});
   bindChk($('#stShipOn'),function(){return C.store.shipEnabled;},function(v){C.store.shipEnabled=v;});
+  bindChk($('#stGiftOn'),function(){return C.store.giftEnabled!==false;},function(v){C.store.giftEnabled=v;});
 }
 function renderTeams(){
   var box=$('#teamList');box.innerHTML='';
@@ -532,7 +564,7 @@ function renderOrders(){
     h('div',{class:'row',style:'margin-top:16px;gap:10px'},[
       opts(teamMap,F.team,function(v){F.team=v;renderOrders();},'Team'),
       opts(Object.assign({'':'Any status'},STATUS_LABEL),F.status,function(v){F.status=v;renderOrders();},'Status'),
-      opts({'':'Paid or unpaid',unpaid:'Unpaid',paid:'Paid',refunded:'Refunded'},F.pay,function(v){F.pay=v;renderOrders();},'Payment'),
+      opts({'':'Any payment',pending:'Awaiting payment',unpaid:'Unpaid',paid:'Paid',refunded:'Refunded'},F.pay,function(v){F.pay=v;renderOrders();},'Payment'),
       (function(){var i=h('input',{class:'in',placeholder:'Search name, email, #ref, player',value:F.q,style:'min-height:40px;max-width:280px'});i.addEventListener('input',function(){F.q=i.value;clearTimeout(i._t);i._t=setTimeout(function(){renderOrders();var n=$('#orderRoot input.in[placeholder^="Search"]');if(n){n.focus();n.setSelectionRange(F.q.length,F.q.length);}},250);});return i;})()]),
     h('div',{class:'row',style:'margin-top:14px;gap:8px'},[
       h('button',{class:'btn btn-d btn-s',type:'button',onclick:function(){openSheet(F.team);}},[h('i',{class:'ti ti-clipboard-list'}),'Team sheet']),
@@ -560,7 +592,7 @@ function orderCard(o){
   var t=o.totals;
   var ful=o.fulfillment==='ship'?'Ship to: '+o.shipping.name+', '+addrOf(o):'Pickup: '+o.pickupShop;
   var stSel=opts(STATUS_LABEL,d.status,function(v){d.status=v;dirty();},'Status');
-  var paySel=opts({unpaid:'Unpaid',paid:'Paid',refunded:'Refunded'},d.pay,function(v){d.pay=v;dirty();},'Payment');
+  var paySel=opts(d.pay==='pending'?{pending:'Awaiting payment',paid:'Paid',unpaid:'Unpaid'}:{unpaid:'Unpaid',paid:'Paid',refunded:'Refunded'},d.pay,function(v){d.pay=v;dirty();},'Payment');
   var mSel=opts({'':'Method…',card:'Card',cash:'Cash',check:'Check',invoice:'Invoice',other:'Other'},d.method,function(v){d.method=v;dirty();},'Payment method');
   var carrier=opts({'':'Carrier…',USPS:'USPS',UPS:'UPS',FedEx:'FedEx',Other:'Other'},d.carrier,function(v){d.carrier=v;dirty();},'Carrier');
   var tn=h('input',{class:'in',placeholder:'Tracking number',value:d.number,style:'min-height:40px;max-width:240px'});tn.addEventListener('input',function(){d.number=tn.value;dirty();});
@@ -577,7 +609,7 @@ function orderCard(o){
   return h('div',{class:'card',style:o.status==='cancelled'?'opacity:.6':''},[
     h('div',{class:'row',style:'justify-content:space-between;align-items:flex-start'},[
       h('div',{},[h('h2',{text:o.contact.name+' · '+ref(o)}),h('p',{class:'d',style:'margin:0',text:fmtDate(o.createdAt)})]),
-      h('div',{class:'row',style:'gap:6px'},[h('span',{class:'pill'+(pay.status==='paid'?'':' soon'),text:pay.status==='paid'?'Paid':pay.status==='refunded'?'Refunded':'Unpaid'}),h('span',{class:'pill off',text:STATUS_LABEL[o.status]})])]),
+      h('div',{class:'row',style:'gap:6px'},[h('span',{class:'pill'+(pay.status==='paid'?'':' soon'),text:pay.status==='paid'?'Paid':pay.status==='refunded'?'Refunded':pay.status==='pending'?'Awaiting payment':'Unpaid'}),h('span',{class:'pill off',text:STATUS_LABEL[o.status]})])]),
     h('p',{style:'margin:10px 0 2px;font-size:14px'},[h('a',{href:'mailto:'+o.contact.email,text:o.contact.email}),o.contact.phone?' · ':'',o.contact.phone?h('a',{href:'tel:'+o.contact.phone.replace(/[^\d+]/g,''),text:o.contact.phone}):null]),
     h('p',{style:'margin:0;font-size:14px;font-weight:600',text:ful}),
     lines,
@@ -671,6 +703,66 @@ function drawSheet(){
         h('button',{class:'btn btn-g btn-s',type:'button',onclick:function(){m.classList.add('hide');}},'Close')])]),
     (function(){var d=h('div',{class:'sheet-preview'});d.innerHTML=sheetHtml(SHEET.team,SHEET.paid);return d;})()]));
 }
+
+/* ---------- gift cards ---------- */
+var GC=[];
+function money2(c){return '$'+(c/100).toFixed(2);}
+function gcStatus(c){return c.status==='void'?'Voided':c.status==='pending'?'Awaiting payment':(c.balanceCents>0?'Active':'Used up');}
+function gcCard(c,opt){
+  opt=opt||{};
+  var box=h('div',{style:'margin-top:14px;padding:16px;border:1.5px solid #dfe5ee;border-radius:14px;background:#fff'});
+  box.appendChild(h('div',{class:'row',style:'justify-content:space-between;align-items:flex-start;gap:12px'},[
+    h('div',{},[h('div',{style:'font:700 22px Consolas,Menlo,monospace;letter-spacing:.06em',text:c.display}),h('div',{class:'d',style:'margin:4px 0 0',text:gcStatus(c)+' · sold '+fmtDate(c.createdAt)+' · '+(c.source==='store'?'in shop':'online')+(c.recipient&&c.recipient.email?' · '+c.recipient.email:'')})]),
+    h('div',{style:'text-align:right'},[h('div',{style:'font:800 30px system-ui;line-height:1',text:money2(c.balanceCents)}),h('div',{class:'d',style:'margin:4px 0 0',text:'of '+money2(c.initialCents)})])]));
+  if(opt.barcode)box.appendChild(h('img',{src:'/api/barcode?c='+c.code,alt:'Barcode',style:'display:block;margin:14px auto 0;max-width:100%;height:60px'}));
+  if(c.status==='active'&&c.balanceCents>0){
+    var amt=h('input',{class:'in',type:'number',min:'0.01',step:'0.01',inputmode:'decimal',placeholder:'Amount to use',style:'max-width:170px'}),note=h('input',{class:'in',placeholder:'Receipt / note (optional)',maxlength:'80',style:'flex:1;min-width:140px'});
+    box.appendChild(h('div',{class:'row',style:'gap:8px;margin-top:14px;flex-wrap:wrap'},[amt,note,
+      h('button',{class:'btn btn-p btn-s',type:'button',onclick:function(){var v=parseFloat(amt.value);if(!(v>0)){toast('Enter the amount to take off.',true);return;}
+        gcPost({action:'redeem',code:c.code,amount:v,note:note.value}).then(function(r){toast(money2(Math.round(r.applied*100))+' taken off. '+money2(r.card.balanceCents)+' left.');gcShow(r.card);loadGifts(true);});}},[h('i',{class:'ti ti-receipt'}),'Use on a sale']),
+      h('button',{class:'btn btn-g btn-s',type:'button',onclick:function(){amt.value=(c.balanceCents/100).toFixed(2);}},'Use full balance')]));
+  }
+  var acts=[];
+  if(c.status!=='pending'){
+    acts.push(h('button',{class:'btn btn-g btn-s',type:'button',onclick:function(){var to=prompt('Email this gift card to:',c.recipient&&c.recipient.email||'');if(!to)return;gcPost({action:'resend',code:c.code,email:to}).then(function(r){toast(r.emailed?'Emailed.':'Email is not set up yet, so nothing was sent.',!r.emailed);gcShow(r.card);});}},[h('i',{class:'ti ti-mail'}),'Email it']));
+    acts.push(h('button',{class:'btn btn-g btn-s danger',type:'button',onclick:function(){var v=c.status==='void';if(!v&&!confirm('Void this gift card? It can no longer be used.'))return;gcPost({action:v?'reactivate':'void',code:c.code}).then(function(r){gcShow(r.card);loadGifts(true);});}},c.status==='void'?'Reactivate':'Void card'));
+  }
+  if(acts.length)box.appendChild(h('div',{class:'row',style:'gap:8px;margin-top:12px'},acts));
+  var hist=(c.history||[]).slice().reverse();
+  box.appendChild(h('div',{style:'margin-top:14px;font-size:13px;color:#5a6b7c;display:grid;gap:3px'},hist.map(function(e){return h('div',{text:fmtDate(e.at)+' · '+e.event+(e.cents?' ('+(e.cents>0?'+':'-')+money2(Math.abs(e.cents))+')':'')});})));
+  return box;
+}
+function gcPost(body){return api('/api/giftcards',{method:'POST',body:JSON.stringify(body)}).catch(function(e){toast(e.message,true);throw e;});}
+function gcShow(c){var r=$('#gcResult');r.innerHTML='';r.appendChild(gcCard(c));}
+$('#gcFind').addEventListener('submit',function(e){
+  e.preventDefault();var code=$('#gcCode').value.trim();if(!code)return;
+  api('/api/giftcards?code='+encodeURIComponent(code)).then(function(r){gcShow(r.card);$('#gcCode').select();}).catch(function(er){$('#gcResult').innerHTML='';$('#gcResult').appendChild(h('p',{style:'margin:12px 0 0;color:#b00816;font-weight:600',text:er.message}));});
+});
+$('#gcIssue').addEventListener('submit',function(e){
+  e.preventDefault();var f=e.target.elements;
+  gcPost({action:'issue',amount:parseFloat(f.amount.value),email:f.email.value,name:f.name.value,from:f.from.value,message:f.message.value}).then(function(r){
+    var b=$('#gcIssued');b.innerHTML='';b.appendChild(h('p',{style:'margin:14px 0 0;font-weight:600;color:#0c7a50',text:r.emailed?'Created and emailed.':(f.email.value?'Created. Email is not set up yet, so it was not sent.':'Created.')}));
+    b.appendChild(gcCard(r.card,{barcode:true}));e.target.reset();loadGifts(true);
+  });
+});
+function loadGifts(quiet){
+  api('/api/giftcards').then(function(r){
+    GC=r.cards;$('#gcPayWarn').classList.toggle('hide',r.payments);
+    var box=$('#gcList');box.innerHTML='';
+    if(!GC.length){box.appendChild(h('p',{class:'d',text:'No gift cards yet.'}));return;}
+    var t=h('div',{style:'display:grid;gap:6px'});
+    GC.slice(0,200).forEach(function(c){
+      t.appendChild(h('button',{type:'button',class:'btn btn-g',style:'justify-content:space-between;width:100%;text-align:left;gap:10px;flex-wrap:wrap',onclick:function(){$('#gcCode').value=c.display;gcShow(c);window.scrollTo({top:0,behavior:'smooth'});}},[
+        h('span',{style:'font-family:Consolas,Menlo,monospace;letter-spacing:.05em',text:c.display}),h('span',{class:'d',style:'margin:0',text:fmtDate(c.createdAt)+' · '+(c.recipient&&c.recipient.email||'')}),h('span',{text:money2(c.balanceCents)+' / '+money2(c.initialCents)+' · '+gcStatus(c)})]));
+    });
+    box.appendChild(t);
+  }).catch(function(e){if(!quiet)toast(e.message,true);});
+}
+$('#gcCsv').addEventListener('click',function(){
+  var rows=[['Code','Status','Original','Balance','Sold','Source','Buyer','Buyer email','Recipient email']];
+  GC.forEach(function(c){rows.push([c.display,gcStatus(c),(c.initialCents/100).toFixed(2),(c.balanceCents/100).toFixed(2),c.createdAt.slice(0,10),c.source,(c.buyer&&c.buyer.name)||'',(c.buyer&&c.buyer.email)||'',(c.recipient&&c.recipient.email)||'']);});
+  download('gift-cards-'+new Date().toISOString().slice(0,10)+'.csv',rows);
+});
 
 /* ---------- messages (contact form) ---------- */
 function loadMessages(){
