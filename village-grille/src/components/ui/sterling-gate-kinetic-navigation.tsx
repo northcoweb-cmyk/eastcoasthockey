@@ -340,7 +340,7 @@ export function Component({ links = defaultLinks, hint = "click me", logoSrc, ri
               </div>
             </div>
 
-            <div className="menu-content-wrapper">
+            <div className="menu-content-wrapper" data-lenis-prevent>
               <ul className="menu-list">
                 {links.slice(0, 5).map((l, i) => (
                   <li className="menu-list-item" data-shape={i + 1} key={l.label}>

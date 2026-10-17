@@ -3,6 +3,7 @@ import { Plus, Search, Check } from "lucide-react";
 import { MENU, type MenuItem } from "@/data/menu";
 import { useCart } from "@/lib/cart";
 import { cn, money } from "@/lib/utils";
+import { Reveal } from "@/components/reveal";
 
 function ItemCard({ item }: { item: MenuItem }) {
   const { dispatch, lines } = useCart();
@@ -65,7 +66,7 @@ export function OrderMenu() {
 
   return (
     <section id="order" className="relative mx-auto max-w-7xl px-5 py-24 md:px-10 md:py-32">
-      <div className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-end">
+      <Reveal className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-end">
         <div>
           <p className="mb-3 text-sm font-semibold font-bold uppercase tracking-widest text-brand">Order online</p>
           <h2 className="text-4xl font-extrabold tracking-tight md:text-6xl">
@@ -81,7 +82,7 @@ export function OrderMenu() {
             className="h-12 w-full rounded-full border border-black/10 bg-zinc-100 pl-11 pr-4 text-sm outline-none transition placeholder:text-zinc-500 focus:border-brand"
           />
         </label>
-      </div>
+      </Reveal>
 
       <div className="sticky top-0 z-30 -mx-5 mb-10 overflow-x-auto bg-white/90 px-5 py-3 backdrop-blur-xl md:-mx-10 md:px-10 [scrollbar-width:none]">
         <div className="flex w-max gap-2">
@@ -110,11 +111,11 @@ export function OrderMenu() {
             <h3 className="mb-5 font-display text-2xl font-bold text-zinc-900">
               {c.name} <span className="text-base font-medium text-zinc-400">{c.items.length}</span>
             </h3>
-            <ul className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <Reveal as="ul" className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {c.items.map((i) => (
                 <ItemCard key={i.id} item={i} />
               ))}
-            </ul>
+            </Reveal>
           </div>
         ))}
       </div>

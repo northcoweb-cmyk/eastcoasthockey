@@ -1,6 +1,7 @@
 import { Clock, MapPin, Phone, Star } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { INFO, REVIEWS } from "@/data/menu";
+import { Reveal } from "@/components/reveal";
 
 export function Visit() {
   const today = (new Date().getDay() + 6) % 7; // Monday = 0
@@ -11,8 +12,8 @@ export function Visit() {
           <p className="mb-3 text-sm font-bold uppercase tracking-widest text-brand">What our guests say</p>
           <h2 className="mb-12 text-4xl font-extrabold tracking-tight md:text-6xl">Good food, good people.</h2>
           <div className="grid gap-5 md:grid-cols-2">
-            {REVIEWS.map((r) => (
-              <figure key={r.who} className="rounded-3xl bg-white p-8 shadow-sm">
+            {REVIEWS.map((r, i) => (
+              <Reveal as="figure" key={r.who} delay={i * 0.12} className="rounded-3xl bg-white p-8 shadow-sm">
                 <div className="mb-4 flex gap-0.5 text-brand">
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Star key={i} className="h-5 w-5 fill-current" />
@@ -20,7 +21,7 @@ export function Visit() {
                 </div>
                 <blockquote className="text-lg text-zinc-700">“{r.text}”</blockquote>
                 <figcaption className="mt-4 font-semibold">{r.who}</figcaption>
-              </figure>
+              </Reveal>
             ))}
           </div>
           <div className="mt-8 flex flex-wrap gap-3">

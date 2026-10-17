@@ -1,4 +1,5 @@
 import { PHOTOS } from "@/data/menu";
+import { Reveal } from "@/components/reveal";
 
 const cards = [
   { title: "Deli Delights", img: PHOTOS.turkey, text: "Hearty, stacked deli classics." },
@@ -9,7 +10,7 @@ const cards = [
 export function About() {
   return (
     <section id="about" className="mx-auto max-w-7xl px-5 py-24 md:px-10 md:py-32">
-      <div className="grid gap-12 md:grid-cols-2 md:gap-20">
+      <Reveal className="grid gap-12 md:grid-cols-2 md:gap-20">
         <div>
           <p className="mb-3 text-sm font-bold uppercase tracking-widest text-brand">All about Village Grille</p>
           <h2 className="text-4xl font-extrabold leading-tight tracking-tight md:text-6xl">
@@ -27,11 +28,12 @@ export function About() {
             50 Southlawn Court. Order online for quick pickup or delivery and enjoy your favorites from the comfort of home.
           </p>
         </div>
-      </div>
+      </Reveal>
 
       <div className="mt-14 grid gap-5 md:grid-cols-3">
-        {cards.map((c) => (
-          <a key={c.title} href="#order" className="group relative block aspect-[4/5] overflow-hidden rounded-3xl">
+        {cards.map((c, i) => (
+          <Reveal key={c.title} delay={i * 0.12}>
+          <a href="#order" className="group relative block aspect-[4/5] w-full overflow-hidden rounded-3xl">
             <img src={c.img} alt={c.title} loading="lazy" className="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
             <div className="absolute bottom-0 p-6 text-white">
@@ -39,6 +41,7 @@ export function About() {
               <p className="text-white/80">{c.text}</p>
             </div>
           </a>
+          </Reveal>
         ))}
       </div>
     </section>

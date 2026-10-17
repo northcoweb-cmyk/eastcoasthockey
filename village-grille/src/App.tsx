@@ -8,6 +8,7 @@ import { OrderMenu } from "@/components/order-menu";
 import { CartDrawer } from "@/components/cart-drawer";
 import { Visit } from "@/components/visit";
 import { INFO } from "@/data/menu";
+import { useSmoothScroll } from "@/hooks/use-smooth-scroll";
 
 const links = [
   { label: "Order online", href: "#order" },
@@ -51,8 +52,10 @@ function SiteNav() {
 }
 
 export default function App() {
+  useSmoothScroll();
   return (
     <CartProvider>
+      <div className="scroll-progress" aria-hidden />
       <SiteNav />
       <main>
         <Hero />

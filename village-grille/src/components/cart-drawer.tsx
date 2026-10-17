@@ -43,6 +43,7 @@ export function CartDrawer() {
         )}
       />
       <aside
+        data-lenis-prevent
         aria-hidden={!open}
         className={cn(
           "fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col border-l border-black/10 bg-white transition-transform duration-300",

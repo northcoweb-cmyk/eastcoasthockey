@@ -9,16 +9,16 @@ export function Hero() {
     <section id="top" className="relative overflow-hidden pt-24">
       <div className="mx-auto grid max-w-7xl items-center gap-10 px-5 pb-16 pt-10 md:grid-cols-2 md:px-10 md:pb-24 md:pt-24">
         <div>
-          <p className="mb-6 inline-flex items-center gap-2 rounded-full bg-brand-tint px-4 py-1.5 text-sm font-semibold text-brand">
+          <p style={{ animationDelay: "0.1s" }} className="hero-in mb-6 inline-flex items-center gap-2 rounded-full bg-brand-tint px-4 py-1.5 text-sm font-semibold text-brand">
             <MapPin className="h-4 w-4" /> Rockville, MD
           </p>
-          <h1 className="text-[clamp(3rem,8vw,6.5rem)] font-extrabold leading-[0.92] tracking-tight">
+          <h1 style={{ animationDelay: "0.25s" }} className="hero-in text-[clamp(3rem,8vw,6.5rem)] font-extrabold leading-[0.92] tracking-tight">
             Where Rockville comes for <span className="text-brand">seriously good food.</span>
           </h1>
-          <p className="mt-6 max-w-lg text-lg text-zinc-600">
+          <p style={{ animationDelay: "0.45s" }} className="hero-in mt-6 max-w-lg text-lg text-zinc-600">
             Stacked deli sandwiches, juicy burgers and authentic Tex-Mex. Order online for quick pickup or delivery.
           </p>
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div style={{ animationDelay: "0.6s" }} className="hero-in mt-8 flex flex-wrap gap-3">
             <a href="#order" className={buttonVariants({ size: "lg" })}>
               Order online <ArrowRight className="h-5 w-5" />
             </a>
@@ -28,8 +28,8 @@ export function Hero() {
           </div>
         </div>
 
-        <div className="relative">
-          <div className="absolute -right-6 -top-6 h-full w-full rounded-[2.5rem] bg-brand" />
+        <div style={{ animationDelay: "0.35s" }} className="hero-in relative">
+          <div data-parallax="-30" className="absolute -right-6 -top-6 h-full w-full rounded-[2.5rem] bg-brand" />
           <img
             src={PHOTOS.cali}
             alt="California club sandwich at Village Grille"
@@ -39,7 +39,7 @@ export function Hero() {
           <img
             src={PHOTOS.burrito}
             alt="Burrito bowl"
-            className="absolute -bottom-6 -left-4 hidden h-36 w-36 rounded-3xl border-4 border-white object-cover shadow-xl md:block"
+            data-parallax="60" className="absolute -bottom-6 -left-4 hidden h-36 w-36 rounded-3xl border-4 border-white object-cover shadow-xl md:block"
           />
         </div>
       </div>
