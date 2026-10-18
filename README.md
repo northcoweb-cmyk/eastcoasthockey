@@ -60,7 +60,10 @@ this site. To switch it on:
 3. In Vercel add: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, and (recommended) `SITE_URL=https://eastcoasthockeyandskating.com`. Redeploy.
 4. Test with Stripe test keys (`sk_test_...`, card `4242 4242 4242 4242`) before going live.
 
-When keys are present the site automatically turns on: "Continue to payment" in the team cart, and the **Gift cards** section.
+**Try it with no processor:** set `PAYMENT_PROVIDER=test` in Vercel and redeploy. Buying a gift card or team order then goes to a fake
+"Test mode - no real money" payment page and completes the whole flow (card created, emailed, order marked paid). Remove it before going live.
+
+When keys are present (or test mode is on) the site automatically turns on: "Continue to payment" in the team cart, and the **Gift cards** section.
 Remove the keys and it falls back to order requests. A different processor (Square, PayPal, Clover...) only needs one more
 provider object in `api/_pay.js` (`createCheckout` + `parseWebhook`) and `PAYMENT_PROVIDER=<name>`; orders and gift cards do not change.
 

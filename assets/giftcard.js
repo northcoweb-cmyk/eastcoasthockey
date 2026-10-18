@@ -10,7 +10,7 @@
     el.innerHTML =
       '<div class="gcf-in">' +
       '<div class="gcf-face gcf-front"><img class="lg" src="assets/logo.webp" alt="East Coast Hockey &amp; Skating Supply">' +
-      '<div class="bot"><div class="ttl">Gift card</div><div class="amt" data-amt>' + esc(o.amount) + '</div>' +
+      '<div class="bot"><div class="ttl">Gift card</div>' +
       '<div class="dom"><b>EAST COAST</b> HOCKEY &amp; SKATING</div>' +
       '<div class="soc" aria-hidden="true"><i class="ti ti-brand-facebook-filled"></i><i class="ti ti-brand-instagram"></i><i class="ti ti-brand-x"></i></div></div></div>' +
       '<div class="gcf-face gcf-back"><div class="hd"><div><h3>Gift card</h3><div class="dom"><b>eastcoast</b>hockeyandskating.com</div></div><img class="lg" src="assets/logo.webp" alt=""></div>' +
@@ -21,6 +21,5 @@
     function flip() { var f = el.classList.toggle('flip'); el.setAttribute('aria-pressed', f ? 'true' : 'false'); }
     el.addEventListener('click', flip);
     el.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flip(); } });
-    return { setAmount: function (t) { var a = el.querySelector('[data-amt]'); if (a) a.textContent = t; } };
   };
 })();

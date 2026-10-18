@@ -58,7 +58,7 @@ h1{font-size:clamp(1.8rem,5vw,2.4rem);letter-spacing:-.03em;line-height:1.1;marg
   if(code.length!==12){bad('We could not find that card','Open the link from your gift card email, or check the code.');return;}
   fetch('/api/giftcard?code='+code).then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error(j.error||'');return j;});}).then(function(j){
     $('#sub').textContent='Active and loaded. Tap the card to see your barcode.';
-    window.ecGiftCard($('#card'),{amount:'$'+j.initial.toFixed(2),code:code});
+    window.ecGiftCard($('#card'),{code:code});
     $('#hint').hidden=false;$('#bal').hidden=false;$('#how').hidden=false;$('#balAmt').textContent='$'+j.balance.toFixed(2);
   }).catch(function(e){bad('This card is not active','It becomes active the moment payment is confirmed, usually within a minute. If you just paid, refresh this page shortly. Otherwise contact the shop.');});
 })();

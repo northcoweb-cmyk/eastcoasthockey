@@ -1568,8 +1568,8 @@ fetch('/api/config').then(function(r){return r.ok?r.json():null;}).then(function
 
 (function(){
   var gf=$('#giftForm'),amt=50,toMe=false;
-  var card=window.ecGiftCard($('#gcFlip'),{amount:'$50.00',sample:true});
-  function sync(){card.setAmount(amt?'$'+amt+'.00':'$—');$('#gfBtn span').textContent=amt?'Pay $'+amt:'Continue to payment';}
+  window.ecGiftCard($('#gcFlip'),{sample:true});
+  function sync(){$('#gfBtn span').textContent=amt?'Pay $'+amt:'Continue to payment';}
   $('#gfAmts').addEventListener('click',function(e){
     var b=e.target.closest('button');if(!b)return;
     Array.prototype.forEach.call(this.children,function(x){x.classList.toggle('on',x===b);});

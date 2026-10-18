@@ -71,7 +71,19 @@ const stripe = {
   }
 };
 
-const providers = { stripe: stripe };
+/* TEST provider: a fake hosted payment page so the whole buying flow can be tried with no processor and no real money.
+   Only active when PAYMENT_PROVIDER=test. Never leave this on in production. */
+const test = {
+  name: 'test',
+  get configured() { return process.env.PAYMENT_PROVIDER === 'test'; },
+  async createCheckout(o) {
+    const cents = o.lines.reduce(function (n, l) { return n + l.cents * (l.qty || 1); }, 0);
+    const t = Buffer.from(JSON.stringify({ kind: o.kind, id: o.id, cents: cents, ok: o.successUrl, no: o.cancelUrl, label: o.description || 'Order' })).toString('base64url');
+    const base = o.successUrl.split('/?')[0];
+    return { url: base + '/api/webhook?t=' + t, sessionId: 'test_' + require('crypto').randomBytes(6).toString('hex') };
+  }
+};
+const providers = { stripe: stripe, test: test };
 function active() {
   const want = (process.env.PAYMENT_PROVIDER || '').toLowerCase();
   const p = want ? providers[want] : (stripe.configured ? stripe : null);
