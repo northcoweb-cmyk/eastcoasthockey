@@ -189,6 +189,16 @@ header.scrolled .brand img{height:44px}
 .gift-row button{padding:0 16px;border:0;border-radius:10px;background:var(--ink);color:#fff;font:inherit;font-weight:600;font-size:13.5px;cursor:pointer}
 .gift-row .gmsg{font-size:12.5px;margin:6px 0 0;min-height:16px}
 
+/* call a shop menu */
+.callmenu{position:fixed;z-index:600;width:min(320px,calc(100vw - 24px));background:#fff;border:1px solid var(--line);border-radius:16px;padding:8px;box-shadow:0 28px 60px -22px rgba(4,22,52,.5);opacity:0;transform:translateY(-6px) scale(.98);transition:opacity .16s,transform .16s;pointer-events:none}
+.callmenu.on{opacity:1;transform:none;pointer-events:auto}
+.callmenu.up{transform-origin:bottom}
+.callmenu .cm-h{font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--slate);padding:8px 10px 6px}
+.callmenu a{display:flex;align-items:center;gap:12px;padding:11px 10px;border-radius:11px;color:var(--ink);text-decoration:none}
+.callmenu a:hover,.callmenu a:focus-visible{background:var(--mist);outline:0}
+.callmenu .cm-i{width:38px;height:38px;border-radius:50%;background:var(--ice);color:var(--steel);display:grid;place-items:center;font-size:18px;flex-shrink:0}
+.callmenu a:hover .cm-i{background:var(--red);color:#fff}
+.callmenu b{display:block;font-size:15px;line-height:1.2}.callmenu small{display:block;font-size:14px;color:var(--slate);margin-top:2px;letter-spacing:.01em}
 section{scroll-margin-top:calc(var(--header-h) + 12px)}
 .sec{padding:clamp(64px,8.5vw,112px) 0}
 .sec-mist{background:var(--mist)}
@@ -577,7 +587,7 @@ footer{background:var(--ink);color:rgba(255,255,255,.72);padding:clamp(48px,6vw,
 <div class="topbar">
   <div class="wrap">
     <div class="topbar-links">
-      <a href="tel:+13016048200"><i class="ti ti-phone"></i> (301) 604-8200</a>
+      <a href="#locations" data-callmenu aria-haspopup="menu"><i class="ti ti-phone"></i> Call a shop <i class="ti ti-chevron-down" style="font-size:12px;margin-left:-2px"></i></a>
       <a href="#locations"><i class="ti ti-map-pin"></i> Laurel · Rockville · Piney Orchard</a>
       <a href="mailto:hendrix1122@hotmail.com"><i class="ti ti-mail"></i> hendrix1122@hotmail.com</a>
     </div>
@@ -605,7 +615,7 @@ footer{background:var(--ink);color:rgba(255,255,255,.72);padding:clamp(48px,6vw,
         <a href="#contact">Contact</a>
       </nav>
       <div class="nav-cta">
-        <a href="tel:+13016048200" class="btn btn-ghost btn-sm"><i class="ti ti-phone"></i> Call</a>
+        <a href="#locations" class="btn btn-ghost btn-sm" data-callmenu aria-haspopup="menu" aria-expanded="false"><i class="ti ti-phone"></i> Call <i class="ti ti-chevron-down" style="font-size:13px;margin-left:-2px"></i></a>
         <a href="#locations" class="btn btn-primary btn-sm"><i class="ti ti-map-pin"></i> Find a shop</a>
         <button class="cart-btn" id="cartBtn" aria-label="Open cart"><i class="ti ti-shopping-cart"></i><span class="cart-count" id="cartCount">0</span></button>
         <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false"><i class="ti ti-menu-2"></i></button>
@@ -634,7 +644,7 @@ footer{background:var(--ink);color:rgba(255,255,255,.72);padding:clamp(48px,6vw,
   </nav>
   <div class="drawer-actions">
     <a href="#locations" class="btn btn-primary"><i class="ti ti-map-pin"></i> Find a shop</a>
-    <a href="tel:+13016048200" class="btn btn-ghost"><i class="ti ti-phone"></i> (301) 604-8200</a>
+    <a href="#locations" class="btn btn-ghost" data-callmenu aria-haspopup="menu"><i class="ti ti-phone"></i> Call a shop</a>
   </div>
   <div class="drawer-contact">
     <a href="mailto:hendrix1122@hotmail.com"><i class="ti ti-mail"></i> hendrix1122@hotmail.com</a>
@@ -923,7 +933,7 @@ footer{background:var(--ink);color:rgba(255,255,255,.72);padding:clamp(48px,6vw,
       <p>Bring your feet in and we'll fit you properly. Not sure which model or size? Call any shop and we'll walk you through it.</p>
       <div class="band-actions">
         <a href="#locations" class="btn btn-primary"><i class="ti ti-map-pin"></i> Find a shop</a>
-        <a href="tel:+13016048200" class="btn btn-ondark"><i class="ti ti-phone"></i> (301) 604-8200</a>
+        <a href="#locations" class="btn btn-ondark" data-callmenu aria-haspopup="menu"><i class="ti ti-phone"></i> Call a shop</a>
       </div>
     </div>
   </div>
@@ -1077,8 +1087,9 @@ footer{background:var(--ink);color:rgba(255,255,255,.72);padding:clamp(48px,6vw,
   </div>
 </footer>
 
+<div class="callmenu" id="callMenu" role="menu" aria-label="Call a shop" hidden></div>
 <div class="mobile-bar" id="mobileBar">
-  <a href="tel:+13016048200" class="btn btn-ghost"><i class="ti ti-phone"></i> Call</a>
+  <a href="#locations" class="btn btn-ghost" data-callmenu aria-haspopup="menu"><i class="ti ti-phone"></i> Call</a>
   <a href="#teams" class="btn btn-dark"><i class="ti ti-shirt-sport"></i> Teams</a>
   <a href="#locations" class="btn btn-primary"><i class="ti ti-map-pin"></i> Visit</a>
 </div>
@@ -1591,6 +1602,38 @@ fetch('/api/config').then(function(r){return r.ok?r.json():null;}).then(function
   else if(c==='gift')note('Gift card on its way','Payment received. The gift card is being emailed now. Check spam if you do not see it in a few minutes.');
   else if(c==='cancel')note('Payment canceled','Nothing was charged. You can try again any time.',true);
   try{history.replaceState(null,'',location.pathname+location.hash);}catch(e){}
+})();
+
+/* call-a-shop menu: pick a location, then dial it */
+(function(){
+  var menu=$('#callMenu'),cur=null;
+  function build(){
+    menu.innerHTML='<div class="cm-h">Call a shop</div>'+LOCS.filter(function(l){return !l.soon&&l.tel;}).map(function(l){
+      return '<a role="menuitem" href="tel:'+esc(l.tel)+'"><span class="cm-i"><i class="ti ti-phone"></i></span><span><b>'+esc(l.n)+'</b><small>'+esc(l.p)+'</small></span></a>';
+    }).join('');
+  }
+  function close(){if(!cur)return;menu.classList.remove('on');setTimeout(function(){if(!cur)menu.hidden=true;},180);cur.setAttribute('aria-expanded','false');var t=cur;cur=null;return t;}
+  function open(t){
+    build();menu.hidden=false;cur=t;t.setAttribute('aria-expanded','true');
+    var r=t.getBoundingClientRect(),w=Math.min(320,window.innerWidth-24),left=Math.max(12,Math.min(r.right-w,window.innerWidth-w-12));
+    if(r.left<window.innerWidth/2&&r.right-w<12)left=Math.max(12,r.left);
+    menu.style.left=left+'px';menu.style.width=w+'px';
+    var up=r.top>window.innerHeight/2;menu.classList.toggle('up',up);
+    if(up){menu.style.top='auto';menu.style.bottom=(window.innerHeight-r.top+10)+'px';}
+    else{menu.style.bottom='auto';menu.style.top=(r.bottom+10)+'px';}
+    requestAnimationFrame(function(){menu.classList.add('on');var f=menu.querySelector('a');if(f&&document.activeElement===t)f.focus({preventScroll:true});});
+  }
+  document.addEventListener('click',function(e){
+    var t=e.target.closest('[data-callmenu]');
+    if(t){e.preventDefault();e.stopPropagation();if(cur===t)close();else{close();open(t);}return;}
+    if(cur&&!e.target.closest('#callMenu'))close();
+  },true);
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape'&&cur){var t=close();if(t)t.focus();}
+    if(cur&&(e.key==='ArrowDown'||e.key==='ArrowUp')){e.preventDefault();var a=[].slice.call(menu.querySelectorAll('a')),i=a.indexOf(document.activeElement);a[(i+(e.key==='ArrowDown'?1:-1)+a.length)%a.length].focus();}
+  });
+  window.addEventListener('resize',function(){close();});
+  window.addEventListener('scroll',function(){if(cur)close();},{passive:true});
 })();
 
 /* reels */
