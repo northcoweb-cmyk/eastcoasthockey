@@ -4,7 +4,6 @@ const L = require('./_lib');
 const M = require('./_media');
 const Mail = require('./_mail');
 const Pay = require('./_pay');
-const G = require('./_gift');
 
 const hits = {};
 const STATES = ['AL','AK','AZ','AR','CA','CO','CT','DE','DC','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY'];
@@ -82,33 +81,17 @@ module.exports = async function (req, res) {
     const order = { id: id, createdAt: new Date().toISOString(), status: 'new', payment: { status: 'unpaid', method: '', note: '' }, contact: contact, fulfillment: fulfillment, pickupShop: pickupShop, shipping: shipping,
       tracking: { carrier: '', number: '' }, items: items, totals: totals, notes: '', history: [{ at: new Date().toISOString(), event: 'Order received' }] };
 
-    /* gift card: the amount is set aside now and handed back if the payment never completes */
     let dueCents = subtotal + tax + ship;
-    const giftCode = G.norm(b.giftCode);
-    if (giftCode) {
-      const r = await G.adjust(giftCode, dueCents, 'Used on online order', '#' + refCode);
-      if (!r.ok) return fail(res, r.error || 'That gift card could not be used.');
-      order.giftcard = { code: giftCode, appliedCents: r.applied, restored: false };
-      totals.giftCard = r.applied / 100; dueCents -= r.applied; totals.due = dueCents / 100;
-      order.history.push({ at: new Date().toISOString(), event: 'Gift card applied: $' + (r.applied / 100).toFixed(2) });
-    }
 
     const pay = Pay.active();
     let url = '';
-    if (dueCents === 0) {
-      order.payment = { status: 'paid', method: 'gift card', note: '', paidAt: new Date().toISOString() };
-      order.history.push({ at: order.payment.paidAt, event: 'Paid in full with gift card' });
-    } else if (pay) {
-      order.payment = { status: 'pending', method: '', note: 'Waiting for online payment' };
-    } else if (order.giftcard) order.payment.note = 'Gift card applied. Balance due: $' + (dueCents / 100).toFixed(2);
+    if (pay) order.payment = { status: 'pending', method: '', note: 'Waiting for online payment' };
     await L.store.put('orders/' + id + '.json', order);
 
-    if (pay && dueCents > 0) {
+    if (pay) {
       try {
         const base = Pay.origin(req);
-        const lines = order.giftcard
-          ? [{ name: 'East Coast Hockey team order #' + refCode, description: 'After gift card', cents: dueCents, qty: 1 }]
-          : items.map(function (i) { return { name: i.team + ' ' + i.name, description: [i.size && 'Size ' + i.size, [i.first, i.last].filter(Boolean).join(' '), i.num !== '' && '#' + i.num].filter(Boolean).join(' | '), cents: cents(i.price), qty: i.qty }; })
+        const lines = items.map(function (i) { return { name: i.team + ' ' + i.name, description: [i.size && 'Size ' + i.size, [i.first, i.last].filter(Boolean).join(' '), i.num !== '' && '#' + i.num].filter(Boolean).join(' | '), cents: cents(i.price), qty: i.qty }; })
               .concat(tax ? [{ name: 'Sales tax (' + totals.taxRate + '%)', cents: tax, qty: 1 }] : []).concat(ship ? [{ name: 'Shipping', cents: ship, qty: 1 }] : []);
         const s = await pay.createCheckout({ kind: 'order', id: id, email: contact.email, description: 'Team order #' + refCode, lines: lines,
           successUrl: base + '/?checkout=success&o=' + refCode, cancelUrl: base + '/?checkout=cancel#teams' });
@@ -117,14 +100,14 @@ module.exports = async function (req, res) {
       } catch (e) {
         order.status = 'cancelled'; order.payment = { status: 'unpaid', method: '', note: 'Could not start checkout' };
         order.history.push({ at: new Date().toISOString(), event: 'Payment page could not be created, order cancelled' });
-        await G.restoreOrder(order); await L.store.put('orders/' + id + '.json', order);
+        await L.store.put('orders/' + id + '.json', order);
         return L.json(res, 502, { error: 'We could not open the payment page. Nothing was charged. Please try again or call the shop.' });
       }
     }
     hits[ip].push(now);
     /* with online payment the emails go out when the payment is confirmed; otherwise right away */
     if (!url) await Promise.all([Mail.orderReceived(order), Mail.orderAlert(order)]).catch(function () { /* email never blocks an order */ });
-    return L.json(res, 200, { ok: true, id: refCode, total: totals.total, due: dueCents / 100, giftCard: totals.giftCard || 0, paid: order.payment.status === 'paid', url: url, emailed: Mail.configured });
+    return L.json(res, 200, { ok: true, id: refCode, total: totals.total, url: url, emailed: Mail.configured });
   } catch (e) {
     console.error('order failed', e);
     return L.json(res, 500, { error: 'We could not save your order. Please call the shop.' });

@@ -935,20 +935,20 @@ footer{background:var(--ink);color:rgba(255,255,255,.72);padding:clamp(48px,6vw,
       <div class="rv">
         <span class="eyebrow"><i class="ti ti-gift"></i> Gift cards</span>
         <h2 class="h-section" style="margin:14px 0 14px">Give them the gear they actually want</h2>
-        <p class="lede" id="giftLede">A gift card works at all three shops, so a skater can pick their own boots, stick or gear and get fitted properly in person.</p>
+        <p class="lede" id="giftLede">Buying for yourself or for someone else, a gift card works at all three shops. Pick your own boots, stick or gear and get fitted properly in person.</p>
         <div id="gcFlip" style="margin-top:30px"></div>
         <p class="gcf-hint"><i class="ti ti-hand-click"></i> Tap the card to turn it over</p>
       </div>
       <div class="rv">
         <form class="gift-form" id="giftForm" novalidate>
-          <h3>Send a gift card by email</h3>
+          <h3>Get a gift card by email</h3>
           <p class="sub">Delivered in minutes with a barcode we scan in any shop.</p>
           <div class="gf-amts" id="gfAmts" role="group" aria-label="Amount">
             <button type="button" data-a="25">$25</button><button type="button" data-a="50">$50</button><button type="button" data-a="75">$75</button><button type="button" data-a="100">$100</button><button type="button" data-a="0">Other</button>
           </div>
           <div class="gf-other" id="gfOther"><label class="fld">Amount ($10 to $500)<input name="custom" inputmode="numeric" maxlength="3" placeholder="60"></label></div>
-          <div class="gf-seg" id="gfSeg"><button type="button" data-d="other" class="on">For someone else</button><button type="button" data-d="me">For me</button></div>
-          <div id="gfRecip">
+          <div class="gf-seg" id="gfSeg"><button type="button" data-d="me" class="on">For me</button><button type="button" data-d="other">For someone else</button></div>
+          <div id="gfRecip" hidden>
             <div class="gf-two">
               <label class="fld">Their name<input name="recipientName" maxlength="80" autocomplete="off"></label>
               <label class="fld">Their email<input name="recipientEmail" type="email" maxlength="120" autocomplete="off"></label>
@@ -970,7 +970,7 @@ footer{background:var(--ink);color:rgba(255,255,255,.72);padding:clamp(48px,6vw,
           <p>Stop by Laurel, Rockville or Piney Orchard and we will set one up on the spot, any amount.</p>
           <ul class="gift-points">
             <li><i class="ti ti-map-pin"></i><span>Use it at all three shops</span></li>
-            <li><i class="ti ti-shirt-sport"></i><span>Works toward team store orders online</span></li>
+            <li><i class="ti ti-ruler-measure"></i><span>Perfect for a proper skate fitting, sharpening and gear</span></li>
             <li><i class="ti ti-heart-handshake"></i><span>Perfect for birthdays, holidays and end-of-season thank-yous</span></li>
           </ul>
         </div>
@@ -1095,7 +1095,6 @@ footer{background:var(--ink);color:rgba(255,255,255,.72);padding:clamp(48px,6vw,
     <div class="cart-tots">
       <div><span>Subtotal</span><b id="tSub">$0.00</b></div>
       <div><span>Tax (<span id="tRate">6</span>%)</span><b id="tTax">$0.00</b></div>
-      <div id="tGiftRow" hidden><span>Gift card</span><b id="tGift">-$0.00</b></div>
       <div id="tShipRow" hidden><span>Shipping</span><b id="tShip">$0.00</b></div>
       <div class="grand"><span id="cartTotalLbl">Total</span><strong id="cartTotal">$0.00</strong></div>
     </div>
@@ -1118,9 +1117,6 @@ footer{background:var(--ink);color:rgba(255,255,255,.72);padding:clamp(48px,6vw,
         <label>ZIP code<input name="zip" autocomplete="shipping postal-code" inputmode="numeric" maxlength="10"></label>
       </div>
       <label>Notes (optional)<textarea name="notes" maxlength="500" rows="2"></textarea></label>
-      <details class="gift-row" id="giftRow"><summary><i class="ti ti-gift"></i> Have a gift card?</summary>
-        <div class="gr"><input id="giftCode" placeholder="XXXX-XXXX-XXXX" maxlength="16" autocomplete="off" spellcheck="false"><button type="button" id="giftApply">Apply</button></div>
-        <p class="gmsg" id="giftMsg" role="status"></p></details>
       <label class="radio agree"><input type="checkbox" name="agree"> <span>I understand personalized team items are final sale. See <a href="returns.html" target="_blank" rel="noopener">Returns &amp; refunds</a>.</span></label>
       <input name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
       <button type="submit" class="btn btn-dark" id="orderSend"><i class="ti ti-check"></i> Send order request</button>
@@ -1483,17 +1479,14 @@ renderCart();
 /* team order request: saved on the site for the shop to follow up; no payment is taken online */
 var orderForm=$('#orderForm');
 $('#orderPickup').innerHTML=LOCS.map(function(l){return '<option>'+esc(l.n)+'</option>';}).join('');
-var GIFT=null,PAY={payments:false,giftcards:false};
+var PAY={payments:false,giftcards:false};
 function updateTotals(){
   if(!orderForm)return;
   var sub=Math.round((window.__cartSub||0)*100),rate=+STORE_CFG.taxRate||0,tax=Math.round(sub*rate/100);
   var ship=orderForm&&orderForm.elements.fulfillment.value==='ship'&&STORE_CFG.shipEnabled?Math.round(STORE_CFG.shipFee*100):0;
   $('#tSub').textContent=money(sub/100);$('#tRate').textContent=rate;$('#tTax').textContent=money(tax/100);
   $('#tShipRow').hidden=!ship;$('#tShip').textContent=money(ship/100);
-  var total=sub+tax+ship,g=GIFT?Math.min(Math.round(GIFT.balance*100),total):0;
-  $('#tGiftRow').hidden=!g;$('#tGift').textContent='-'+money(g/100);
-  $('#cartTotalLbl').textContent=g?'Due today':'Total';
-  $('#cartTotal').textContent=money((total-g)/100);
+  $('#cartTotal').textContent=money((sub+tax+ship)/100);
 }
 function syncFulfillment(){
   var ship=orderForm.elements.fulfillment.value==='ship';
@@ -1531,30 +1524,16 @@ orderForm.addEventListener('submit',function(e){
     contact:{name:f.name.value,email:f.email.value,phone:f.phone.value,notes:f.notes.value},
     fulfillment:ship?'ship':'pickup',pickupShop:f.pickupShop.value,
     shipping:ship?{name:f.shipName.value,address1:f.address1.value,address2:f.address2.value,city:f.city.value,state:f.state.value,zip:f.zip.value}:null,
-    giftCode:GIFT?GIFT.code:'',
     items:cart.map(function(c){return {teamId:c.teamId,k:c.k,size:c.size,qty:c.qty,first:c.first,last:c.last,num:c.num};})
   })}).then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error(j.error||'Could not send your order.');return j;});})
   .then(function(j){
     if(j.url){msg.className='msg';msg.textContent='Taking you to secure payment…';window.location.href=j.url;return 'go';}
-    var email=f.email.value;cart.length=0;GIFT=null;renderCart();orderForm.reset();orderForm.hidden=true;syncFulfillment();
-    if(j.paid){$('#cartBody').innerHTML='<div class="order-done"><i class="ti ti-circle-check"></i><h4>Order placed</h4><p>Reference <strong>#'+esc(j.id)+'</strong> · paid in full with your gift card.<br>We will email '+esc(email)+' when it is ready.</p></div>';return;}
+    var email=f.email.value;cart.length=0;renderCart();orderForm.reset();orderForm.hidden=true;syncFulfillment();
     $('#cartBody').innerHTML='<div class="order-done"><i class="ti ti-circle-check"></i><h4>Order request received</h4><p>Reference <strong>#'+esc(j.id)+'</strong> · Total <strong>'+money(j.total)+'</strong>.<br>Nothing has been charged. We will contact you at '+esc(email)+' to confirm the details and arrange payment.</p></div>';
   }).catch(function(er){err(er.message||'Could not send your order. Please call the shop.');})
   .then(function(st){if(st!=='go')btn.disabled=false;});
 });
 window.addEventListener('pageshow',function(e){if(e.persisted){var b=$('#orderSend');if(b)b.disabled=false;}});
-
-/* gift card at checkout */
-$('#giftApply').addEventListener('click',function(){
-  var gm=$('#giftMsg'),code=$('#giftCode').value.replace(/[^A-Za-z0-9]/g,'').toUpperCase();
-  gm.style.color='';
-  if(code.length!==12){gm.style.color='#b00816';gm.textContent='Enter the 12-character code from your gift card.';return;}
-  gm.textContent='Checking…';
-  fetch('/api/giftcard?code='+code).then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error(j.error||'Could not check that card.');return j;});})
-  .then(function(j){GIFT={code:code,balance:j.balance};gm.style.color='#1f7a45';gm.textContent='Applied. Balance on card: '+money(j.balance)+'.';updateTotals();})
-  .catch(function(er){GIFT=null;gm.style.color='#b00816';gm.textContent=er.message;updateTotals();});
-});
-$('#giftCode').addEventListener('input',function(){if(GIFT){GIFT=null;$('#giftMsg').textContent='';updateTotals();}});
 
 /* online payment on/off + gift card purchase form */
 function note(t,d,warn){var n=$('#payNote');$('#pnT').textContent=t;$('#pnD').textContent=d;n.classList.toggle('warn',!!warn);n.querySelector('i.ti').className='ti '+(warn?'ti-info-circle':'ti-circle-check');n.classList.add('on');clearTimeout(note.t);note.t=setTimeout(function(){n.classList.remove('on');},9000);}
@@ -1570,7 +1549,7 @@ fetch('/api/config').then(function(r){return r.ok?r.json():null;}).then(function
 }).catch(function(){});
 
 (function(){
-  var gf=$('#giftForm'),amt=0,toMe=false;
+  var gf=$('#giftForm'),amt=0,toMe=true;
   var gcard=window.ecGiftCard($('#gcFlip'),{sample:true});
   function sync(){$('#gfBtn span').textContent=amt?'Pay $'+amt:'Choose an amount';gcard.setAmount(amt?'$'+amt+'.00':'');var a=$('#gcFlip [data-amt]');a.classList.remove('pop');void a.offsetWidth;if(amt)a.classList.add('pop');}
   $('#gfAmts').addEventListener('click',function(e){

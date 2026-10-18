@@ -75,7 +75,7 @@ Refunds are issued in the processor's dashboard, then set the order to *Refunded
 
 - **Online:** buyer picks an amount ($10 to $500), pays, and the recipient gets an email with the code and a scannable barcode. Nothing is emailed until payment is confirmed.
 - **In the shop:** Admin → **Gift cards** lets staff scan or type a code, see the balance, and take an amount off when they ring the sale. They can also sell and email a new card on the spot.
-- **Online team store:** customers can enter a code in the cart; the amount is set aside immediately and given back if checkout is abandoned.
+- **Not valid on online team store orders.** Gift cards are for gear and services in the three shops, so the team cart has no gift card field.
 - Codes are 12 random characters (no 0/O/1/I), shown as `XXXX-XXXX-XXXX`, barcode is Code 128. Export all cards from Admin → Gift cards → CSV.
 
 If the shop already has a register that sells its own gift cards, these are a separate system: staff redeem them in the admin and ring the

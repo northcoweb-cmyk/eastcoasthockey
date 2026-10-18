@@ -14,7 +14,7 @@
       '<div class="dom"><b>EAST COAST</b> HOCKEY &amp; SKATING</div>' +
       '<div class="soc" aria-hidden="true"><i class="ti ti-brand-facebook-filled"></i><i class="ti ti-brand-instagram"></i><i class="ti ti-brand-x"></i></div></div></div>' +
       '<div class="gcf-face gcf-back"><div class="hd"><div><h3>Gift card</h3><div class="dom"><b>eastcoast</b>hockeyandskating.com</div></div><img class="lg" src="assets/logo.webp" alt=""></div>' +
-      '<p class="tx">Use this card at any East Coast Hockey &amp; Skating Supply shop, or enter the code at checkout in our online team stores. ' +
+      '<p class="tx">Use this card at any East Coast Hockey &amp; Skating Supply shop for skates, sticks, gear and services. Not valid on online team store orders. ' +
       'Treat it like cash. Show the barcode below to a team member to pay, or read them the code.</p>' +
       '<div class="bc"><img src="/api/barcode?s=2&c=' + raw + '" alt="Gift card barcode" width="187" height="40"><div class="cd">' + shown + '</div>' + (o.sample ? '<div class="sm">Sample. Yours arrives by email</div>' : '') + '</div></div>' +
       '</div>';

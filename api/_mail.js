@@ -79,7 +79,7 @@ function giftHtml(c, base) {
     '<div style="text-align:center;margin-top:20px"><img src="' + base + '/api/barcode?c=' + c.code + '" alt="Gift card barcode" width="374" height="80" style="display:block;margin:0 auto;max-width:100%;background:#fff"></div>' +
     '<div style="text-align:center;font-size:22px;font-weight:800;letter-spacing:.16em;margin-top:10px;font-family:Consolas,Menlo,monospace;color:#0d1117">' + pretty(c.code) + '</div></div>' +
     '<p style="text-align:center;margin:22px 0 0"><a href="' + view + '" style="display:inline-block;background:#0b1f3a;color:#fff;text-decoration:none;font-weight:700;font-size:15px;padding:13px 26px;border-radius:999px">Open your gift card</a></p>' +
-    '<p style="margin:20px 0 0;font-size:14px;line-height:1.55;color:#33435a"><strong>How to use it:</strong> in a shop, show this email and we will scan the barcode, or read us the code. Online, enter the code at checkout in our team stores. Keep this email like cash.</p>' +
+    '<p style="margin:20px 0 0;font-size:14px;line-height:1.55;color:#33435a"><strong>How to use it:</strong> in a shop, show this email and we will scan the barcode, or read us the code. It works on gear and services in any of our three shops (not online team store orders). Keep this email like cash.</p>' +
     '<p style="margin:12px 0 0;font-size:13px;color:#5b6b80">Questions? Reply to this email or call the shop.</p></div>';
 }
 function giftText(c, base) {
@@ -87,7 +87,7 @@ function giftText(c, base) {
     'Gift card code: ' + pretty(c.code) + '\n\nShow this email at any of our three shops and we will scan it, or enter the code at checkout in our online team stores. Keep this email like cash.';
 }
 function giftCard(c, base) {
-  return send({ to: c.recipient.email, replyTo: NOTIFY[0], subject: (c.from ? c.from + ' sent you' : 'Your') + ' a ' + money(c.initialCents / 100) + ' East Coast Hockey gift card', text: giftText(c, base), html: giftHtml(c, base) });
+  return send({ to: c.recipient.email, replyTo: NOTIFY[0], subject: (c.from ? c.from + ' sent you a ' + money(c.initialCents / 100) : 'Your ' + money(c.initialCents / 100)) + ' East Coast Hockey gift card', text: giftText(c, base), html: giftHtml(c, base) });
 }
 function giftReceipt(c) {
   const same = c.buyer.email && c.buyer.email === c.recipient.email;

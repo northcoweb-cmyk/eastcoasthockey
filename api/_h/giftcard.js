@@ -10,7 +10,7 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const recent = function (map, ip, mins) { const now = Date.now(); map[ip] = (map[ip] || []).filter(function (t) { return now - t < mins * 60000; }); return map[ip]; };
 
 /* Public.
-   GET  ?code=XXXX-XXXX-XXXX   balance check (used by the team store checkout)
+   GET  ?code=XXXX-XXXX-XXXX   balance check (card page)
    POST                        buy a gift card: creates it unpaid, then sends the buyer to the payment page.
                                It is only activated and emailed after the payment provider confirms payment (api/webhook). */
 module.exports = async function (req, res) {
