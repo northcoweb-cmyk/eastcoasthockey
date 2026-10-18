@@ -77,7 +77,7 @@ function giftHtml(c, base) {
     (c.message ? '<blockquote style="margin:0 0 18px;padding:12px 16px;background:#f4f7fb;border-left:3px solid #d71920;font-size:15px;line-height:1.5">' + esc(c.message).replace(/\n/g, '<br>') + '</blockquote>' : '') +
     '<div style="text-align:center;padding:18px;border:1.5px dashed #b9c4d3;border-radius:12px"><div style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#5b6b80">Gift card code</div>' +
     '<div style="font-size:26px;font-weight:800;letter-spacing:.08em;margin:6px 0 12px;font-family:Consolas,Menlo,monospace">' + pretty(c.code) + '</div>' +
-    '<img src="' + base + '/api/barcode?c=' + c.code + '" alt="Gift card barcode" width="300" style="max-width:100%;height:auto;background:#fff"></div>' +
+    '<img src="' + base + '/api/barcode?c=' + c.code + '" alt="Gift card barcode" width="374" height="80" style="display:block;margin:0 auto;max-width:100%;background:#fff"></div>' +
     '<p style="margin:18px 0 0;font-size:14px;line-height:1.55;color:#33435a"><strong>How to use it:</strong> show this email at any of our three shops and we will scan the barcode, or enter the code at checkout in our online team stores. Keep this email like cash.</p>' +
     '<p style="margin:14px 0 0;font-size:13px;color:#5b6b80">Questions? Reply to this email or call the shop.</p></div></div>';
 }

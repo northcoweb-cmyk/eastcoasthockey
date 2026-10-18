@@ -30,7 +30,7 @@ function modules(text) {
 
 function png(text, opt) {
   opt = opt || {};
-  const scale = opt.scale || 3, quiet = 10, h = opt.height || 84;
+  const scale = opt.scale || 2, quiet = 10, h = opt.height || 80;
   const m = modules(text), w = (m.length + quiet * 2) * scale;
   const row = Buffer.alloc(1 + w, 255);
   row[0] = 0;
