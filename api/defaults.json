@@ -36,12 +36,12 @@
  "shop": [
   {
    "t": "Hockey skates",
-   "d": "Bauer, CCM and True \u2014 fit, baked and sharpened before you leave",
+   "d": "Bauer, CCM and True — fit, baked and sharpened before you leave",
    "img": "assets/bauer.webp"
   },
   {
    "t": "Sticks",
-   "d": "Bauer Vapor and Hyperlite, CCM JetSpeed and Tacks \u2014 every flex and curve",
+   "d": "Bauer Vapor and Hyperlite, CCM JetSpeed and Tacks — every flex and curve",
    "img": "assets/sticks.webp"
   },
   {
@@ -325,7 +325,7 @@
    "c1": "#0033A0",
    "c2": "#101820",
    "url": "",
-   "note": "All items have the Howard Huskies logo embroidered, screen printed or heat pressed on \u2014 included in the price. Sizing information is on each product page.",
+   "note": "All items have the Howard Huskies logo embroidered, screen printed or heat pressed on — included in the price. Sizing information is on each product page.",
    "hidden": false,
    "items": [
     {
@@ -733,6 +733,5 @@
   "shipEnabled": true,
   "shipFee": 9.95,
   "giftEnabled": true
- },
- "instagram": []
+ }
 }

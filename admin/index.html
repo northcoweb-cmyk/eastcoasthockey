@@ -167,11 +167,6 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px 90px}
         </div>
       </div>
       <div class="card">
-        <h2>Instagram posts</h2>
-        <p class="d">Show your real posts on the homepage. On Instagram, open a post or reel, tap the three dots, choose <b>Copy link</b>, and paste it below, one per line (up to 9). Leave empty to show the plain photo tiles.</p>
-        <label class="f"><span>Post links</span><textarea class="in" id="igLinks" rows="5" placeholder="https://www.instagram.com/p/AbCdEf123/&#10;https://www.instagram.com/reel/XyZ987/"></textarea><small>Only links to posts and reels from public accounts work.</small></label>
-      </div>
-      <div class="card">
         <h2>Homepage headline</h2>
         <p class="d">The big text at the top of the homepage.</p>
         <div class="grid2">
@@ -361,8 +356,6 @@ function bindChk(el,get,set){el.checked=!!get();el.addEventListener('change',fun
 function renderAll(){renderHome();renderLocs();renderShop();renderStore();renderTeams();}
 
 function renderHome(){
-  C.instagram=C.instagram||[];
-  (function(){var el=$('#igLinks');el.value=C.instagram.join('\n');el.oninput=function(){C.instagram=el.value.split(/\s+/).filter(Boolean);markDirty();};})();
   function annState(){var a=C.announce,el=$('#annState');
     el.textContent=a.on?(a.text?'On: visitors will see this bar at the top of every page.':'The bar is on but has no message yet. Type one below.'):(a.text?'Off: your message is saved but hidden. Switch the bar on to show it.':'Off: nothing is shown at the top of the site.');
     el.style.color=a.on&&a.text?'#0c7a50':'#5A6B7C';}

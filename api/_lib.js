@@ -283,10 +283,6 @@ function clean(c) {
   c = c && typeof c === 'object' ? c : {};
   const out = { version: 1 };
   const a = c.announce || {};
-  out.instagram = (Array.isArray(c.instagram) ? c.instagram : []).map(function (u) {
-    const m = String(u || '').match(/instagram\.com\/(p|reel|tv)\/([A-Za-z0-9_-]{5,20})/);
-    return m ? 'https://www.instagram.com/' + m[1] + '/' + m[2] + '/' : '';
-  }).filter(function (u, i, a) { return u && a.indexOf(u) === i; }).slice(0, 9);
   out.announce = { on: !!a.on, text: str(a.text, 160), link: link(a.link) };
   const h = c.hero || {};
   out.hero = { lead: str(h.lead, 80, D.hero.lead) || D.hero.lead, accent: str(h.accent, 60, D.hero.accent) || D.hero.accent, sub: str(h.sub, 320, D.hero.sub) || D.hero.sub };
