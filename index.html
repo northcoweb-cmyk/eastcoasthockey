@@ -17,6 +17,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.11.0/tabler-icons.min.css">
+<link rel="stylesheet" href="assets/giftcard.css">
 <style>
 :root{
   --ink:#041634; --ink-soft:#12305C; --slate:#5A6B7C;
@@ -149,16 +150,6 @@ header.scrolled .brand img{height:44px}
 /* gift cards + payment return notice */
 .gift-grid{display:grid;gap:clamp(28px,5vw,64px);align-items:center}
 @media(min-width:960px){.gift-grid{grid-template-columns:1fr 1.05fr}}
-.gc-card{position:relative;aspect-ratio:1.586;max-width:460px;border-radius:22px;padding:clamp(18px,3vw,28px);color:#fff;overflow:hidden;background:linear-gradient(145deg,#041634 0%,#012253 55%,#12305C 100%);box-shadow:0 30px 60px -28px rgba(4,22,52,.65),0 0 0 1px rgba(255,255,255,.06) inset;display:flex;flex-direction:column;justify-content:space-between;transform:rotate(-2deg);transition:transform .5s cubic-bezier(.22,1,.36,1)}
-.gc-card:hover{transform:rotate(0) translateY(-4px)}
-.gc-card::before{content:"";position:absolute;right:-18%;top:-40%;width:75%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,rgba(44,111,196,.55),rgba(44,111,196,0) 70%)}
-.gc-card::after{content:"";position:absolute;left:0;right:0;bottom:0;height:7px;background:linear-gradient(90deg,var(--red),var(--red) 38%,#fff 38%,#fff 44%,var(--steel) 44%)}
-.gc-top{display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:1}
-.gc-logo{background:#fff;border-radius:10px;padding:6px 10px;display:grid;place-items:center}.gc-logo img{height:30px;width:auto;display:block}
-.gc-tag{font-size:11px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;opacity:.75;padding-top:6px}
-.gc-amt{position:relative;z-index:1;font-size:clamp(40px,7vw,60px);font-weight:800;letter-spacing:-.02em;line-height:1}
-.gc-amt small{display:block;font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;opacity:.65;margin-bottom:6px}
-.gc-bars{position:relative;z-index:1;height:30px;margin-bottom:6px;border-radius:3px;opacity:.9;background:repeating-linear-gradient(90deg,#fff 0 2px,transparent 2px 4px,#fff 4px 5px,transparent 5px 8px,#fff 8px 11px,transparent 11px 13px,#fff 13px 14px,transparent 14px 18px);-webkit-mask:linear-gradient(90deg,#000 62%,transparent 62% 66%,#000 66%);mask:linear-gradient(90deg,#000 62%,transparent 62% 66%,#000 66%)}
 .gift-points{list-style:none;margin:22px 0 0;padding:0;display:grid;gap:10px}
 .gift-points li{display:flex;gap:10px;align-items:flex-start;font-size:15px;color:var(--ink-soft)}
 .gift-points i{color:var(--steel);font-size:19px;flex-shrink:0;margin-top:1px}
@@ -943,11 +934,8 @@ footer{background:var(--ink);color:rgba(255,255,255,.72);padding:clamp(48px,6vw,
         <span class="eyebrow"><i class="ti ti-gift"></i> Gift cards</span>
         <h2 class="h-section" style="margin:14px 0 14px">Give them the gear they actually want</h2>
         <p class="lede" id="giftLede">A gift card works at all three shops, so a skater can pick their own boots, stick or gear and get fitted properly in person.</p>
-        <div class="gc-card" aria-hidden="true" style="margin-top:28px">
-          <div class="gc-top"><span class="gc-logo"><img src="assets/logo.webp" alt=""></span><span class="gc-tag">Gift card</span></div>
-          <div class="gc-amt"><small>East Coast Hockey &amp; Skating</small><span id="gcAmt">$50</span></div>
-          <div class="gc-bars"></div>
-        </div>
+        <div id="gcFlip" style="margin-top:30px"></div>
+        <p class="gcf-hint"><i class="ti ti-hand-click"></i> Tap the card to turn it over</p>
       </div>
       <div class="rv">
         <form class="gift-form" id="giftForm" novalidate hidden>
@@ -1139,6 +1127,7 @@ footer{background:var(--ink);color:rgba(255,255,255,.72);padding:clamp(48px,6vw,
   </div>
 </aside>
 
+<script src="assets/giftcard.js"></script>
 <script>
 (function(){
 'use strict';
@@ -1579,7 +1568,8 @@ fetch('/api/config').then(function(r){return r.ok?r.json():null;}).then(function
 
 (function(){
   var gf=$('#giftForm'),amt=50,toMe=false;
-  function sync(){$('#gcAmt').textContent='$'+(amt||'—');$('#gfBtn span').textContent=amt?'Pay $'+amt:'Continue to payment';}
+  var card=window.ecGiftCard($('#gcFlip'),{amount:'$50.00',sample:true});
+  function sync(){card.setAmount(amt?'$'+amt+'.00':'$—');$('#gfBtn span').textContent=amt?'Pay $'+amt:'Continue to payment';}
   $('#gfAmts').addEventListener('click',function(e){
     var b=e.target.closest('button');if(!b)return;
     Array.prototype.forEach.call(this.children,function(x){x.classList.toggle('on',x===b);});
