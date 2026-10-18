@@ -1,6 +1,6 @@
 'use strict';
-const G = require('./_gift');
-const B = require('./_barcode');
+const G = require('../_gift');
+const B = require('../_barcode');
 
 /* Barcode image for a gift card code (used in the gift card email). It only draws the characters it is given. */
 module.exports = function (req, res) {

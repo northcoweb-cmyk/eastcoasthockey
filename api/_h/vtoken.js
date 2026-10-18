@@ -1,6 +1,6 @@
 'use strict';
-const L = require('./_lib');
-const M = require('./_media');
+const L = require('../_lib');
+const M = require('../_media');
 
 /* Returns a short-lived, signed URL for one reel video. */
 module.exports = function (req, res) {

@@ -1,5 +1,5 @@
 'use strict';
-const L = require('./_lib');
+const L = require('../_lib');
 
 module.exports = async function (req, res) {
   if (req.method !== 'POST') { res.setHeader('Allow', 'POST'); return L.json(res, 405, { error: 'Method not allowed' }); }

@@ -1,5 +1,5 @@
 'use strict';
-const L = require('./_lib');
+const L = require('../_lib');
 
 /* Admin only: contact-form messages. */
 module.exports = async function (req, res) {

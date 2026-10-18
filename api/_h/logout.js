@@ -1,5 +1,5 @@
 'use strict';
-const L = require('./_lib');
+const L = require('../_lib');
 
 module.exports = function (req, res) {
   L.clearSession(res);

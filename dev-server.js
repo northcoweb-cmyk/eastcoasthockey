@@ -5,8 +5,11 @@ const fs = require('fs');
 const path = require('path');
 const port = +process.argv[2] || 3000;
 const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.json': 'application/json', '.css': 'text/css', '.webp': 'image/webp', '.png': 'image/png', '.jpg': 'image/jpeg', '.mp4': 'video/mp4', '.svg': 'image/svg+xml' };
+const rewrites = (JSON.parse(fs.readFileSync(path.join(__dirname, 'vercel.json'), 'utf8')).rewrites || []);
 http.createServer(function (req, res) {
-  const u = new URL(req.url, 'http://x');
+  let u = new URL(req.url, 'http://x');
+  const rw = rewrites.filter(function (r) { return r.source === u.pathname; })[0];
+  if (rw) { const d = new URL(rw.destination, 'http://x'); u.searchParams.forEach(function (v, k) { d.searchParams.append(k, v); }); u = d; req.url = d.pathname + d.search; }
   const p = decodeURIComponent(u.pathname);
   if (p.startsWith('/api/')) {
     const name = p.slice(5).replace(/[^a-z]/g, '');

@@ -54,5 +54,35 @@
     "api/video.js": {
       "includeFiles": "api/_private/**"
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/api/login",
+      "destination": "/api/auth?a=login"
+    },
+    {
+      "source": "/api/logout",
+      "destination": "/api/auth?a=logout"
+    },
+    {
+      "source": "/api/me",
+      "destination": "/api/auth?a=me"
+    },
+    {
+      "source": "/api/barcode",
+      "destination": "/api/giftcard?a=barcode"
+    },
+    {
+      "source": "/api/config",
+      "destination": "/api/giftcard?a=config"
+    },
+    {
+      "source": "/api/vtoken",
+      "destination": "/api/video?a=token"
+    },
+    {
+      "source": "/api/messages",
+      "destination": "/api/contact?a=messages"
+    }
+  ]
 }

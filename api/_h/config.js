@@ -1,7 +1,7 @@
 'use strict';
-const L = require('./_lib');
-const Pay = require('./_pay');
-const G = require('./_gift');
+const L = require('../_lib');
+const Pay = require('../_pay');
+const G = require('../_gift');
 
 /* Public: tells the page whether online payment and gift cards are switched on. */
 module.exports = async function (req, res) {
