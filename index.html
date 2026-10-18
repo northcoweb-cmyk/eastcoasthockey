@@ -172,6 +172,8 @@ header.scrolled .brand img{height:44px}
 .gift-form .btn{width:100%;margin-top:18px;justify-content:center}
 .gift-form .fine{font-size:12px;color:var(--slate);text-align:center;margin:12px 0 0;display:flex;gap:6px;justify-content:center;align-items:center}
 .gift-form .hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+.gf-off{font-size:13px;color:#8a6100;background:#fff3d6;border-radius:10px;padding:9px 12px;margin:12px 0 0;display:flex;gap:8px;align-items:center}
+.gift-form .btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
 .gift-instore{background:var(--mist);border:1px solid var(--line);border-radius:20px;padding:clamp(22px,3vw,32px)}
 .gift-instore h3{margin:0 0 6px;font-size:20px}.gift-instore p{margin:0;color:var(--ink-soft);line-height:1.55}
 .pay-note{position:fixed;left:50%;top:calc(var(--header-h,72px) + 14px);transform:translate(-50%,-20px);opacity:0;pointer-events:none;z-index:90;width:min(560px,calc(100vw - 28px));display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-left:4px solid #1f9d55;border-radius:14px;padding:14px 16px;box-shadow:0 24px 50px -20px rgba(4,22,52,.45);transition:all .4s cubic-bezier(.22,1,.36,1)}
@@ -938,7 +940,7 @@ footer{background:var(--ink);color:rgba(255,255,255,.72);padding:clamp(48px,6vw,
         <p class="gcf-hint"><i class="ti ti-hand-click"></i> Tap the card to turn it over</p>
       </div>
       <div class="rv">
-        <form class="gift-form" id="giftForm" novalidate hidden>
+        <form class="gift-form" id="giftForm" novalidate>
           <h3>Send a gift card by email</h3>
           <p class="sub">Delivered in minutes with a barcode we scan in any shop.</p>
           <div class="gf-amts" id="gfAmts" role="group" aria-label="Amount">
@@ -958,11 +960,12 @@ footer{background:var(--ink);color:rgba(255,255,255,.72);padding:clamp(48px,6vw,
             <label class="fld">Your email<input name="buyerEmail" type="email" maxlength="120" autocomplete="email"></label>
           </div>
           <input name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
-          <button type="submit" class="btn btn-primary" id="gfBtn"><i class="ti ti-lock"></i> <span>Continue to payment</span></button>
+          <button type="submit" class="btn btn-primary" id="gfBtn" disabled><i class="ti ti-lock"></i> <span>Continue to payment</span></button>
+          <p class="gf-off" id="gfOff"><i class="ti ti-info-circle"></i> Online checkout is switching on soon. You can buy a gift card in any shop today.</p>
           <p class="msg" id="gfMsg" role="status" style="text-align:center"></p>
           <p class="fine"><i class="ti ti-shield-check"></i> Secure checkout. Your card details never touch our site.</p>
         </form>
-        <div class="gift-instore" id="giftInstore">
+        <div class="gift-instore" id="giftInstore" hidden>
           <h3>Available in every shop</h3>
           <p>Stop by Laurel, Rockville or Piney Orchard and we will set one up on the spot, any amount.</p>
           <ul class="gift-points">
@@ -1563,7 +1566,7 @@ fetch('/api/config').then(function(r){return r.ok?r.json():null;}).then(function
     $('#checkoutBtn').innerHTML='<i class="ti ti-lock"></i> Check out';
     $('#cartSecure').innerHTML='<i class="ti ti-lock"></i> Secure online payment. Your card details never touch our site.';
   }
-  if(c.giftcards){$('#giftForm').hidden=false;$('#giftInstore').hidden=true;}
+  if(c.giftcards){$('#gfBtn').disabled=false;$('#gfOff').hidden=true;}else{$('#giftInstore').hidden=false;}
 }).catch(function(){});
 
 (function(){
