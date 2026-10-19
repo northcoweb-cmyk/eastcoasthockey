@@ -92,3 +92,9 @@ The old cart and Stripe checkout code is still in the repo; switching "How order
 
 `gate.js` puts a password screen in front of every public page while the site is being finished. It is a soft lock: it keeps casual visitors out
 but is not real security. Set or change it with `node tools/set-gate.js "password"`; remove it with `node tools/set-gate.js off`; then commit and push.
+
+## Gift cards that work at the register (staff-issued)
+
+Customers buy a gift card product on 3dcart (that is where the money is taken). Staff then open Admin → Gift cards → "Sell a gift card in the shop",
+enter the amount and the customer's email, and optionally the **card number from the register**. If the register made the number, typing it here makes the emailed
+barcode match it exactly (Code 128), so staff can scan or type it at the register's gift card button. The register stays the source of truth for the balance.

@@ -8,8 +8,9 @@ const MIN = 10, MAX = 500;
 
 function newCode() { const b = crypto.randomBytes(12); let s = ''; for (let i = 0; i < 12; i++) s += ALPHA[b[i] % 32]; return s; }
 function norm(v) { return String(v || '').toUpperCase().replace(/[^A-Z0-9]/g, ''); }
-function valid(v) { return /^[A-HJ-NP-Z2-9]{12}$/.test(v); }
-function pretty(c) { return c.slice(0, 4) + '-' + c.slice(4, 8) + '-' + c.slice(8); }
+/* generated codes are 12 characters; a number typed in from the register can be 6 to 24 letters or digits */
+function valid(v) { return /^[A-Z0-9]{6,24}$/.test(v); }
+function pretty(c) { return /^[A-HJ-NP-Z2-9]{12}$/.test(c) ? c.slice(0, 4) + '-' + c.slice(4, 8) + '-' + c.slice(8) : c; }
 const path = function (c) { return 'giftcards/' + c + '.json'; };
 
 /* one write at a time per card inside an instance, so a double scan cannot spend the same balance twice */
@@ -22,12 +23,13 @@ function locked(code, fn) {
 }
 
 async function create(o) {
-  let code, tries = 0;
-  do { code = newCode(); tries++; } while ((await L.store.get(path(code))) && tries < 5);
+  let code = o.code || '', tries = 0;
+  if (code) { if (await L.store.get(path(code))) return null; }
+  else do { code = newCode(); tries++; } while ((await L.store.get(path(code))) && tries < 5);
   const now = new Date().toISOString();
   const card = { code: code, initialCents: o.cents, balanceCents: o.status === 'active' ? o.cents : 0, status: o.status || 'pending', source: o.source || 'online',
     buyer: o.buyer || { name: '', email: '' }, recipient: o.recipient || { name: '', email: '' }, from: o.from || '', message: o.message || '', createdAt: now, paidAt: o.status === 'active' ? now : '',
-    payment: o.payment || {}, emailed: false, history: [{ at: now, event: o.status === 'active' ? 'Issued ' + o.source : 'Created, awaiting payment', cents: o.cents }] };
+    payment: o.payment || {}, external: !!o.external, emailed: false, history: [{ at: now, event: o.status === 'active' ? 'Issued ' + o.source : 'Created, awaiting payment', cents: o.cents }] };
   await L.store.put(path(code), card);
   return card;
 }
@@ -51,6 +53,7 @@ function adjust(code, cents, event, note) {
   return locked(code, async function () {
     const c = await get(code);
     if (!c || c.status !== 'active') return { ok: false, error: c && c.status === 'void' ? 'This gift card has been voided.' : 'Gift card not found.' };
+    if (c.external) return { ok: false, error: 'This card is managed in your register. Use it there.', card: c };
     if (cents > 0) {
       if (c.balanceCents <= 0) return { ok: false, error: 'This gift card has no balance.', card: c };
       cents = Math.min(cents, c.balanceCents);

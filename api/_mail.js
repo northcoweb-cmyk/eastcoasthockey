@@ -66,7 +66,7 @@ function contactAlert(m) {
 }
 
 /* ---- gift cards ---- */
-const pretty = function (c) { return c.slice(0, 4) + '-' + c.slice(4, 8) + '-' + c.slice(8); };
+const pretty = function (c) { return /^[A-HJ-NP-Z2-9]{12}$/.test(c) ? c.slice(0, 4) + '-' + c.slice(4, 8) + '-' + c.slice(8) : c; };
 function giftHtml(c, base) {
   const amt = money(c.initialCents / 100), view = base + '/gift?c=' + c.code;
   return '<div style="max-width:520px;margin:0 auto;font-family:Arial,Helvetica,sans-serif;color:#0b1f3a">' +
@@ -78,13 +78,13 @@ function giftHtml(c, base) {
     '<table role="presentation" width="100%" style="border-collapse:collapse"><tr><td style="vertical-align:top"><div style="font-size:26px;font-weight:800;letter-spacing:-.01em;color:#0d1117">GIFT CARD</div><div style="font-size:12px;color:#0d1117;margin-top:3px"><b>eastcoast</b>hockeyandskating.com</div></td><td align="right" style="vertical-align:top"><div style="font-size:28px;font-weight:800;color:#0d1117">' + amt + '</div></td></tr></table>' +
     '<div style="text-align:center;margin-top:20px"><img src="' + base + '/api/barcode?c=' + c.code + '" alt="Gift card barcode" width="374" height="80" style="display:block;margin:0 auto;max-width:100%;background:#fff"></div>' +
     '<div style="text-align:center;font-size:22px;font-weight:800;letter-spacing:.16em;margin-top:10px;font-family:Consolas,Menlo,monospace;color:#0d1117">' + pretty(c.code) + '</div></div>' +
-    '<p style="text-align:center;margin:22px 0 0"><a href="' + view + '" style="display:inline-block;background:#0b1f3a;color:#fff;text-decoration:none;font-weight:700;font-size:15px;padding:13px 26px;border-radius:999px">Open your gift card</a></p>' +
+    (c.external ? '' : '<p style="text-align:center;margin:22px 0 0"><a href="' + view + '" style="display:inline-block;background:#0b1f3a;color:#fff;text-decoration:none;font-weight:700;font-size:15px;padding:13px 26px;border-radius:999px">Open your gift card</a></p>') +
     '<p style="margin:20px 0 0;font-size:14px;line-height:1.55;color:#33435a"><strong>How to use it:</strong> in a shop, show this email and we will scan the barcode, or read us the code. It works on gear and services in any of our three shops (not online team store orders). Keep this email like cash.</p>' +
     '<p style="margin:12px 0 0;font-size:13px;color:#5b6b80">Questions? Reply to this email or call the shop.</p></div>';
 }
 function giftText(c, base) {
   return money(c.initialCents / 100) + ' gift card - East Coast Hockey & Skating Supply\n\n' + (c.recipient.name ? 'Hi ' + c.recipient.name + ',\n\n' : '') + (c.from ? c.from + ' sent you a gift card.\n\n' : '') + (c.message ? c.message + '\n\n' : '') +
-    'Gift card code: ' + pretty(c.code) + '\n\nShow this email at any of our three shops and we will scan it, or enter the code at checkout in our online team stores. Keep this email like cash.';
+    'Gift card code: ' + pretty(c.code) + '\n\nShow this email at any of our three shops and we will scan the barcode or type in the code. Keep this email like cash.';
 }
 function giftCard(c, base) {
   return send({ to: c.recipient.email, replyTo: NOTIFY[0], subject: (c.from ? c.from + ' sent you a ' + money(c.initialCents / 100) : 'Your ' + money(c.initialCents / 100)) + ' East Coast Hockey gift card', text: giftText(c, base), html: giftHtml(c, base) });

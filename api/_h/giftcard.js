@@ -22,7 +22,7 @@ module.exports = async function (req, res) {
       checks[ip].push(Date.now());
       const code = G.norm(new URL(req.url, 'http://x').searchParams.get('code'));
       const c = await G.get(code);
-      if (!c || c.status !== 'active') return L.json(res, 404, { error: 'We could not find an active gift card with that code.' });
+      if (!c || c.status !== 'active' || c.external) return L.json(res, 404, { error: 'We could not find an active gift card with that code.' });
       return L.json(res, 200, { ok: true, balance: c.balanceCents / 100, initial: c.initialCents / 100 });
     }
     if (req.method !== 'POST') { res.setHeader('Allow', 'GET, POST'); return L.json(res, 405, { error: 'Method not allowed' }); }

@@ -243,6 +243,7 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px 90px}
             <label class="f"><span>Customer email (optional)</span><input class="in" name="email" type="email" maxlength="120"></label>
             <label class="f"><span>Recipient name (optional)</span><input class="in" name="name" maxlength="80"></label>
             <label class="f"><span>From (optional)</span><input class="in" name="from" maxlength="80"></label>
+            <label class="f"><span>Card number from the register (optional)</span><input class="in" name="number" maxlength="24" autocomplete="off" placeholder="Leave empty to make a new one"><small>If your register made the card number, type it here and the emailed barcode will match it, so staff can scan it at the register.</small></label>
           </div>
           <label class="f"><span>Message (optional)</span><input class="in" name="message" maxlength="300"></label>
           <button class="btn btn-p" type="submit" style="margin-top:10px"><i class="ti ti-gift"></i> Create gift card</button>
@@ -736,7 +737,8 @@ function gcCard(c,opt){
     h('div',{},[h('div',{style:'font:700 22px Consolas,Menlo,monospace;letter-spacing:.06em',text:c.display}),h('div',{class:'d',style:'margin:4px 0 0',text:gcStatus(c)+' · sold '+fmtDate(c.createdAt)+' · '+(c.source==='store'?'in shop':'online')+(c.recipient&&c.recipient.email?' · '+c.recipient.email:'')})]),
     h('div',{style:'text-align:right'},[h('div',{style:'font:800 30px system-ui;line-height:1',text:money2(c.balanceCents)}),h('div',{class:'d',style:'margin:4px 0 0',text:'of '+money2(c.initialCents)})])]));
   if(opt.barcode)box.appendChild(h('img',{src:'/api/barcode?c='+c.code,alt:'Barcode',style:'display:block;margin:14px auto 0;max-width:100%;height:60px'}));
-  if(c.status==='active'&&c.balanceCents>0){
+  if(c.external){box.appendChild(h('p',{class:'d',style:'margin:12px 0 0',text:'This card number comes from your register, so the balance is managed there. Use it at the register.'}));}
+  else if(c.status==='active'&&c.balanceCents>0){
     var amt=h('input',{class:'in',type:'number',min:'0.01',step:'0.01',inputmode:'decimal',placeholder:'Amount to use',style:'max-width:170px'}),note=h('input',{class:'in',placeholder:'Receipt / note (optional)',maxlength:'80',style:'flex:1;min-width:140px'});
     box.appendChild(h('div',{class:'row',style:'gap:8px;margin-top:14px;flex-wrap:wrap'},[amt,note,
       h('button',{class:'btn btn-p btn-s',type:'button',onclick:function(){var v=parseFloat(amt.value);if(!(v>0)){toast('Enter the amount to take off.',true);return;}
@@ -761,7 +763,7 @@ $('#gcFind').addEventListener('submit',function(e){
 });
 $('#gcIssue').addEventListener('submit',function(e){
   e.preventDefault();var f=e.target.elements;
-  gcPost({action:'issue',amount:parseFloat(f.amount.value),email:f.email.value,name:f.name.value,from:f.from.value,message:f.message.value}).then(function(r){
+  gcPost({action:'issue',amount:parseFloat(f.amount.value),number:f.number.value,email:f.email.value,name:f.name.value,from:f.from.value,message:f.message.value}).then(function(r){
     var b=$('#gcIssued');b.innerHTML='';b.appendChild(h('p',{style:'margin:14px 0 0;font-weight:600;color:#0c7a50',text:r.emailed?'Created and emailed.':(f.email.value?'Created. Email is not set up yet, so it was not sent.':'Created.')}));
     b.appendChild(gcCard(r.card,{barcode:true}));e.target.reset();loadGifts(true);
   });
