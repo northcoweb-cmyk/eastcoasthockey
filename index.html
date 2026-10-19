@@ -1380,6 +1380,8 @@ var cart=[];
   }
   function openTeam(id){
     var t=TEAMS.filter(function(x){return x.id===id;})[0]; if(!t)return;
+    /* link mode, team with no products listed: go straight to that team's page on the online store, so new products there always show up */
+    if(LINK_MODE()&&t.link&&!(t.items&&t.items.length)){window.open(t.link,'_blank','noopener,noreferrer');return;}
     var crest=$('#tsCrest'),crest_=window.__crest;
     crest.innerHTML=crest_(t);crest.classList.toggle('logo',!!t.logo);crest.classList.toggle('dark',!!t.dark);crest.style.background=t.logo?'':'linear-gradient(140deg,'+t.c1+','+t.c2+')';
     $('#tsName').textContent=t.n;

@@ -522,7 +522,7 @@ function teamCard(t,ti){
   body.appendChild(h('label',{class:'f'},[h('span',{text:'Message to families'}),note]));
   var tl=h('input',{class:'in',placeholder:'https://… (this team\'s page on the online store)',inputmode:'url'});
   bind(tl,function(){return t.link||'';},function(v){t.link=v.trim();});
-  body.appendChild(h('label',{class:'f'},[h('span',{text:'Link to this team on the online store (optional)'}),tl]));
+  body.appendChild(h('label',{class:'f'},[h('span',{text:'Link to this team on the online store (optional)'}),tl,h('small',{text:'Easiest setup: paste the team\'s page here and delete the products below. Clicking the team then opens that page on the online store, so new products there show up on their own.'})]));
 
   /* products */
   body.appendChild(h('div',{class:'sub',text:'Products'}));
