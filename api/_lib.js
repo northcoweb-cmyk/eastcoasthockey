@@ -329,7 +329,12 @@ function clean(c) {
     shipFee: Math.min(Math.max(money(st.shipFee === undefined ? ds.shipFee : st.shipFee), 0), 100),
     giftEnabled: st.giftEnabled === undefined ? ds.giftEnabled !== false : !!st.giftEnabled,
     mode: (st.mode || ds.mode) === 'direct' ? 'direct' : 'link',
-    storeLink: web(st.storeLink), giftLink: web(st.giftLink)
+    storeLink: web(st.storeLink), giftLink: web(st.giftLink),
+    giftLinks: (Array.isArray(st.giftLinks) ? st.giftLinks : []).map(function (g) {
+      g = g || {};
+      const a = Math.round(Number(g.amount));
+      return a >= 1 && a <= 2000 && web(g.url) ? { amount: a, url: web(g.url) } : null;
+    }).filter(Boolean).slice(0, 8)
   };
   return out;
 }

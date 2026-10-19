@@ -208,8 +208,9 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px 90px}
         <label class="f"><span>How ordering works</span><select class="in" id="stMode"><option value="link">Send customers to our online store (3dcart)</option><option value="direct">Take orders on this site (cart and checkout)</option></select></label>
         <div class="grid2">
           <label class="f"><span>Main store link</span><input class="in" id="stStoreLink" placeholder="https://…" inputmode="url"><small>Used when a product or team has no link of its own.</small></label>
-          <label class="f"><span>Gift card link</span><input class="in" id="stGiftLink" placeholder="https://…" inputmode="url"><small>The page where customers buy a gift card.</small></label>
+          <label class="f"><span>Gift card link (any amount)</span><input class="in" id="stGiftLink" placeholder="https://…" inputmode="url"><small>Used if you do not list amounts below.</small></label>
         </div>
+        <label class="f"><span>Gift card amounts</span><textarea class="in" id="stGiftAmts" rows="4" placeholder="25 https://…&#10;50 https://…&#10;100 https://…"></textarea><small>One per line: the amount, a space, then that gift card's link. Customers pick an amount and go to that link.</small></label>
       </div>
       <div class="card">
         <h2>Checkout settings</h2>
@@ -436,6 +437,8 @@ function renderStore(){
   C.store=C.store||{taxRate:6,shipEnabled:true,shipFee:9.95,giftEnabled:true};
   C.store.mode=C.store.mode||'link';
   (function(){var m=$('#stMode');m.value=C.store.mode;m.onchange=function(){C.store.mode=m.value;markDirty();};})();
+  (function(){var el=$('#stGiftAmts');C.store.giftLinks=C.store.giftLinks||[];el.value=C.store.giftLinks.map(function(g){return g.amount+' '+g.url;}).join('\n');
+    el.oninput=function(){C.store.giftLinks=el.value.split(/\n/).map(function(l){var m=l.trim().match(/^\$?(\d+)\s+(https?:\/\/\S+)$/);return m?{amount:+m[1],url:m[2]}:null;}).filter(Boolean);markDirty();};})();
   bind($('#stStoreLink'),function(){return C.store.storeLink||'';},function(v){C.store.storeLink=v.trim();});
   bind($('#stGiftLink'),function(){return C.store.giftLink||'';},function(v){C.store.giftLink=v.trim();});
   bind($('#stTax'),function(){return C.store.taxRate;},function(v){C.store.taxRate=parseFloat(v)||0;});
