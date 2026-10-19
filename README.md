@@ -98,3 +98,8 @@ but is not real security. Set or change it with `node tools/set-gate.js "passwor
 Customers buy a gift card product on 3dcart (that is where the money is taken). Staff then open Admin → Gift cards → "Sell a gift card in the shop",
 enter the amount and the customer's email, and optionally the **card number from the register**. If the register made the number, typing it here makes the emailed
 barcode match it exactly (Code 128), so staff can scan or type it at the register's gift card button. The register stays the source of truth for the balance.
+
+### Pool of ready numbers
+
+If the register can make gift cards in bulk, load their numbers in Admin → Gift cards → "Ready numbers (pool)" (one per line: amount, then number). Selling a card with
+"Take the next ready number" ticked emails the next unused number for that amount in one click. Pool numbers must already exist in the register with the amount loaded.

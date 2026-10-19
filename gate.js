@@ -2,7 +2,7 @@
    This is a soft lock for a work-in-progress site (it keeps casual visitors out). Change or remove it with:
    node tools/set-gate.js "new password"      node tools/set-gate.js off */
 (function () {
-  var GATE_HASH = 'c5e591e7da102c6c5e0e4d266ef3d9e4aeea8555bd95a461726aee1bb57f6aa1';
+  var GATE_HASH = 'c90a269ddf04b087a4b0918a821161c49ebf4d3db34d21e36e7ba5b7e72b2aba';
   var SALT = 'ec-preview::';
   if (!GATE_HASH) return;
   var K = 'ec_preview_ok';

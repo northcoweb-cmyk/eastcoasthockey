@@ -246,9 +246,17 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px 90px}
             <label class="f"><span>Card number from the register (optional)</span><input class="in" name="number" maxlength="24" autocomplete="off" placeholder="Leave empty to make a new one"><small>If your register made the card number, type it here and the emailed barcode will match it, so staff can scan it at the register.</small></label>
           </div>
           <label class="f"><span>Message (optional)</span><input class="in" name="message" maxlength="300"></label>
+          <label class="sw" style="margin-top:12px"><input type="checkbox" name="usePool"><span class="tr"></span> Take the next ready number for this amount from the pool below</label>
           <button class="btn btn-p" type="submit" style="margin-top:10px"><i class="ti ti-gift"></i> Create gift card</button>
         </form>
         <div id="gcIssued"></div>
+      </div>
+      <div class="card">
+        <h2>Ready numbers (pool)</h2>
+        <p class="d">Card numbers your register already made, grouped by amount. When you sell a card above with the checkbox ticked, the next number for that amount is emailed to the customer in one click. These numbers must already exist in your register with the amount loaded.</p>
+        <div id="gcPool" style="margin:10px 0;font-weight:600"></div>
+        <label class="f"><span>Add numbers</span><textarea class="in" id="gcPoolIn" rows="4" placeholder="25 47790003501&#10;25 47790003502&#10;50 47790003601"></textarea><small>One per line: the amount, a space, then the number.</small></label>
+        <button class="btn btn-d btn-s" type="button" id="gcPoolAdd" style="margin-top:8px"><i class="ti ti-plus"></i> Add to pool</button>
       </div>
       <div class="card">
         <div class="row" style="justify-content:space-between"><div><h2>All gift cards</h2><p class="d" style="margin:0">Newest first. Export to a spreadsheet to match against your register.</p></div><button class="btn btn-g btn-s" id="gcCsv"><i class="ti ti-file-spreadsheet"></i> CSV</button></div>
@@ -763,13 +771,15 @@ $('#gcFind').addEventListener('submit',function(e){
 });
 $('#gcIssue').addEventListener('submit',function(e){
   e.preventDefault();var f=e.target.elements;
-  gcPost({action:'issue',amount:parseFloat(f.amount.value),number:f.number.value,email:f.email.value,name:f.name.value,from:f.from.value,message:f.message.value}).then(function(r){
+  gcPost({action:'issue',amount:parseFloat(f.amount.value),usePool:f.usePool.checked,number:f.number.value,email:f.email.value,name:f.name.value,from:f.from.value,message:f.message.value}).then(function(r){
     var b=$('#gcIssued');b.innerHTML='';b.appendChild(h('p',{style:'margin:14px 0 0;font-weight:600;color:#0c7a50',text:r.emailed?'Created and emailed.':(f.email.value?'Created. Email is not set up yet, so it was not sent.':'Created.')}));
     b.appendChild(gcCard(r.card,{barcode:true}));e.target.reset();loadGifts(true);
   });
 });
 function loadGifts(quiet){
   api('/api/giftcards').then(function(r){
+    var pl=r.pool||{},keys=Object.keys(pl).sort(function(a,b){return a-b;});
+    $('#gcPool').textContent=keys.length?keys.map(function(k){return '$'+k+': '+pl[k]+' ready';}).join('   ·   '):'No numbers in the pool yet.';
     GC=r.cards;$('#gcPayWarn').classList.toggle('hide',r.payments);
     var box=$('#gcList');box.innerHTML='';
     if(!GC.length){box.appendChild(h('p',{class:'d',text:'No gift cards yet.'}));return;}
@@ -781,6 +791,10 @@ function loadGifts(quiet){
     box.appendChild(t);
   }).catch(function(e){if(!quiet)toast(e.message,true);});
 }
+$('#gcPoolAdd').addEventListener('click',function(){
+  var v=$('#gcPoolIn').value;if(!v.trim())return;
+  gcPost({action:'poolAdd',lines:v}).then(function(r){toast('Added '+r.added+(r.skipped?' ('+r.skipped+' skipped: bad line or already there)':'')+'.');$('#gcPoolIn').value='';loadGifts(true);});
+});
 $('#gcCsv').addEventListener('click',function(){
   var rows=[['Code','Status','Original','Balance','Sold','Source','Buyer','Buyer email','Recipient email']];
   GC.forEach(function(c){rows.push([c.display,gcStatus(c),(c.initialCents/100).toFixed(2),(c.balanceCents/100).toFixed(2),c.createdAt.slice(0,10),c.source,(c.buyer&&c.buyer.name)||'',(c.buyer&&c.buyer.email)||'',(c.recipient&&c.recipient.email)||'']);});

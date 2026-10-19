@@ -72,9 +72,21 @@ function setStatus(code, status) {
     await L.store.put(path(code), c); return c;
   });
 }
+/* hand one unsold pool card to a customer: only one caller can win a given card */
+function claim(code, fields) {
+  return locked(code, async function () {
+    const c = await get(code);
+    if (!c || c.status !== 'pool') return null;
+    const now = new Date().toISOString();
+    Object.assign(c, fields, { status: 'active', balanceCents: c.initialCents, paidAt: now, createdAt: now });
+    c.history.push({ at: now, event: 'Issued from the pool', cents: c.initialCents });
+    await L.store.put(path(code), c);
+    return c;
+  });
+}
 const save = function (c) { return L.store.put(path(c.code), c); };
 const publicView = function (c) { return { code: pretty(c.code), balance: c.balanceCents / 100, status: c.status }; };
-module.exports = { MIN: MIN, MAX: MAX, norm: norm, valid: valid, pretty: pretty, create: create, get: get, list: list, activate: activate, adjust: adjust, setStatus: setStatus, save: save, publicView: publicView };
+module.exports = { claim: claim, MIN: MIN, MAX: MAX, norm: norm, valid: valid, pretty: pretty, create: create, get: get, list: list, activate: activate, adjust: adjust, setStatus: setStatus, save: save, publicView: publicView };
 
 /* give back what an unpaid or cancelled order had reserved */
 async function restoreOrder(o) {

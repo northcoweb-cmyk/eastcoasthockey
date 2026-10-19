@@ -18,17 +18,39 @@ module.exports = async function (req, res) {
         const c = await G.get(G.norm(q));
         return c ? L.json(res, 200, { card: view(c) }) : L.json(res, 404, { error: 'No gift card with that code.' });
       }
-      const cards = (await G.list()).filter(function (c) { return c.status !== 'pending' || Date.now() - Date.parse(c.createdAt) < 86400000; }).sort(function (a, b) { return a.createdAt < b.createdAt ? 1 : -1; });
-      return L.json(res, 200, { cards: cards.map(view), payments: !!Pay.active(), mail: Mail.configured });
+      const all = await G.list(), pool = {};
+      all.filter(function (c) { return c.status === 'pool'; }).forEach(function (c) { const k = String(c.initialCents / 100); pool[k] = (pool[k] || 0) + 1; });
+      const cards = all.filter(function (c) { return c.status !== 'pool' && (c.status !== 'pending' || Date.now() - Date.parse(c.createdAt) < 86400000); }).sort(function (a, b) { return a.createdAt < b.createdAt ? 1 : -1; });
+      return L.json(res, 200, { cards: cards.map(view), pool: pool, payments: !!Pay.active(), mail: Mail.configured });
     }
     if (req.method !== 'POST') { res.setHeader('Allow', 'GET, POST'); return L.json(res, 405, { error: 'Method not allowed' }); }
     const b = await L.readBody(req, 8 * 1024), act = b.action, code = G.norm(b.code);
+    if (act === 'poolAdd') {
+      /* one per line: amount, then the number the register made, e.g. "50 47790003582" */
+      let added = 0, skipped = 0;
+      for (const line of String(b.lines || '').split(/\n/).slice(0, 500)) {
+        const m = line.trim().match(/^\$?(\d+(?:\.\d{1,2})?)[\s,;]+([A-Za-z0-9]{6,24})$/);
+        if (!m) { if (line.trim()) skipped++; continue; }
+        const card = await G.create({ code: G.norm(m[2]), external: true, cents: Math.round(Number(m[1]) * 100), status: 'pool', source: 'store' });
+        if (card) added++; else skipped++;
+      }
+      return L.json(res, 200, { ok: true, added: added, skipped: skipped });
+    }
     if (act === 'issue') {
       const dollars = Number(b.amount);
       if (!(dollars >= 1 && dollars <= 2000) || Math.round(dollars * 100) !== dollars * 100) return L.json(res, 400, { error: 'Enter an amount from $1 to $2000.' });
       const email = clip(b.email, 120).toLowerCase();
       if (email && !EMAIL.test(email)) return L.json(res, 400, { error: 'That email address does not look right.' });
-      const num = G.norm(b.number);
+      let num = G.norm(b.number);
+      if (b.usePool && !num) {
+        const free = (await G.list()).filter(function (c) { return c.status === 'pool' && c.initialCents === Math.round(dollars * 100); }).sort(function (a, b2) { return a.createdAt < b2.createdAt ? -1 : 1; });
+        let got = null;
+        for (const f of free) { got = await G.claim(f.code, { recipient: { name: clip(b.name, 80), email: email }, message: clip(b.message, 300), from: clip(b.from, 80) }); if (got) break; }
+        if (!got) return L.json(res, 409, { error: 'There are no $' + dollars + ' cards left in the pool. Add more numbers below.' });
+        let sent2 = false;
+        if (email && b.send !== false) { sent2 = (await Mail.giftCard(got, Pay.origin(req))).sent; got.emailed = sent2; await G.save(got); }
+        return L.json(res, 200, { ok: true, card: view(got), emailed: sent2 });
+      }
       if (b.number && !G.valid(num)) return L.json(res, 400, { error: 'The register number should be 6 to 24 letters or numbers.' });
       const card = await G.create({ code: num || undefined, external: !!num, cents: Math.round(dollars * 100), status: 'active', source: 'store', recipient: { name: clip(b.name, 80), email: email }, message: clip(b.message, 300), from: clip(b.from, 80) });
       if (!card) return L.json(res, 409, { error: 'A card with that number already exists here.' });
