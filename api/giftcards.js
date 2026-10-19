@@ -6,6 +6,12 @@ const Mail = require('./_mail');
 
 function clip(v, n) { return typeof v === 'string' ? v.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f<>]/g, ' ').trim().slice(0, n) : ''; }
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const SETTINGS_PATH = 'settings/gift.json';
+async function getSettings() {
+  const s = (await L.store.get(SETTINGS_PATH)) || {};
+  const amounts = Array.isArray(s.amounts) && s.amounts.length ? s.amounts : [10, 25, 50, 100, 200];
+  return { amounts: amounts, low: Number(s.low) >= 1 ? Number(s.low) : 3 };
+}
 const view = function (c) { return Object.assign({}, c, { display: c.external ? c.code : G.pretty(c.code) }); };
 
 /* Admin only: look up a card (type it or scan it), spend from it in the shop, issue one for an in-store sale, resend, void. */
@@ -18,13 +24,25 @@ module.exports = async function (req, res) {
         const c = await G.get(G.norm(q));
         return c ? L.json(res, 200, { card: view(c) }) : L.json(res, 404, { error: 'No gift card with that code.' });
       }
-      const all = await G.list(), pool = {};
-      all.filter(function (c) { return c.status === 'pool'; }).forEach(function (c) { const k = String(c.initialCents / 100); pool[k] = (pool[k] || 0) + 1; });
+      const all = await G.list(), pool = {}, poolList = {};
+      all.filter(function (c) { return c.status === 'pool'; }).sort(function (a, b) { return a.code < b.code ? -1 : 1; }).forEach(function (c) { const k = String(c.initialCents / 100); pool[k] = (pool[k] || 0) + 1; (poolList[k] = poolList[k] || []).push(c.code); });
       const cards = all.filter(function (c) { return c.status !== 'pool' && (c.status !== 'pending' || Date.now() - Date.parse(c.createdAt) < 86400000); }).sort(function (a, b) { return a.createdAt < b.createdAt ? 1 : -1; });
-      return L.json(res, 200, { cards: cards.map(view), pool: pool, payments: !!Pay.active(), mail: Mail.configured });
+      return L.json(res, 200, { cards: cards.map(view), pool: pool, poolList: poolList, settings: await getSettings(), payments: !!Pay.active(), mail: Mail.configured });
     }
     if (req.method !== 'POST') { res.setHeader('Allow', 'GET, POST'); return L.json(res, 405, { error: 'Method not allowed' }); }
     const b = await L.readBody(req, 8 * 1024), act = b.action, code = G.norm(b.code);
+    if (act === 'settings') {
+      const amounts = (Array.isArray(b.amounts) ? b.amounts : []).map(Number).filter(function (n) { return Number.isInteger(n) && n >= 1 && n <= 2000; }).filter(function (n, i, a) { return a.indexOf(n) === i; }).sort(function (a, c) { return a - c; }).slice(0, 10);
+      const low = Math.min(Math.max(parseInt(b.low, 10) || 3, 1), 50);
+      await L.store.put(SETTINGS_PATH, { amounts: amounts.length ? amounts : [10, 25, 50, 100, 200], low: low });
+      return L.json(res, 200, { ok: true, settings: await getSettings() });
+    }
+    if (act === 'poolRemove') {
+      const c = await G.get(code);
+      if (!c || c.status !== 'pool') return L.json(res, 404, { error: 'That number is not in the pool.' });
+      await L.store.del('giftcards/' + c.code + '.json');
+      return L.json(res, 200, { ok: true });
+    }
     if (act === 'poolAdd') {
       /* one per line: amount, then the number the register made, e.g. "50 47790003582" */
       let added = 0, skipped = 0;
@@ -47,6 +65,8 @@ module.exports = async function (req, res) {
         let got = null;
         for (const f of free) { got = await G.claim(f.code, { recipient: { name: clip(b.name, 80), email: email }, message: clip(b.message, 300), from: clip(b.from, 80) }); if (got) break; }
         if (!got) return L.json(res, 409, { error: 'There are no $' + dollars + ' cards left in the pool. Add more numbers below.' });
+        const left = free.length - 1, low = (await getSettings()).low;
+        if (left === low || left === 0) await Mail.lowStock(dollars, left).catch(function () { /* never blocks */ });
         let sent2 = false;
         if (email && b.send !== false) { sent2 = (await Mail.giftCard(got, Pay.origin(req))).sent; got.emailed = sent2; await G.save(got); }
         return L.json(res, 200, { ok: true, card: view(got), emailed: sent2 });

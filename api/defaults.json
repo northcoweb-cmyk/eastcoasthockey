@@ -735,6 +735,7 @@
   "giftEnabled": true,
   "mode": "link",
   "storeLink": "",
-  "giftLink": ""
+  "giftLink": "",
+  "giftLinks": []
  }
 }

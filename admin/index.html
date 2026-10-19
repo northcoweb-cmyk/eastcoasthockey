@@ -74,6 +74,11 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px 90px}
 .logo-t b{font-size:14px;color:var(--slate)}
 .team-h .n{font-weight:700;letter-spacing:-.01em}
 .team-h .m{font-size:13px;color:var(--slate)}
+.gq-amts{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0}
+.gq-chip{min-width:96px;padding:10px 14px;border:1.5px solid #dfe5ee;border-radius:14px;background:#fff;font:inherit;cursor:pointer;text-align:center;line-height:1.25}
+.gq-chip b{display:block;font-size:20px}.gq-chip small{font-size:12px;font-weight:600}
+.gq-chip.on{border-color:#041634;background:#041634;color:#fff}.gq-chip.on small{color:#fff!important}
+.gq-ok{color:#0c7a50}.gq-low{color:#b36b00}.gq-out{color:#b00816}
 .pill{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:999px;background:#e6f7ef;color:#0c7a50}
 .pill.soon{background:#fff3d6;color:#8a6100}.pill.off{background:#eceff4;color:#5a6b7c}
 .chev{transition:transform .2s;color:var(--slate)}.team.open .chev{transform:rotate(180deg)}
@@ -229,13 +234,31 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px 90px}
     <section id="p-gift" class="hide">
       <div class="banner warn hide" id="gcPayWarn"><i class="ti ti-credit-card-off"></i><div><b>Online payments are not connected yet.</b> Gift cards can still be sold in the shop below. To sell them (and take team orders) online, add the payment keys in Vercel: see "Payments" in the README.</div></div>
       <div class="card">
+        <h2>Send a gift card</h2>
+        <p class="d">Someone bought a gift card? Pick the amount, type their email and press Send. They get the card with a barcode that scans at the register.</p>
+        <div id="gqLow"></div>
+        <div class="gq-amts" id="gqAmts"></div>
+        <div id="gqCustom" class="hide">
+          <div class="grid2">
+            <label class="f"><span>Amount ($)</span><input class="in" id="gqCustomAmt" type="number" min="1" max="2000" step="0.01" inputmode="decimal"></label>
+            <label class="f"><span>Card number from the register</span><input class="in" id="gqNumber" maxlength="24" autocomplete="off"><small>For custom amounts, make the card in the register first, then type its number here.</small></label>
+          </div>
+        </div>
+        <div class="grid2">
+          <label class="f"><span>Customer email</span><input class="in" id="gqEmail" type="email" maxlength="120" autocomplete="off"></label>
+          <label class="f"><span>Customer name (optional)</span><input class="in" id="gqName" maxlength="80" autocomplete="off"></label>
+        </div>
+        <button class="btn btn-p" type="button" id="gqSend" style="margin-top:12px"><i class="ti ti-send"></i> Send gift card</button>
+        <div id="gqOut"></div>
+      </div>
+      <div class="card">
         <h2>Look up or use a gift card</h2>
         <p class="d">Click the box and scan the barcode (a USB scanner types the code for you), or type it in.</p>
         <form id="gcFind" class="row" style="gap:8px"><input class="in" id="gcCode" placeholder="Scan or type the code" autocomplete="off" spellcheck="false" style="flex:1;text-transform:uppercase;letter-spacing:.06em"><button class="btn btn-d" type="submit"><i class="ti ti-search"></i> Look up</button></form>
         <div id="gcResult"></div>
       </div>
-      <div class="card">
-        <h2>Sell a gift card in the shop</h2>
+      <details class="card"><summary style="cursor:pointer;font-weight:700;font-size:16px">Other ways to make a card (advanced)</summary>
+        <h2 style="margin-top:14px">Sell a gift card in the shop</h2>
         <p class="d">Creates a live card right away. Add an email to send it to the customer, or leave it blank and write the code on a card.</p>
         <form id="gcIssue">
           <div class="grid2">
@@ -250,13 +273,19 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px 90px}
           <button class="btn btn-p" type="submit" style="margin-top:10px"><i class="ti ti-gift"></i> Create gift card</button>
         </form>
         <div id="gcIssued"></div>
-      </div>
+      </details>
       <div class="card">
-        <h2>Ready numbers (pool)</h2>
-        <p class="d">Card numbers your register already made, grouped by amount. When you sell a card above with the checkbox ticked, the next number for that amount is emailed to the customer in one click. These numbers must already exist in your register with the amount loaded.</p>
-        <div id="gcPool" style="margin:10px 0;font-weight:600"></div>
-        <label class="f"><span>Add numbers</span><textarea class="in" id="gcPoolIn" rows="4" placeholder="25 47790003501&#10;25 47790003502&#10;50 47790003601"></textarea><small>One per line: the amount, a space, then the number.</small></label>
-        <button class="btn btn-d btn-s" type="button" id="gcPoolAdd" style="margin-top:8px"><i class="ti ti-plus"></i> Add to pool</button>
+        <h2>Ready cards</h2>
+        <p class="d">Card numbers your register already made, by amount. Sending a card above uses the next one. These numbers must already exist in the register with the amount loaded.</p>
+        <div id="gcPool" style="margin:10px 0"></div>
+        <label class="f"><span>Add numbers</span><textarea class="in" id="gcPoolIn" rows="4" placeholder="25 47790003501&#10;25 47790003502&#10;50 47790003601"></textarea><small>One per line: the amount, a space, then the number. Any amount works, including ones not in the buttons above.</small></label>
+        <button class="btn btn-d btn-s" type="button" id="gcPoolAdd" style="margin-top:8px"><i class="ti ti-plus"></i> Add to ready cards</button>
+        <h3 style="margin:22px 0 6px;font-size:15px">Settings</h3>
+        <div class="grid2">
+          <label class="f"><span>Amount buttons (dollars, separated by commas)</span><input class="in" id="gsAmts" placeholder="10, 25, 50, 100, 200"></label>
+          <label class="f"><span>Warn me when this many are left</span><input class="in" id="gsLow" type="number" min="1" max="50" inputmode="numeric"></label>
+        </div>
+        <button class="btn btn-g btn-s" type="button" id="gsSave" style="margin-top:8px">Save settings</button>
       </div>
       <div class="card">
         <div class="row" style="justify-content:space-between"><div><h2>All gift cards</h2><p class="d" style="margin:0">Newest first. Export to a spreadsheet to match against your register.</p></div><button class="btn btn-g btn-s" id="gcCsv"><i class="ti ti-file-spreadsheet"></i> CSV</button></div>
@@ -735,7 +764,7 @@ function drawSheet(){
 }
 
 /* ---------- gift cards ---------- */
-var GC=[];
+var GC=[],GS={pool:{},list:{},amounts:[10,25,50,100,200],low:3},gqAmt=null;
 function money2(c){return '$'+(c/100).toFixed(2);}
 function gcStatus(c){return c.status==='void'?'Voided':c.status==='pending'?'Awaiting payment':(c.balanceCents>0?'Active':'Used up');}
 function gcCard(c,opt){
@@ -778,8 +807,7 @@ $('#gcIssue').addEventListener('submit',function(e){
 });
 function loadGifts(quiet){
   api('/api/giftcards').then(function(r){
-    var pl=r.pool||{},keys=Object.keys(pl).sort(function(a,b){return a-b;});
-    $('#gcPool').textContent=keys.length?keys.map(function(k){return '$'+k+': '+pl[k]+' ready';}).join('   ·   '):'No numbers in the pool yet.';
+    GS={pool:r.pool||{},list:r.poolList||{},amounts:(r.settings||{}).amounts||[10,25,50,100,200],low:(r.settings||{}).low||3};renderQuick();renderReady();
     GC=r.cards;$('#gcPayWarn').classList.toggle('hide',r.payments);
     var box=$('#gcList');box.innerHTML='';
     if(!GC.length){box.appendChild(h('p',{class:'d',text:'No gift cards yet.'}));return;}
@@ -791,6 +819,47 @@ function loadGifts(quiet){
     box.appendChild(t);
   }).catch(function(e){if(!quiet)toast(e.message,true);});
 }
+function status(n){return n<=0?'gq-out':n<=GS.low?'gq-low':'gq-ok';}
+function renderQuick(){
+  var box=$('#gqAmts');box.innerHTML='';
+  var low=GS.amounts.filter(function(a){return (GS.pool[a]||0)<=GS.low;});
+  var lw=$('#gqLow');lw.innerHTML='';
+  if(low.length)lw.appendChild(h('div',{class:'banner warn',style:'margin:10px 0'},[h('i',{class:'ti ti-alert-triangle'}),h('div',{},[h('b',{text:'Running low: '}),low.map(function(a){var n=GS.pool[a]||0;return '$'+a+' ('+(n?n+' left':'none left')+')';}).join(', ')+'. Make more in the register and add their numbers under Ready cards.'])]));
+  GS.amounts.forEach(function(a){var n=GS.pool[a]||0;
+    box.appendChild(h('button',{type:'button',class:'gq-chip'+(gqAmt===a?' on':''),onclick:function(){gqAmt=a;$('#gqCustom').classList.add('hide');renderQuick();}},[h('b',{text:'$'+a}),h('small',{class:status(n),text:n+' ready'})]));});
+  box.appendChild(h('button',{type:'button',class:'gq-chip'+(gqAmt==='custom'?' on':''),onclick:function(){gqAmt='custom';$('#gqCustom').classList.remove('hide');renderQuick();}},[h('b',{text:'Custom'}),h('small',{text:'by request'})]));
+}
+function renderReady(){
+  var box=$('#gcPool');box.innerHTML='';
+  var amts=Object.keys(GS.list).map(Number).sort(function(a,b){return a-b;});
+  GS.amounts.forEach(function(a){if(amts.indexOf(a)<0)amts.push(a);});amts.sort(function(a,b){return a-b;});
+  amts.forEach(function(a){var codes=GS.list[a]||[],n=codes.length;
+    var d=h('details',{style:'border:1px solid #e1e7ef;border-radius:12px;padding:10px 14px;margin-bottom:8px'},[
+      h('summary',{style:'cursor:pointer;font-weight:700;display:flex;gap:10px;align-items:center'},[h('span',{text:'$'+a}),h('span',{class:status(n),style:'font-weight:600',text:n+' ready'+(n<=0?' (none left)':n<=GS.low?' (low)':'')})])]);
+    if(n){var ul=h('div',{style:'margin-top:8px;display:grid;gap:4px'});codes.forEach(function(c){ul.appendChild(h('div',{class:'row',style:'justify-content:space-between'},[h('span',{style:'font-family:Consolas,Menlo,monospace;letter-spacing:.05em',text:c}),h('button',{class:'btn btn-g btn-s danger',type:'button',onclick:function(){if(confirm('Remove '+c+' from the ready cards?'))gcPost({action:'poolRemove',code:c}).then(function(){loadGifts(true);});}},'Remove')]));});d.appendChild(ul);}
+    else d.appendChild(h('p',{class:'d',style:'margin:8px 0 0',text:'None left. Add numbers below.'}));
+    box.appendChild(d);});
+  $('#gsAmts').value=GS.amounts.join(', ');$('#gsLow').value=GS.low;
+}
+$('#gsSave').addEventListener('click',function(){
+  var am=$('#gsAmts').value.split(/[\s,]+/).map(function(x){return parseInt(x,10);}).filter(function(x){return x>0;});
+  gcPost({action:'settings',amounts:am,low:parseInt($('#gsLow').value,10)}).then(function(){toast('Saved.');loadGifts(true);});
+});
+$('#gqSend').addEventListener('click',function(){
+  var out=$('#gqOut');out.innerHTML='';
+  var email=$('#gqEmail').value.trim();
+  if(gqAmt===null){toast('Pick an amount first.',true);return;}
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(email)){toast('Type the customer\'s email address.',true);return;}
+  var body={action:'issue',email:email,name:$('#gqName').value};
+  if(gqAmt==='custom'){var v=parseFloat($('#gqCustomAmt').value),num=$('#gqNumber').value.trim();if(!(v>0)){toast('Type the amount.',true);return;}if(!num){toast('Type the card number from the register.',true);return;}body.amount=v;body.number=num;}
+  else{body.amount=gqAmt;body.usePool=true;}
+  var btn=$('#gqSend');btn.disabled=true;
+  gcPost(body).then(function(r){
+    out.appendChild(h('p',{style:'margin:14px 0 0;font-weight:600;color:'+(r.emailed?'#0c7a50':'#8a6100'),text:r.emailed?'Sent to '+email+'.':'Not emailed (email is not set up yet). Here is the card to send by hand.'}));
+    out.appendChild(gcCard(r.card,{barcode:true}));
+    $('#gqEmail').value='';$('#gqName').value='';$('#gqNumber').value='';$('#gqCustomAmt').value='';loadGifts(true);
+  }).catch(function(){}).then(function(){btn.disabled=false;});
+});
 $('#gcPoolAdd').addEventListener('click',function(){
   var v=$('#gcPoolIn').value;if(!v.trim())return;
   gcPost({action:'poolAdd',lines:v}).then(function(r){toast('Added '+r.added+(r.skipped?' ('+r.skipped+' skipped: bad line or already there)':'')+'.');$('#gcPoolIn').value='';loadGifts(true);});

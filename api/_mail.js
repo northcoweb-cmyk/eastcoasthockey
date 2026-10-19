@@ -101,4 +101,9 @@ function giftAlert(c) {
     text: 'Online gift card sold: ' + money(c.initialCents / 100) + '\nBuyer: ' + c.buyer.name + ' <' + c.buyer.email + '>\nSent to: ' + c.recipient.email + '\nCode ending ' + c.code.slice(-4),
     html: '<p><strong>Online gift card sold: ' + money(c.initialCents / 100) + '</strong><br>Buyer: ' + esc(c.buyer.name) + ' &lt;' + esc(c.buyer.email) + '&gt;<br>Sent to: ' + esc(c.recipient.email) + '<br>Code ending ' + esc(c.code.slice(-4)) + '</p>' });
 }
-module.exports = { giftCard, giftReceipt, giftAlert, configured, send, orderReceived, orderAlert, statusUpdate, contactAlert, itemLine };
+function lowStock(amount, left) {
+  const a = money(amount), msg = left > 0 ? 'Only ' + left + ' ready ' + a + ' gift card number' + (left === 1 ? '' : 's') + ' left.' : 'There are no ready ' + a + ' gift card numbers left.';
+  return send({ to: NOTIFY, subject: (left > 0 ? 'Running low: ' : 'Out of: ') + a + ' gift cards', text: msg + '\n\nMake more in the register and add their numbers in Admin > Gift cards > Ready cards.',
+    html: '<p><strong>' + esc(msg) + '</strong></p><p>Make more in the register and add their numbers in Admin &gt; Gift cards &gt; Ready cards.</p>' });
+}
+module.exports = { lowStock, giftCard, giftReceipt, giftAlert, configured, send, orderReceived, orderAlert, statusUpdate, contactAlert, itemLine };
