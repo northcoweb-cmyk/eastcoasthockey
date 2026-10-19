@@ -28,6 +28,7 @@ module.exports = async function (req, res) {
     if (req.method !== 'POST') { res.setHeader('Allow', 'GET, POST'); return L.json(res, 405, { error: 'Method not allowed' }); }
     const pay = Pay.active();
     const content = await L.getContent();
+    if (content.store.mode !== 'direct') return L.json(res, 410, { error: 'Gift cards are sold on our online store.' });
     if (!pay || !content.store.giftEnabled) return L.json(res, 503, { error: 'Online gift cards are not available yet. Please visit any shop.' });
     if (recent(buys, ip, 10).length >= 6) return L.json(res, 429, { error: 'Too many attempts. Please call the shop.' });
     const b = await L.readBody(req, 8 * 1024);

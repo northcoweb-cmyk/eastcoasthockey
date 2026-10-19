@@ -271,6 +271,8 @@ function url(v) {
   return '';
 }
 function link(v) { v = url(v); return v; }
+/* outbound links (3dcart etc.): https only */
+function web(v) { v = url(v); return /^https:\/\//i.test(v) ? v : ''; }
 function money(v) { const n = Math.round(Number(v) * 100) / 100; return isFinite(n) ? Math.min(Math.max(n, 0), 2000) : 0; }
 function digits(p) { const d = String(p || '').replace(/\D/g, ''); return d.length === 10 ? '+1' + d : d.length === 11 && d[0] === '1' ? '+' + d : ''; }
 function pretty(p) { const d = String(p || '').replace(/\D/g, '').replace(/^1(?=\d{10}$)/, ''); return d.length === 10 ? '(' + d.slice(0, 3) + ') ' + d.slice(3, 6) + '-' + d.slice(6) : str(p, 24); }
@@ -308,7 +310,7 @@ function clean(c) {
       id: id, n: str(t.n, 60) || 'New team', cat: str(t.cat, 30) || 'Youth hockey',
       status: t.status === 'soon' ? 'soon' : 'open', logo: url(t.logo), dark: !!t.dark,
       c1: color(t.c1, '#12305C'), c2: color(t.c2, '#2C6FC4'), url: '',
-      note: str(t.note, 240), hidden: !!t.hidden,
+      note: str(t.note, 240), hidden: !!t.hidden, link: web(t.link),
       items: (Array.isArray(t.items) ? t.items : []).slice(0, 40).map(function (it, ii) {
         it = it || {};
         let k = str(it.k, 40).toLowerCase().replace(/[^a-z0-9-]/g, '-') || 'item-' + (ii + 1);
@@ -316,7 +318,7 @@ function clean(c) {
         ks[k] = 1;
         const rule = function (v, legacy) { return RULES.indexOf(v) >= 0 ? v : (legacy ? 'required' : 'off'); };
         return { k: k, n: str(it.n, 60) || 'New item', ic: ICONS.indexOf(it.ic) >= 0 ? it.ic : 'ti-shirt-sport', img: url(it.img), price: money(it.price), tag: str(it.tag, 20),
-          sizes: SIZE_SETS[it.sizes] ? it.sizes : 'standard', name: rule(it.name, it.pers), number: rule(it.number, it.pers), hidden: !!it.hidden };
+          sizes: SIZE_SETS[it.sizes] ? it.sizes : 'standard', name: rule(it.name, it.pers), number: rule(it.number, it.pers), hidden: !!it.hidden, link: web(it.link) };
       })
     };
   });
@@ -325,7 +327,9 @@ function clean(c) {
     taxRate: Math.min(Math.max(Math.round((Number(st.taxRate) || 0) * 1000) / 1000, 0), 15),
     shipEnabled: st.shipEnabled === undefined ? ds.shipEnabled : !!st.shipEnabled,
     shipFee: Math.min(Math.max(money(st.shipFee === undefined ? ds.shipFee : st.shipFee), 0), 100),
-    giftEnabled: st.giftEnabled === undefined ? ds.giftEnabled !== false : !!st.giftEnabled
+    giftEnabled: st.giftEnabled === undefined ? ds.giftEnabled !== false : !!st.giftEnabled,
+    mode: (st.mode || ds.mode) === 'direct' ? 'direct' : 'link',
+    storeLink: web(st.storeLink), giftLink: web(st.giftLink)
   };
   return out;
 }

@@ -732,6 +732,9 @@
   "taxRate": 6,
   "shipEnabled": true,
   "shipFee": 9.95,
-  "giftEnabled": true
+  "giftEnabled": true,
+  "mode": "link",
+  "storeLink": "",
+  "giftLink": ""
  }
 }

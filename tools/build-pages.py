@@ -104,6 +104,7 @@ def head(title, desc, path, ld):
     return f'''<!doctype html>
 <html lang="en">
 <head>
+<script src="/gate.js"></script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{esc(title)}</title>

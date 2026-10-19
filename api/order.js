@@ -24,6 +24,7 @@ module.exports = async function (req, res) {
     const b = await L.readBody(req, 40 * 1024);
     if (b.website) return L.json(res, 200, { ok: true, id: 'ok' });         /* honeypot */
     const content = await L.getContent();
+    if (content.store.mode !== 'direct') return L.json(res, 410, { error: 'Orders are placed on our online store.' });
     const c = b.contact || {};
     const contact = { name: clip(c.name, 80), email: clip(c.email, 120).toLowerCase(), phone: clip(c.phone, 30), notes: clip(c.notes, 500) };
     if (contact.name.length < 2) return fail(res, 'Please enter your name.');

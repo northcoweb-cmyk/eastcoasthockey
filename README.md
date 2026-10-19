@@ -80,3 +80,15 @@ Refunds are issued in the processor's dashboard, then set the order to *Refunded
 
 If the shop already has a register that sells its own gift cards, these are a separate system: staff redeem them in the admin and ring the
 amount up in the register as an "other" tender. Ask the register vendor if it can import a list of custom card numbers.
+
+## 3dcart link mode (current setup)
+
+The site shows each team's products, and every order button opens the matching product (or team page) on the shop's 3dcart store.
+No orders, payments or customer details are collected on this site in this mode (`store.mode` = `link`, the default). Set the links in
+Admin → Team stores: a link per product, optionally one per team, plus a main store link and a gift card link under "Where customers order".
+The old cart and Stripe checkout code is still in the repo; switching "How ordering works" to "Take orders on this site" brings it back.
+
+## Private preview password
+
+`gate.js` puts a password screen in front of every public page while the site is being finished. It is a soft lock: it keeps casual visitors out
+but is not real security. Set or change it with `node tools/set-gate.js "password"`; remove it with `node tools/set-gate.js off`; then commit and push.

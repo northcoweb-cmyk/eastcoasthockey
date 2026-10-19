@@ -203,8 +203,17 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px 90px}
         </div>
       </div>
       <div class="card">
+        <h2>Where customers order</h2>
+        <p class="d">Right now every order button sends the customer to your online store, and this site collects no order or payment information. Paste each product's link on its card below, or one link for the whole team.</p>
+        <label class="f"><span>How ordering works</span><select class="in" id="stMode"><option value="link">Send customers to our online store (3dcart)</option><option value="direct">Take orders on this site (cart and checkout)</option></select></label>
+        <div class="grid2">
+          <label class="f"><span>Main store link</span><input class="in" id="stStoreLink" placeholder="https://…" inputmode="url"><small>Used when a product or team has no link of its own.</small></label>
+          <label class="f"><span>Gift card link</span><input class="in" id="stGiftLink" placeholder="https://…" inputmode="url"><small>The page where customers buy a gift card.</small></label>
+        </div>
+      </div>
+      <div class="card">
         <h2>Checkout settings</h2>
-        <p class="d">Used to total team orders. Confirm the tax rate and any shipping charge with your accountant.</p>
+        <p class="d">Only used if ordering is switched to this site. Used to total team orders. Confirm the tax rate and any shipping charge with your accountant.</p>
         <div class="grid2">
           <label class="f"><span>Sales tax rate (%)</span><input class="in" id="stTax" type="number" min="0" max="15" step="0.001" inputmode="decimal"></label>
           <label class="f"><span>Flat shipping fee ($)</span><input class="in" id="stShip" type="number" min="0" max="100" step="0.01" inputmode="decimal"></label>
@@ -425,6 +434,10 @@ function logoTile(t){
 }
 function renderStore(){
   C.store=C.store||{taxRate:6,shipEnabled:true,shipFee:9.95,giftEnabled:true};
+  C.store.mode=C.store.mode||'link';
+  (function(){var m=$('#stMode');m.value=C.store.mode;m.onchange=function(){C.store.mode=m.value;markDirty();};})();
+  bind($('#stStoreLink'),function(){return C.store.storeLink||'';},function(v){C.store.storeLink=v.trim();});
+  bind($('#stGiftLink'),function(){return C.store.giftLink||'';},function(v){C.store.giftLink=v.trim();});
   bind($('#stTax'),function(){return C.store.taxRate;},function(v){C.store.taxRate=parseFloat(v)||0;});
   bind($('#stShip'),function(){return C.store.shipFee;},function(v){C.store.shipFee=parseFloat(v)||0;});
   bindChk($('#stShipOn'),function(){return C.store.shipEnabled;},function(v){C.store.shipEnabled=v;});
@@ -466,6 +479,9 @@ function teamCard(t,ti){
     h('label',{class:'sw'},[show,h('span',{class:'tr'}),' Show on the website']),
     h('label',{class:'sw'},[soon,h('span',{class:'tr'}),' Mark as “coming soon”'])]));
   body.appendChild(h('label',{class:'f'},[h('span',{text:'Message to families'}),note]));
+  var tl=h('input',{class:'in',placeholder:'https://… (this team\'s page on the online store)',inputmode:'url'});
+  bind(tl,function(){return t.link||'';},function(v){t.link=v.trim();});
+  body.appendChild(h('label',{class:'f'},[h('span',{text:'Link to this team on the online store (optional)'}),tl]));
 
   /* products */
   body.appendChild(h('div',{class:'sub',text:'Products'}));
@@ -481,6 +497,8 @@ function teamCard(t,ti){
       bind(tag,function(){return it.tag;},function(v){it.tag=v;});
       ty.value=it.ic;ty.addEventListener('change',function(){it.ic=ty.value;markDirty();});
       function sel(label,opts,key){var s=h('select',{class:'in','aria-label':label},opts.map(function(o){return h('option',{value:o[0],text:o[1]});}));s.value=it[key]||opts[0][0];s.addEventListener('change',function(){it[key]=s.value;markDirty();});return h('label',{class:'mini',style:'flex-direction:column;align-items:flex-start;gap:3px'},[h('span',{text:label,style:'font-size:11.5px;color:#5A6B7C;font-weight:600'}),s]);}
+      var lk=h('input',{class:'in',placeholder:'Link to this product on the online store (https://…)',inputmode:'url','aria-label':'Product link'});
+      bind(lk,function(){return it.link||'';},function(v){it.link=v.trim();});
       var rules=h('div',{class:'item-opts'},[
         sel('Sizes',[['standard','Youth + adult (YS-2XL)'],['youth','Youth (YS-YL)'],['adult','Adult (S-3XL)'],['none','One size / no size']],'sizes'),
         sel('Player name',[['off','Not needed'],['optional','Optional'],['required','Required (last name)']],'name'),
@@ -496,7 +514,7 @@ function teamCard(t,ti){
           h('span',{class:'sp'}),
           h('button',{class:'ic-btn',type:'button','aria-label':'Move up',onclick:function(){if(ii>0){t.items.splice(ii-1,0,t.items.splice(ii,1)[0]);drawItems();markDirty();}}},[h('i',{class:'ti ti-arrow-up'})]),
           h('button',{class:'ic-btn',type:'button','aria-label':'Move down',onclick:function(){if(ii<t.items.length-1){t.items.splice(ii+1,0,t.items.splice(ii,1)[0]);drawItems();markDirty();}}},[h('i',{class:'ti ti-arrow-down'})]),
-          h('button',{class:'ic-btn',type:'button','aria-label':'Delete product',onclick:function(){if(confirm('Delete “'+(it.n||'this product')+'”?')){t.items.splice(ii,1);drawItems();markDirty();}}},[h('i',{class:'ti ti-trash'})])]),rules]);
+          h('button',{class:'ic-btn',type:'button','aria-label':'Delete product',onclick:function(){if(confirm('Delete “'+(it.n||'this product')+'”?')){t.items.splice(ii,1);drawItems();markDirty();}}},[h('i',{class:'ti ti-trash'})])]),h('div',{class:'full'},[lk]),rules]);
       pr.style.paddingLeft='26px';
       bindChk(vis,function(){return !it.hidden;},function(v){it.hidden=!v;row.classList.toggle('is-hidden',!v);});
       list.appendChild(row);
